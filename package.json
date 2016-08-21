@@ -1,0 +1,36 @@
+{
+  "name": "kp-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "webpack": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexey2baranov/kp-client.git"
+  },
+  "author": "alexey2baranov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexey2baranov/kp-client/issues"
+  },
+  "homepage": "https://github.com/alexey2baranov/kp-client#readme",
+  "dependencies": {
+    "autobahn": "^0.10.1",
+    "displacing-timer": "^2.0.0",
+    "jquery": "^3.1.0",
+    "jquery-ui": "^1.12.0"
+  },
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-loader": "^6.2.5",
+    "fs": "0.0.2",
+    "html-loader": "^0.4.3",
+    "json-loader": "^0.5.4",
+    "markdown-loader": "^0.1.7",
+    "tls": "0.0.1",
+    "webpack": "^1.13.2"
+  }
+}
