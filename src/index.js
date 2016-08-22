@@ -28,7 +28,7 @@ Core.setWAMP(WAMP);
 WAMP.onopen= async function(session, details){
     console.log("connection opened");
     let alexey2baranov= models.Kopnik.getReference(1);
-    await alexey2baranov.refresh();
-    console.log('kopnik refreshed!!!', alexey2baranov.name, alexey2baranov.email);
+    await alexey2baranov.reload();
+    console.log('kopnik reloaded!!!', alexey2baranov.name, alexey2baranov.email, alexey2baranov);
 };
 WAMP.open();

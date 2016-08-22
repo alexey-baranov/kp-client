@@ -19,6 +19,9 @@ class Kopnik extends RemoteModel{
         this.patronymic = undefined;
         this.birth= undefined;
         this.isOnline= undefined;
+
+        this.own= undefined;
+        this.starshina= undefined;
     }
 
     updateLastActiveTime(){
@@ -53,6 +56,10 @@ class Kopnik extends RemoteModel{
         this.patronymic= json.patronymic;
         this.birth= json.birth;
         this.isOnline= json.isOnline;
+        this.note= json.note;
+
+        this.own= Zemla.getReference(json.own_id);
+        this.attachments= json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
     }
 }
 
@@ -64,3 +71,7 @@ Kopnik.Status= {
 Kopnik.OFFLINE_INTERVAL=5000;
 
 module.exports= Kopnik;
+
+
+let Zemla= require("./Zemla");
+let File= require("./File");

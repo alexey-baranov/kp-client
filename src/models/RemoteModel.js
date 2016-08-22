@@ -25,26 +25,34 @@ let EventEmitter= require("events").EventEmitter;
  * Для того чтобы сделать объект синхронизированным нужно вызвать .refreshCycle(3000)
  */
 class RemoteModel/* extends EventEmitter*/{
-    constructor(id) {
+    constructor() {
         this._isLoaded = false;
-        this.id = id;
+        this.id = undefined;
         this.note= undefined;
         this.attachments= undefined;
     }
+
+    static cache= new Map([
+        ["Zemla", new Map()],
+        ["Kopnik", new Map()],
+        ["Kopa", new Map()],
+        ["Predlozhenie", new Map()],
+        ["Slovo", new Map()],
+        ["Golos", new Map()],
+        ["File", new Map()]
+    ]);
 
     static getReference(id){
         if (!id) {
             throw new Error("Не указан идентификатор объекта id=" + JSON.stringify(id));
         }
+        if (!this.cache.has(this.name)){
+            throw new Error("Неправильный тип объекта "+this.name);
+        }
+
         if (!this.cache.get(this.name).has(id)) {
-            var reference= null;
-            switch(this.name) {
-                case "Kopnik":
-                    reference= new Kopnik(id);
-                    break;
-                default:
-                    throw new Error("Неправильный тип объекта "+this);
-            }
+            let reference= new this(id);
+
             reference.id= id;
             reference._isLoaded= false;
 
@@ -58,7 +66,7 @@ class RemoteModel/* extends EventEmitter*/{
      * загружает все поля в томи числе скалярные и ссылки на другие объеты
      * @returns {Promise.<RemoteModel>}
      */
-    async refresh(){
+    async reload(){
         let json= await Core.getWAMP().session.call("ru.kopa.model.get",null,{
             model:this.constructor.name,
             id:this.id});
@@ -93,13 +101,6 @@ class RemoteModel/* extends EventEmitter*/{
 
     }
 }
-
-RemoteModel.cache= new Map([
-    ["Kopnik", new Map()],
-    ["Invite", new Map()],
-    ["Room", new Map()],
-    ["Queue", new Map()]
-]);
 
 module.exports= RemoteModel;
 
