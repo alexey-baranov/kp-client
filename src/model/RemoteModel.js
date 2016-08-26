@@ -62,6 +62,10 @@ class RemoteModel extends EventEmitter{
         return this.cache.get(this.name).get(id);
     }
 
+    static get(id){
+        return this.getReference(id).reload();
+    }
+
 
     /**
      * загружает все поля в томи числе скалярные и ссылки на другие объеты

@@ -16,15 +16,16 @@ let ZemlaView= require("./ZemlaView");
  * @constructor
  */
 class KopnikView extends AbstractView{
-    constructor(model, parent=null, IO=null){
+    constructor(model, parent, IO){
         super(model, parent, IO);
-        this.zemlaView= new ZemlaView();
     }
 
     setModel(model) {
         super.setModel(model);
 
         model.on(Kopnik.event.change, ()=>this.invalidate());
+
+        this.zemlaView= model.zemla?new ZemlaView(model.zemla, this, "zemla"):null;
         return this;
     }
 
@@ -53,8 +54,6 @@ class KopnikView extends AbstractView{
         this.$birth.text(model.birth);
         this.$email.text(model.email)
     }
-
-
 }
 
 module.exports= KopnikView;

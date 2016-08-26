@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test-wamp": "node --use-strict /usr/lib/node_modules/mocha/bin/_mocha --timeout 2000 --compilers js:babel-register --ui bdd test/WAMP.Test.js",
+    "test": "node --use-strict /usr/lib/node_modules/mocha/bin/_mocha --timeout 5000 --compilers js:babel-register --recursive",
     "webpack": "webpack",
     "handlebars": "handlebars ./public/poligon-handlebars/tmpl -c handlebars -f ./src/templates.js",
-    "pug": "pug --client --out public/poligon-pug/js public/poligon-pug/tmpl"
+    "pug": "pug --client --out public/poligon-pug/js public/poligon-pug/tmpl",
+    "hulk": "hulk -w amd -o src/tmpl ./public/poligon-mustache/tmpl/*"
   },
   "repository": {
     "type": "git",
@@ -21,16 +23,21 @@
   "homepage": "https://github.com/alexey2baranov/kp-client#readme",
   "dependencies": {
     "autobahn": "^0.10.1",
+    "chai": "^3.5.0",
     "displacing-timer": "^2.0.0",
+    "events": "^1.1.1",
     "handlebars": "^4.0.5",
+    "hogan.js": "^3.0.2",
     "jquery": "^3.1.0",
     "jquery-ui": "^1.12.0",
     "lodash": "^4.15.0",
+    "mustache": "^2.2.1",
     "pug": "^2.0.0-beta5"
   },
   "devDependencies": {
     "babel": "^6.5.2",
     "babel-loader": "^6.2.5",
+    "babel-register": "^6.14.0",
     "fs": "0.0.2",
     "html-loader": "^0.4.3",
     "json-loader": "^0.5.4",

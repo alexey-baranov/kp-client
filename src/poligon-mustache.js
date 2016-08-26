@@ -2,49 +2,43 @@
  * Created by alexey2baranov on 8/9/16.
  */
 let pug = require("pug");
+require("amd-loader");
 
 let alexey2baranov= {
-    IO: "p_kopa_kopnik",
     id: 82,
+    fullName: "Баранов Алексей Юрьевич",
     surname: "Баранов",
     name: "Алексей",
     patronymic: "Юрьевич",
     birth: 1983,
     email: "alexey_baranov@inbox.ru",
-    words: [
-        {id: 1, value: "hello"},
-        {id: 2, value: "by"},
-    ],
-    zemla: {id: 6, name: "Сургут"},
+    // zemla: {id: 6, name: "Сургут"},
     messages: [
-        {id: 1, name: "lexey_baranov@inbox.ru"},
-        {id: 2, name: "dlebars.registerPartial("},
-        {id: 3, name: "ialzemla, Handleb"},
-        {id: 4, name: "emplate = Handlebars.compile(KO"},
+        {id: 1, text: "lexey_baranov@inbox.ru"},
+        {id: 2, text: "dlebars.registerPartial("},
+        {id: 3, text: "ialzemla, Handleb"},
+        {id: 4, text: "emplate = Handlebars.compile(KO"},
     ]
 };
 
-/*var output= pug.renderFile(__dirname+"/../public/poligon-pug/tmpl/Zemla.pug",{
-    id:6, name:"Сургут"
-});*/
+let alexey2baranovView= {
+    io: "some_io_kopnik_1",
+    model:alexey2baranov,
+/*    zemlaView:{
+        io:"some_io_kopnik_1_zemla",
+        model:alexey2baranov.zemla
+    },*/
+    messageViews:alexey2baranov.messages.map(eachMessage=>{
+        return {io:"some_io_kopnik_1_message"+eachMessage.id, model:eachMessage};
+    })
+};
 
-// var  output= pug.renderFile(__dirname+"/../public/poligon-pug/tmpl/Kopnik.pug",alexey2baranov);
-// var  output= pug.renderFile(__dirname+"/../public/poligon-pug/tmpl/Template.pug");
+// console.log(alexey2baranovView);
 
-// var output = require("../public/poligon-pug/js/Kopnik")(alexey2baranov);
-// var output = require("../public/poligon-pug/js/Template")();
+let hogan= require("hogan.js");
+let kopnikTemplate= require("./tmpl/Kopnik");
 
-function template(locals) {
-    var pug_html = "", pug_mixins = {}, pug_interp;
-    pug_mixins["Mixin"] = pug_interp = function () {
-        var block = (this && this.block), attributes = (this && this.attributes) || {};
-        pug_html = pug_html + "\u003Cdiv\u003Ethis is mixin\u003C\u002Fdiv\u003E";
-    };
-    pug_html = pug_html + "\u003Cdiv\u003Ethis is template";
-    pug_mixins["Mixin"]();
-    pug_html = pug_html + "\u003C\u002Fdiv\u003E";
-
-    return pug_html;
-}
-
-console.log(template());
+console.log(kopnikTemplate.render(alexey2baranovView,{
+    Zemla: require("./tmpl/Zemla"),
+    Message: require("./tmpl/Message"),
+}));

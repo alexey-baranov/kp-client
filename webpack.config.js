@@ -22,6 +22,10 @@ module.exports = {
         publicPath: true
     },
     devtool: 'eval',
+    plugins:[
+        new webpack.NoErrorsPlugin(),
+        new webpack.dependencies.LabeledModulesPlugin()
+    ],
     watch: true,
     noParse: /jquery/,
     module: {

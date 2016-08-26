@@ -11,7 +11,7 @@ let $= require("jquery");
  * @constructor
  */
 class AbstractView extends EventEmitter{
-    constructor(model, parent=null, IO="default") {  //can't find setModel() from constructor()
+    constructor(model, parent, IO) {  //can't find setModel() from constructor()
         super();
         // this.log = log4javascript.getLogger(this.constructor.name);
         this.parent = parent;
