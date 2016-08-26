@@ -1,0 +1,15 @@
+<div id="{{io}}">
+    <div id="{{io}}_fullName">{{model.fullName}}</div>
+    <div id="{{io}}_birth">{{model.birth}}</div>
+    <div id="{{io}}_email">{{model.email}}</div>
+
+    <div id="{{io}}_zemla"></div>
+
+    {{!-- {{> Zemla zemla IO=getIO}} --}}
+
+    {{#each model.messages}}
+        {{> Message }}
+    {{/each}}
+
+    <button id="{{io}}_reload">Обновить</button>
+</div>

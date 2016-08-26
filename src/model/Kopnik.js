@@ -5,11 +5,12 @@
  */
 var DisplacingTimer= require("displacing-timer");
 var RemoteModel= require("./RemoteModel");
+let _= require("lodash");
 
 
 class Kopnik extends RemoteModel{
-    constructor(id) {
-        super(id);
+    constructor() {
+        super();
 
         this.onlineTimer= new DisplacingTimer(this, this.onlineTimer_tick, Kopnik.OFFLINE_INTERVAL-1500, DisplacingTimer.Type.Interval);
 
@@ -60,6 +61,13 @@ class Kopnik extends RemoteModel{
 
         this.own= Zemla.getReference(json.own_id);
         this.attachments= json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
+
+        if (this.email!=prevState.email || this.name!=prevState.name || this.surname!=prevState.surname ||
+            this.patronymic!=prevState.patronymic || this.birth !=prevState.birth || this.note!=prevState.note ||
+            this.own!=prevState.own || _.difference(this.attachments,prevState.attachments).length){
+
+            this.emit(Kopnik.event.change, this);
+        }
     }
 }
 

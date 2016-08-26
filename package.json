@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "webpack": "webpack"
+    "webpack": "webpack",
+    "handlebars": "handlebars ./public/poligon-handlebars/tmpl -c handlebars -f ./src/templates.js",
+    "pug": "pug --client --out public/poligon-pug/js public/poligon-pug/tmpl"
   },
   "repository": {
     "type": "git",
@@ -20,8 +22,11 @@
   "dependencies": {
     "autobahn": "^0.10.1",
     "displacing-timer": "^2.0.0",
+    "handlebars": "^4.0.5",
     "jquery": "^3.1.0",
-    "jquery-ui": "^1.12.0"
+    "jquery-ui": "^1.12.0",
+    "lodash": "^4.15.0",
+    "pug": "^2.0.0-beta5"
   },
   "devDependencies": {
     "babel": "^6.5.2",

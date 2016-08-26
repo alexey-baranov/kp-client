@@ -24,8 +24,9 @@ let EventEmitter= require("events").EventEmitter;
  *
  * Для того чтобы сделать объект синхронизированным нужно вызвать .refreshCycle(3000)
  */
-class RemoteModel/* extends EventEmitter*/{
+class RemoteModel extends EventEmitter{
     constructor() {
+        super();
         this._isLoaded = false;
         this.id = undefined;
         this.note= undefined;
@@ -67,7 +68,7 @@ class RemoteModel/* extends EventEmitter*/{
      * @returns {Promise.<RemoteModel>}
      */
     async reload(){
-        let json= await Core.getWAMP().session.call("ru.kopa.model.get",null,{
+        let json= await Core.getWAMP().session.call("ru.kopa.model.get",[1,2.3],{
             model:this.constructor.name,
             id:this.id});
         this.merge(json);
@@ -100,7 +101,15 @@ class RemoteModel/* extends EventEmitter*/{
     merge(){
 
     }
+
+    toString(){
+        return `[${this.id}] ${this.name}`;
+    }
 }
+
+RemoteModel.event={
+    change: "change"
+};
 
 module.exports= RemoteModel;
 
