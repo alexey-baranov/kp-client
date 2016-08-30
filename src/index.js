@@ -10,12 +10,15 @@ let autobahn = require('autobahn');
 let config = require("./../cfg/main")["local-db"];
 let Core= require("./Core");
 let model= require("./model" );
-let Handlebars= require("handlebars");
 require("./templates");
 let KopnikView= require("./view/KopnikView");
 let ZemlaView= require("./view/ZemlaView");
-let $= /*window.jQuery= */require("jquery");
-// let log4js= require("log4js");
+let $= require("jquery");
+require("./bootstrap");
+
+let log= global.log4javascript.getLogger("indexjs");
+
+
 
 let WAMP = new autobahn.Connection({
     url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
@@ -53,7 +56,7 @@ WAMP.onopen= async function(session, details){
 };
 WAMP.open();
 
-console.log(123);
+log.debug(123);
 /*
 console.log(Handlebars.templates.Kopnik({
     getFullIO: function(){return "very_long_html_id"},

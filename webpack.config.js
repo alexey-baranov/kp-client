@@ -1,10 +1,13 @@
 var webpack= require('webpack');
 
 module.exports = {
-    entry: './src/index.js',
+    entry: {
+        "index": './src/index.js',
+        "poligon-log4javascript": './src/poligon-log4javascript.js'
+    },
     output: {
-        path: './bin',
-        filename: 'index.webpack.js'
+        path: __dirname+'/bin',
+        filename: '[name].webpack.js'
     },
     stats: {
         hash: false,

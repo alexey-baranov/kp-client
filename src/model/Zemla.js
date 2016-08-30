@@ -36,7 +36,6 @@ class Zemla extends RemoteModel {
 
             this.emit(Zemla.event.change, this);
         }
-        return result;
     }
 }
 

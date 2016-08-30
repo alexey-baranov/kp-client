@@ -7,7 +7,6 @@ let autobahn = require("autobahn");
 let config = require("../cfg/main")["local-db"];
 let Core = require("../src/Core");
 let _ = require("lodash");
-let log4js= require("log4js");
 
 let WAMP = new autobahn.Connection({
     url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
@@ -81,7 +80,7 @@ describe('Infrastructure', function () {
             if (err.error!="MySuperError"){
                 done(new Error("invalid error type"));
             }
-            else if (err.kwargs.message!=errorMessage){
+            else if (err.args[0]!=errorMessage){
                 done(new Error("invalid error message"));
             }
             else if (!_.isArray(err.kwargs.stack)){
