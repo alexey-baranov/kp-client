@@ -15,6 +15,7 @@ require("./templates");
 let KopnikView= require("./view/KopnikView");
 let ZemlaView= require("./view/ZemlaView");
 let $= /*window.jQuery= */require("jquery");
+// let log4js= require("log4js");
 
 let WAMP = new autobahn.Connection({
     url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,

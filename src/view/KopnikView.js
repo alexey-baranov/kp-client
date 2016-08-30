@@ -25,7 +25,12 @@ class KopnikView extends AbstractView{
 
         model.on(Kopnik.event.change, ()=>this.invalidate());
 
-        this.zemlaView= model.zemla?new ZemlaView(model.zemla, this, "zemla"):null;
+        if (model.zemla){
+            this.zemlaView= new ZemlaView(model.zemla, this, "zemla");
+        }
+        else{
+            this.zemlaView= null;
+        }
         return this;
     }
 
@@ -41,7 +46,9 @@ class KopnikView extends AbstractView{
         this.$reload= $(`#${this.io}_reload`).click(()=>{
             this.model.reload();
         });
-        this.zemlaView.attach();
+        if (this.zemlaView) {
+            this.zemlaView.attach();
+        }
     }
 
     onModelChange(){
