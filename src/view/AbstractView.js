@@ -13,6 +13,8 @@ let $= require("jquery");
 class AbstractView extends EventEmitter{
     constructor(model, parent, IO) {  //can't find setModel() from constructor()
         super();
+
+        this.log= this.constructor.name;
         // this.log = log4javascript.getLogger(this.constructor.name);
         this.parent = parent;
         this.IO = IO;
@@ -68,10 +70,10 @@ class AbstractView extends EventEmitter{
 
     getFullIO () {
         if (this.parent && this.IO) {
-            return this.parent.getFullIo() + "_" + this.IO;
+            return this.parent.getFullIO() + "_" + this.IO;
         }
         else if (this.parent) {
-            return this.parent.getFullIo();
+            return this.parent.getFullIO();
         }
         else {
             return this.IO;
@@ -121,6 +123,18 @@ class AbstractView extends EventEmitter{
      * need to be overriden in every view
      */
     _doHide () {
+    }
+
+    onHelper(event, handlerWithoutContext, context){
+        this.on(event, ()=>{
+            if (context){
+                handlerWithoutContext.apply(context, arguments);
+            }
+            else{
+                throw new Error("not tested without context");
+                handlerWithoutContext(arguments);
+            }
+        });
     }
 }
 

@@ -9,20 +9,7 @@ let autobahn = require("autobahn");
 let config = require("../../cfg/main")["local-db"];
 let Core = require("../../src/Core");
 let _ = require("lodash");
-
-let WAMP = new autobahn.Connection({
-    url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
-    realm: "kopa",
-    authmethods: ['ticket'],
-    authid: "alexey_baranov@inbox.ru",
-    onchallenge: function (session, method, extra) {
-        return "alexey_baranov@inbox.ru";
-    },
-    use_es6_promises: true,
-    max_retries: -1,
-    max_retry_delay: 5
-});
-Core.setWAMP(WAMP);
+let WAMPFactory = require("../../src/WAMPFactory");
 
 require('testdom')('', {
     /*     localStorage: 'localStorage',
@@ -40,18 +27,16 @@ let KOPNIK2 = 3;
 let ZEMLA1 = 2;
 let ZEMLA2 = 3;
 
+let WAMP = WAMPFactory.getWAMP();
+
 describe('KopnikView', function () {
     let kopnik1, kopnik1View;
-
     before(function () {
         return new Promise(function (res, rej) {
-            if (Core.getWAMP().session && Core.getWAMP().session.isOpen) {
-                // console.log("session already opened");
-                res();
-            }
-            Core.getWAMP().onopen = function (session, details) {
+            WAMP.onopen = function (session, details) {
                 res();
             };
+            WAMP.open();
         })
             .then(function () {
                 return model.Kopnik.get(KOPNIK1);
@@ -59,6 +44,16 @@ describe('KopnikView', function () {
             .then(function (kopnik) {
                 kopnik1 = kopnik;
             });
+    });
+
+
+    after(function () {
+        return new Promise(function (res, rej) {
+            WAMP.onclose = function (session, details) {
+                res();
+            };
+            WAMP.close();
+        });
     });
 
     describe('#constructor()', function () {
@@ -74,5 +69,3 @@ describe('KopnikView', function () {
         });
     });
 });
-
-WAMP.open();

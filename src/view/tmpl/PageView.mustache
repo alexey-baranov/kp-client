@@ -1,0 +1,20 @@
+<div id="{{io}}" class="Page">
+    <div id="{{io}}_owns" class="owns">
+        {{#ownsViews}}
+            <span class="delimiter"> > </span>
+            <span class="Zemla own" id="{{io}}">{{model.name}}</span>
+        {{/ownsViews}}
+    </div>
+
+    <div id="{{io}}_header">
+
+    </div>
+    <div id="{{io}}_body">
+        {{#model.kopa}}
+            {{>KopaView}}
+        {{/model.kopa}}
+        {{^model.kopa}}
+            {{>ZemlaAsListView}}
+        {{/model.kopa}}
+    </div>
+</div>

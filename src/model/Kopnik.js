@@ -21,7 +21,7 @@ class Kopnik extends RemoteModel{
         this.birth= undefined;
         this.isOnline= undefined;
 
-        this.own= undefined;
+        this.currentOwn= undefined;
         this.starshina= undefined;
     }
 
@@ -64,7 +64,7 @@ class Kopnik extends RemoteModel{
 
         if (this.email!=prevState.email || this.name!=prevState.name || this.surname!=prevState.surname ||
             this.patronymic!=prevState.patronymic || this.birth !=prevState.birth || this.note!=prevState.note ||
-            this.own!=prevState.own || _.difference(this.attachments,prevState.attachments).length){
+            this.currentOwn!=prevState.currentOwn || _.difference(this.attachments,prevState.attachments).length){
 
             this.emit(Kopnik.event.change, this);
         }

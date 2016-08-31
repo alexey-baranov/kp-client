@@ -13,6 +13,9 @@ if (!global.log4javascript){
         static getLogger(){
             return this.getRootLogger();
         }
+        static setShowStackTraces(){
+
+        }
     };
 
     global.log4javascript.BrowserConsoleAppender= class{

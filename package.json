@@ -9,7 +9,8 @@
     "webpack": "webpack",
     "handlebars": "handlebars ./public/poligon-handlebars/tmpl -c handlebars -f ./src/templates.js",
     "pug": "pug --client --out public/poligon-pug/js public/poligon-pug/tmpl",
-    "hulk": "hulk -w amd -o src/tmpl ./public/poligon-mustache/tmpl/*"
+    "hulk0": "hulk -w amd -o src/tmpl ./public/poligon-mustache/tmpl/*",
+    "hulk": "hulk -w amd -o src/view/tmpl/js ./src/view/tmpl/*.mustache"
   },
   "repository": {
     "type": "git",

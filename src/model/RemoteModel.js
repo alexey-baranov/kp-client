@@ -72,7 +72,7 @@ class RemoteModel extends EventEmitter{
      * @returns {Promise.<RemoteModel>}
      */
     async reload(){
-        let json= await Core.getWAMP().session.call("ru.kopa.model.get",[1,2.3],{
+        let json= await require("../WAMPFactory").getWAMP().session.call("ru.kopa.model.get",[1,2.3],{
             model:this.constructor.name,
             id:this.id});
         this.merge(json);

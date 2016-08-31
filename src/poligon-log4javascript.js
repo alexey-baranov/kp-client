@@ -9,4 +9,12 @@ let appender= new global.log4javascript.BrowserConsoleAppender();
 appender.setLayout(layout);
 log.addAppender(appender);
 
+try{
+    let x=1;
+    throw new Error(123);
+}
+catch (er){
+    log.error( er);
+    log.error("jkhjk hjk ", er);
+}
 log.debug(123);

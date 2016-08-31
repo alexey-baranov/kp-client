@@ -5,49 +5,35 @@
 var assert = require('chai').assert;
 var model = require("../../src/model");
 let autobahn = require("autobahn");
-let config = require("../../cfg/main")["local-db"];
-let Core = require("../../src/Core");
+let config = require("../../cfg/main")[process.env.NODE_ENV || 'local-db'];
+require("../../src/bootstrap");
 let _ = require("lodash");
-
-let WAMP = new autobahn.Connection({
-    url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
-    realm: "kopa",
-    authmethods: ['ticket'],
-    authid: "alexey_baranov@inbox.ru",
-    onchallenge: function (session, method, extra) {
-        return "alexey_baranov@inbox.ru";
-    },
-    use_es6_promises: true,
-    max_retries: -1,
-    max_retry_delay: 5
-});
-Core.setWAMP(WAMP);
-
-require('testdom')('', {
-    /*     localStorage: 'localStorage',
-     navigator: {
-     mediaDevices: {
-     enumerateDevices: function () {
-     return Promise.resolve([device1, device2, device3, device4]);
-     }
-     }
-     }*/
-});
+let WAMPFactory= require("../../src/WAMPFactory");
 
 let KOPNIK1 = 2;
 let KOPNIK2 = 3;
 let ZEMLA1 = 2;
 let ZEMLA2 = 3;
 
+let WAMP= WAMPFactory.getWAMP();
+
 describe('Kopnik', function () {
     before(function () {
         return new Promise(function (res, rej) {
-            if (Core.getWAMP().session && Core.getWAMP().session.isOpen){
-                res();
-            }
-            Core.getWAMP().onopen = function (session, details) {
+            WAMP.onopen = function (session, details) {
                 res();
             };
+            WAMP.open();
+        });
+    });
+
+
+    after(function(){
+        return new Promise(function (res, rej) {
+            WAMP.onclose = function (session, details) {
+                res();
+            };
+            WAMP.close();
         });
     });
 
@@ -128,7 +114,4 @@ describe('Kopnik', function () {
                 });
         });
     });
-})
-;
-
-WAMP.open();
+});

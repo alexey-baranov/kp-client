@@ -3,10 +3,8 @@
  */
 let AbstractView= require("./AbstractView");
 let Kopnik= require("../model/Kopnik");
-let Handlebars= require("handlebars");
-require("../templates");
 let $= require("jquery");
-let ZemlaView= require("./ZemlaView");
+// let ZemlaView= require("./ZemlaView");
 
 /**
  *
@@ -25,8 +23,8 @@ class KopnikView extends AbstractView{
 
         model.on(Kopnik.event.change, ()=>this.invalidate());
 
-        if (model.zemla){
-            this.zemlaView= new ZemlaView(model.zemla, this, "zemla");
+        if (model.currentOwn){
+            this.zemlaView= new ZemlaView(model.currentOwn, this, "zemla");
         }
         else{
             this.zemlaView= null;

@@ -14,7 +14,7 @@ let ZEMLA_TEMPLATE = fs.readFileSync(__dirname + "/../public/poligon-handlebars/
 
 require("../src/templates");
 
-Handlebars.registerPartial("zemla", Handlebars.templates.zemla);
+Handlebars.registerPartial("zemla", Handlebars.templates.currentOwn);
 Handlebars.registerPartial("message", Handlebars.templates.message);
 Handlebars.registerPartial("Node", Handlebars.templates.Node);
 Handlebars.registerHelper("getIO", function(base, suffix){
@@ -22,7 +22,7 @@ Handlebars.registerHelper("getIO", function(base, suffix){
 });
 
 
-let zemlaView= Handlebars.templates.zemla({id:6, name:"Сургут"});
+let zemlaView= Handlebars.templates.currentOwn({id:6, name:"Сургут"});
 
 console.log(Handlebars.templates.Node(
     {
@@ -45,7 +45,7 @@ Handlebars.templates.kopnik({
         {id:1, value:"hello"},
         {id:2, value:"by"},
     ],
-    zemla:{id:6, name:"Сургут"},
+    currentOwn:{id:6, name:"Сургут"},
     messages:[
         {id:1, name:"lexey_baranov@inbox.ru"},
         {id:2, name:"dlebars.registerPartial("},
