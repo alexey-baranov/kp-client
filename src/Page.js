@@ -6,13 +6,13 @@ let EventEmitter= require ("events").EventEmitter;
 class Page extends EventEmitter{
     constructor(){
         super();
-        this.own= undefined;
+        this.rodina= undefined;
         this.kopa= undefined;
     }
 
-    setOwn(value){
-        this.own= value;
-        this.emit(Page.event.ownChanged);
+    setRodina(value){
+        this.rodina= value;
+        this.emit(Page.event.rodinaChanged);
     }
 
     setKopa(value){
@@ -22,7 +22,7 @@ class Page extends EventEmitter{
 }
 
 Page.event={
-    ownChanged: 'ownChanged',
+    rodinaChanged: 'rodinaChanged',
     kopaChanged: 'kopaChanged'
 };
 

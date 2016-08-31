@@ -15,19 +15,9 @@ let WAMP = WAMPFactory.getWAMP();
 
 
 describe('Infrastructure', function () {
-    before(function () {
-        return new Promise(function (res, rej) {
-            WAMP.onopen = function (session, details) {
-                res();
-            };
-            WAMP.open();
-        });
-    });
-
-
     after(function(){
-        return new Promise(function (res, rej) {
-            WAMP.onclose = function (session, details) {
+        return new Promise(function (res) {
+            WAMP.onclose = function () {
                 res();
             };
             WAMP.close();
@@ -35,24 +25,28 @@ describe('Infrastructure', function () {
     });
 
     it('WAMP', function (done) {
-        /*
-         если сессия уже открыта в предыдущем тесте,
-         то эта сессия открывается моментально,
-         то есть даже раньше чем выполнение дойдет до этого блока
-         а оно похоже доходит не сразу а через nextTick, то есть уже поздно
-         */
-        if (WAMP.session && WAMP.session.isOpen) {
-            // console.log("session already opened");
+        return new Promise(function (res, rej) {
+            WAMP.onopen = function (session, details) {
+                done();
+                res();
+            };
+            WAMP.open();
+        });
+    });
+
+    it('WAMP discloseCaller', async function (done) {
+        try{
+            let result= await WAMP.session.call("ru.kopa.discloseCaller", [], {}, {disclose_me: true});
+            assert.equal(result, "alexey_baranov@inbox.ru");
             done();
         }
-        WAMP.onopen = function (session, details) {
-            // console.log("session#onopen()");
-            done();
-        };
+        catch(err){
+            done(err);
+        }
     });
 
     it('server', function (done) {
-        WAMP.session.call("ru.kopa.pingPong", [1, 2, 3], {x: 1, y: 2, z: 3})
+        WAMP.session.call("ru.kopa.pingPong", [1, 2, 3], {x: 1, y: 2, z: 3}, {disclose_me: true})
             .then(function (res) {
                 if (!_.difference(res.args, [1, 2, 3]).length && _.isEqual(res.kwargs, {x: 1, y: 2, z: 3})) {
                     done();

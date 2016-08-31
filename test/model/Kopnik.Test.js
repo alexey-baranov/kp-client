@@ -102,10 +102,10 @@ describe('Kopnik', function () {
                 });
         });
 
-        it('#own should return instance of Zemla', function (done) {
+        it('#rodina should return instance of Zemla', function (done) {
             model.Kopnik.get(KOPNIK1)
                 .then(function (localKopnik) {
-                    if (localKopnik.own instanceof model.Zemla) {
+                    if (localKopnik.rodina instanceof model.Zemla) {
                         done();
                     }
                     else {

@@ -4,24 +4,12 @@
 
 class Application {
     static run() {
-        Application.connection = new autobahn.Connection({
-            url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
-            realm: "kopa",
-            authmethods: ['ticket'],
-            authid: "alexey_baranov@inbox.ru",
-            onchallenge: function (session, method, extra) {
-                return "alexey_baranov@inbox.ru";
-            },
-            use_es6_promises: true,
-            max_retries: -1,
-            max_retry_delay: 5
-        });
-        this.connection.log = this.log;
+        let WAMP= require("./WAMPFactory").getWAMP();
 
-        this.connection.onopen = (session, details)=> this.onConnectionOpen(session, details);
-        this.connection.onclose = (reason, details)=>this.onConnectionClose(reason, details);
+        WAMP.onopen = (session, details)=> this.onConnectionOpen(session, details);
+        WAMP.onclose = (reason, details)=>this.onConnectionClose(reason, details);
 
-        this.connection.open();
+        WAMP.open();
     }
 
     static async onConnectionOpen(session, details) {
@@ -29,13 +17,14 @@ class Application {
             this.log.info("connection opened");
             this.kopnik = await model.Kopnik.get(1);
 
-            for (var eachOwn = this.kopnik.own; eachOwn; eachOwn = eachOwn.parent) {
-                this.log.debug("loading kopnik own", eachOwn.id);
-                await eachOwn.reload();
-                this.log.debug("loaded ", eachOwn.name);
+            for (var eachRodina = this.kopnik.rodina; eachRodina; eachRodina = eachRodina.parent) {
+                this.log.debug("loading kopnik rodina", eachRodina.id);
+                await eachRodina.reload();
+                this.log.debug("loaded ", eachRodina.name);
             }
 
             this.page = new Page();
+            this.page.rodina= this.kopnik.rodina;
             this.pageView = new PageView(this.page, null, "p");
 
             this.pageView.get$().appendTo(document.body);

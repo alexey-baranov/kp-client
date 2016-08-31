@@ -5,9 +5,6 @@
 var assert = require('chai').assert;
 var model = require("../../src/model");
 let KopnikView = require("../../src/view/KopnikView");
-let autobahn = require("autobahn");
-let config = require("../../cfg/main")["local-db"];
-let Core = require("../../src/Core");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
 

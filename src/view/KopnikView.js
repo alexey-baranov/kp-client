@@ -23,8 +23,8 @@ class KopnikView extends AbstractView{
 
         model.on(Kopnik.event.change, ()=>this.invalidate());
 
-        if (model.currentOwn){
-            this.zemlaView= new ZemlaView(model.currentOwn, this, "zemla");
+        if (model.rodina){
+            this.zemlaView= new ZemlaView(model.rodina, this, "zemla");
         }
         else{
             this.zemlaView= null;
@@ -33,7 +33,9 @@ class KopnikView extends AbstractView{
     }
 
     getHTML(){
-        let result= Handlebars.templates.Kopnik(this);
+        let result= require("./tmpl/js/KopnikView").render(this,{
+            "ZemlaView":require("./tmpl/js/ZemlaView")
+        });
         return result;
     }
 

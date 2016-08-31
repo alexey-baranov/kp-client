@@ -28,7 +28,7 @@ class Zemla extends RemoteModel {
 
         this.name = json.name;
         this.intensity = json.intensity;
-        this.ownersCount = json.ownersCount;
+        this.rodCount = json.rodCount;
         if(json.parent_id){
             this.parent= Zemla.getReference(json.parent_id);
         }
@@ -38,7 +38,7 @@ class Zemla extends RemoteModel {
         this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
 
         if (this.name != prevState.name || this.intensity != prevState.intensity ||
-            this.ownersCount != this.ownersCount || _.difference(this.attachments, prevState.attachments).length) {
+            this.rodCount != this.rodCount || _.difference(this.attachments, prevState.attachments).length) {
 
             this.emit(Zemla.event.change, this);
         }

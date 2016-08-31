@@ -14,13 +14,10 @@ class PageView extends AbstractView {
     constructor(model, parent, IO) {
         super(model, parent, IO);
 
-        this.ownView = undefined;
-        this.kopaView = undefined;
+        this.rodinasViews = [];
 
-        this.ownsViews = [];
-
-        for (var eachOwn = Application.kopnik.own; eachOwn; eachOwn = eachOwn.parent) {
-            this.ownsViews.unshift(new ZemlaAsPathView(eachOwn, this, "path_" + eachOwn.id));
+        for (var rodina = Application.kopnik.rodina; rodina; rodina = rodina.parent) {
+            this.rodinasViews.unshift(new ZemlaAsPathView(rodina, this, "path_" + rodina.id));
         }
     }
 
@@ -28,10 +25,10 @@ class PageView extends AbstractView {
         super.setModel(value);
         let model = this.model;
 
-        this.onHelper(Page.event.ownChanged, this.onOwnChanged, this);
+        this.onHelper(Page.event.rodinaChanged, this.onRodinaChanged, this);
         this.onHelper(Page.event.kopaChanged, this.onKopaChanged, this);
 
-        this.ownView = new ZemlaAsListView(model.own, this, "own");
+        this.rodinaView = new ZemlaAsListView(model.rodina, this, "rodina");
         this.kopaView = new KopaView(model.kopa, this, "kopa");
     }
 
@@ -50,7 +47,7 @@ class PageView extends AbstractView {
 
     }
 
-    onOwnChanged() {
+    onRodinaChanged() {
 
     }
 }
