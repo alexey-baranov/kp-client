@@ -1,18 +1,25 @@
 /**
  * Created by alexey2baranov on 8/31/16.
  */
-
-async function f1(p1,p2){
-    await f2(p2);
+function staff() {
+    console.log("do some staff");
 }
 
-async function f2(){
-    return new Promise((res,rej)=>{
-        setTimeout(()=> {
-            console.log("f2-promise");
-            rej();
-        },1000);
-        });
+async function register(handler, context) {
+    let result = setTimeout(async(args, kwargs, details)=> {
+        try {
+            await handler.call(context);
+        }
+        catch (err) {
+            this.log.error(this.toString(), `error on "${topic}" handler`, err);
+            throw err;
+        }
+    }, 2000);
 }
 
-f1(123,456);
+
+async function main() {
+    await register(staff, this);
+}
+
+main();

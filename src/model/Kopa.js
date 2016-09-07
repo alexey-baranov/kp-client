@@ -4,12 +4,52 @@
  * and open the template in the editor.
  */
 var RemoteModel= require("./RemoteModel");
-
+let WAMP= require("../WAMPFactory").getWAMP();
+let _= require("lodash");
 
 class Kopa extends RemoteModel{
     constructor() {
         super();
 
+        this.place= undefined;
+        this.inviter= undefined;
+        this.question= undefined;
+        this.planned= undefined;
+        this.started= undefined;
+        this.closed= undefined;
+        this.dialog= undefined;
+        this.results= undefined;
+    }
+
+    getPlain(){
+        let result=  {
+            id: this.id,
+            place_id: this.place?this.place.id:null,
+            inviter_id: this.inviter?this.inviter.id:null,
+            question: this.question,
+            planned: this.planned,
+            started: this.started,
+            closed: this.closed,
+            note: this.note,
+            attachments:this.attachments?this.attachments.map(each=>each.id):[]
+        };
+        return result;
+    }
+
+    async onPublication(args, kwargs, details){
+        super.onPublication(args, kwargs, details);
+        if (details.topic.match(/\.slovoAdd$/)){
+            if (this.dialog){
+                let slovo= await Slovo.get(args[0]);
+                this.dialog.push(slovo);
+                this.emit(Kopa.event.slovoAdd, this, slovo);
+            }
+        }
+    }
+
+    async setQuestion(value){
+        this.question= value;
+        await WAMP.session.call("api:model.Kopa.setQuestion",null, {id:this.id, value: value}, {disclose_me:true});
     }
 
     /**
@@ -21,7 +61,46 @@ class Kopa extends RemoteModel{
 
         this._isLoaded= true;
 
+        if (json.hasOwnProperty("question")) {
+            this.question = json.question;
+        }
+        if (json.hasOwnProperty("planned")) {
+            this.planned = json.planned;
+        }
+        if (json.hasOwnProperty("started")) {
+            this.started = json.started;
+        }
+        if (json.hasOwnProperty("closed")) {
+            this.closed = json.closed;
+        }
+        if (json.hasOwnProperty("note")) {
+            this.note = json.note;
+        }
+        if (json.hasOwnProperty("attachments")) {
+            this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
+        }
+
+        if (json.hasOwnProperty("question") && this.question!=prevState.question ||
+            json.hasOwnProperty("planned") && this.planned!=prevState.planned ||
+            json.hasOwnProperty("started") && this.started!=prevState.started ||
+            json.hasOwnProperty("closed") && this.closed!=prevState.closed ||
+            json.hasOwnProperty("note") && this.note!=prevState.note ||
+            json.hasOwnProperty("attachments") && _.difference(this.attachments,prevState.attachments).length){
+
+            this.emit(RemoteModel.event.change, this);
+        }
+    }
+
+    toString(){
+        return `${this.constructor.name} {${this.id}, "${this.question.substring(0, 10)}"}`;
     }
 }
 
+Kopa.event={
+    slovaReloaded: "slovaReloaded",
+    slovoAdd: "slovoAdd",
+};
+
 module.exports= Kopa;
+
+let Slovo= require("./Slovo");

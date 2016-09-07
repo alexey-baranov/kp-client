@@ -26,6 +26,7 @@ let ZEMLA2 = 3;
 
 let WAMP = WAMPFactory.getWAMP();
 
+/*
 describe('KopnikView', function () {
     let kopnik1, kopnik1View;
     before(function () {
@@ -65,4 +66,4 @@ describe('KopnikView', function () {
             assert.equal(HTML.length > 0, true);
         });
     });
-});
+});*/

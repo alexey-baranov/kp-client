@@ -4,12 +4,28 @@
  * and open the template in the editor.
  */
 var RemoteModel= require("./RemoteModel");
+let _= require("lodash");
 
 
 class Slovo extends RemoteModel{
     constructor() {
         super();
+        this.value= undefined;
 
+        this.owner= undefined;
+        this.place= undefined;
+    }
+
+    getPlain(){
+        let result=  {
+            id: this.id,
+            place_id: this.place?this.place.id:null,
+            owner_id: this.owner?this.owner.id:null,
+            value: this.value,
+            note: this.note,
+            attachments:this.attachments?this.attachments.map(each=>each.id):[]
+        };
+        return result;
     }
 
     /**
@@ -21,7 +37,37 @@ class Slovo extends RemoteModel{
 
         this._isLoaded= true;
 
+        if (json.hasOwnProperty("value")) {
+            this.value = json.value;
+        }
+        if (json.hasOwnProperty("note")) {
+            this.note = json.note;
+        }
+        if (json.hasOwnProperty("attachments")) {
+            this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
+        }
+        if (json.hasOwnProperty("owner_id")) {
+            this.owner = Kopnik.getReference(json.owner_id);
+        }
+        if (json.hasOwnProperty("place_id")) {
+            this.place = Kopa.getReference(json.place_id);
+        }
+
+        if (json.hasOwnProperty("value") && this.value!=prevState.value ||
+            json.hasOwnProperty("note") && this.note!=prevState.note ||
+            json.hasOwnProperty("owner_id") && this.owner!=prevState.owner ||
+            json.hasOwnProperty("place_id") && this.placeplace ||
+            json.hasOwnProperty("attachments") && _.difference(this.attachments,prevState.attachments).length){
+
+            this.emit(RemoteModel.event.change, this);
+        }
+    }
+    toString(){
+        return `${this.constructor.name} {${this.id}, "${this.value}"}`;
     }
 }
 
 module.exports= Slovo;
+
+let Kopnik= require("./Kopnik");
+let Kopa= require("./Kopa");

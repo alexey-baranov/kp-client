@@ -21,7 +21,9 @@ class AbstractView extends EventEmitter{
 
         this.isVisible = false; //пока show() не вызвал он не может быть true
 
-        this.setModel(model);
+        if (model){
+            this.setModel(model);
+        }
     }
 
     /**
@@ -126,7 +128,7 @@ class AbstractView extends EventEmitter{
     }
 
     onHelper(event, handlerWithoutContext, context){
-        this.on(event, ()=>{
+        let handler= ()=>{
             if (context){
                 handlerWithoutContext.apply(context, arguments);
             }
@@ -134,7 +136,9 @@ class AbstractView extends EventEmitter{
                 throw new Error("not tested without context");
                 handlerWithoutContext(arguments);
             }
-        });
+        };
+        this.on(event, handler);
+        return handler;
     }
 }
 

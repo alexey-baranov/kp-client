@@ -3,30 +3,37 @@
  */
 
 var assert = require('chai').assert;
-var model = require("../../src/model");
+var models = require("../../src/model");
 let autobahn = require("autobahn");
 let config = require("../../cfg/main")[process.env.NODE_ENV || 'local-db'];
 require("../../src/bootstrap");
 let _ = require("lodash");
 let WAMPFactory= require("../../src/WAMPFactory");
 
-let KOPNIK1 = 2;
-let KOPNIK2 = 3;
-let ZEMLA1 = 2;
-let ZEMLA2 = 3;
+let KOPNIK2 = 2;
+let KOPNIK3 = 3;
+let ZEMLA2 = 2;
+let ZEMLA3 = 3;
+let KOPA=3;
 
 let WAMP= WAMPFactory.getWAMP();
 
 describe('Kopnik', function () {
     before(function () {
+        models.RemoteModel.clearCache();
+
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {
+                session.prefix('api', 'ru.kopa');
                 res();
             };
             WAMP.open();
         });
     });
 
+    after(function(){
+        // return require("../UnitTestTempDataCleaner").clean("Slovo");
+    });
 
     after(function(){
         return new Promise(function (res, rej) {
@@ -38,20 +45,12 @@ describe('Kopnik', function () {
     });
 
     describe('#getReference()', function () {
-        let kopnik1 = model.Kopnik.getReference(KOPNIK1);
-
-        it('should return Kopnik instance', function () {
-            assert.equal(true, kopnik1 instanceof model.Kopnik);
-        });
-        it('should return Kopnik with id=1', function () {
-            assert.equal(KOPNIK1, kopnik1.id);
-        });
-        it('should return Kopnik _isLoaded==false', function () {
+        it('should return Kopnik reference', function () {
+            let kopnik1 = models.Kopnik.getReference(KOPNIK2);
+            assert.equal(true, kopnik1 instanceof models.Kopnik);
+            assert.equal(KOPNIK2, kopnik1.id);
             assert.equal(false, kopnik1._isLoaded);
-        });
-
-        it("2'nd call should return same object", function () {
-            assert.equal(kopnik1, model.Kopnik.getReference(KOPNIK1));
+            assert.equal(kopnik1, models.Kopnik.getReference(KOPNIK2));
         });
     });
 
@@ -60,10 +59,10 @@ describe('Kopnik', function () {
         // this.timeout(5000);
         it('should return loaded Kopnik Unit Test', function (done) {
             // throw new Error(123);
-            model.Kopnik.get(KOPNIK1)
+            models.Kopnik.get(KOPNIK2)
                 .then(function (localKopnik) {
                     kopnik1 = localKopnik;
-                    if (kopnik1 instanceof model.Kopnik && kopnik1.name == "Unit" && kopnik1._isLoaded && _.isArray(kopnik1.attachments)) {
+                    if (kopnik1 instanceof models.Kopnik && kopnik1.name == "Unit" && kopnik1._isLoaded && _.isArray(kopnik1.attachments)) {
                         done();
                     }
                     else {
@@ -76,7 +75,7 @@ describe('Kopnik', function () {
         });
 
         it("2'nd call should return equal object", function (done) {
-            model.Kopnik.get(KOPNIK1)
+            models.Kopnik.get(KOPNIK2)
                 .then(function (localKopnik) {
                     if (kopnik1 == localKopnik) {
                         done();
@@ -91,9 +90,9 @@ describe('Kopnik', function () {
         });
 
         it("should return equal as #getReference()", function (done) {
-            model.Kopnik.get(KOPNIK1)
+            models.Kopnik.get(KOPNIK2)
                 .then(function (localKopnik) {
-                    if (localKopnik == model.Kopnik.getReference(KOPNIK1)) {
+                    if (localKopnik == models.Kopnik.getReference(KOPNIK2)) {
                         done();
                     }
                     else {
@@ -103,9 +102,9 @@ describe('Kopnik', function () {
         });
 
         it('#rodina should return instance of Zemla', function (done) {
-            model.Kopnik.get(KOPNIK1)
+            models.Kopnik.get(KOPNIK2)
                 .then(function (localKopnik) {
-                    if (localKopnik.rodina instanceof model.Zemla) {
+                    if (localKopnik.rodina instanceof models.Zemla) {
                         done();
                     }
                     else {

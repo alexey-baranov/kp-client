@@ -23,14 +23,31 @@ class Kopnik extends RemoteModel{
 
         this.rodina= undefined;
         this.starshina= undefined;
+        this.druzhina= undefined;
+
+        this.invited= undefined;
+        this.initiated= undefined;
+        this.sayd= undefined;
+    }
+
+    getPlain(){
+        let result=  {
+            id: this.id,
+            email: this.email,
+            name: this.name,
+            surname: this.surname,
+            patronymic: this.patronymic,
+            birth: this.birth,
+            rodina_id: this.rodina?this.rodina.id:null,
+            starshina_id: this.starshina?this.starshina.id:null,
+            note: this.note,
+            attachments:this.attachments?this.attachments.map(each=>each.id):[]
+        };
+        return result;
     }
 
     updateLastActiveTime(){
-        return new WS().call("kopnik.php/updateLastActiveTime", {PERSON:this.id})
-            .then(kopnikAsObject=>{
-                this.merge(kopnikAsObject);
-                return this;
-            });
+
     }
 
     onlineTimer_tick(){
@@ -68,6 +85,10 @@ class Kopnik extends RemoteModel{
 
             this.emit(Kopnik.event.change, this);
         }
+    }
+
+    toString(){
+        return `${this.constructor.name} {${this.id}, "${this.surname} ${this.name}"}`;
     }
 }
 

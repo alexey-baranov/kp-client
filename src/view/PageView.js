@@ -39,6 +39,21 @@ class PageView extends AbstractView {
         });
     }
 
+    attach(){
+        let model= this.model;
+
+        for(let eachRodinaView of this.rodinasViews){
+            eachRodinaView.attach();
+        }
+
+        if (model.kopa){
+            this.kopaView.attach();
+        }
+        else{
+            this.rodinaView.attach();
+        }
+    }
+
     invalidate() {
         this.get$().replace(`#${this.io}`);
     }

@@ -4,6 +4,9 @@
 let config = require("./../cfg/main")[process.env.NODE_ENV || 'local-db'];
 let autobahn = require("autobahn");
 
+// let authid= "alexey_baranov@inbox.ru";
+let authid= "unittest2@domain.ru";
+
 class WAMPFactory {
     /**
      * @returns {Connection}
@@ -14,9 +17,10 @@ class WAMPFactory {
                 url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
                 realm: "kopa",
                 authmethods: ['ticket'],
-                authid: "alexey_baranov@inbox.ru",
+                // authid: "alexey_baranov@inbox.ru",
+                "authid": authid,
                 onchallenge: function (session, method, extra) {
-                    return "alexey_baranov@inbox.ru";
+                    return authid;
                 },
                 use_es6_promises: true,
                 max_retries: -1,

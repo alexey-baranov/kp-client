@@ -4,12 +4,28 @@
  * and open the template in the editor.
  */
 var RemoteModel= require("./RemoteModel");
+let _= require("lodash");
 
 
 class Golos extends RemoteModel{
     constructor() {
         super();
 
+        this.value= undefined;
+        this.owner= undefined;
+        this.target= undefined;
+    }
+
+    getPlain(){
+        let result=  {
+            id: this.id,
+            value: this.value,
+            owner_id: this.owner?this.owner.id:null,
+            target_id: this.target?this.target.id:null,
+            note: this.note,
+            attachments:this.attachments?this.attachments.map(each=>each.id):[]
+        };
+        return result;
     }
 
     /**
@@ -21,6 +37,10 @@ class Golos extends RemoteModel{
 
         this._isLoaded= true;
 
+    }
+
+    toString(){
+        return `${this.constructor.name} {${this.id}, ${this.value}}`;
     }
 }
 

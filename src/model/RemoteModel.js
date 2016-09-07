@@ -7,6 +7,9 @@
 var DisplacingTimer= require("displacing-timer");
 let Core= require("./../Core");
 let EventEmitter= require("events").EventEmitter;
+let WAMPFactory = require("../WAMPFactory");
+let _= require("lodash");
+
 
 /**
  * Общий принцип работы следующий
@@ -27,10 +30,14 @@ let EventEmitter= require("events").EventEmitter;
 class RemoteModel extends EventEmitter{
     constructor() {
         super();
+        this.log= global.log4javascript.getLogger(this.constructor.name);
+
         this._isLoaded = false;
         this.id = undefined;
         this.note= undefined;
         this.attachments= undefined;
+
+
     }
 
     static cache= new Map([
@@ -43,16 +50,92 @@ class RemoteModel extends EventEmitter{
         ["File", new Map()]
     ]);
 
+
+    /**
+     * Плоское представление объекта по правилам секвилизы для передачина на сервер
+     */
+    static getPlain(value){
+        let result= {};
+        for(let eachKey of Object.keys(value)){
+            let eachProperty= value[eachKey];
+
+            if(_.isArray(eachProperty)){
+                result[eachKey]=[];
+                for(let eachPropertyEachReference of eachProperty){
+                    if (!_.isObject(eachPropertyEachReference)){
+                        throw new Error(`arrays of RemoteModels only supported, ${typeof eachPropertyEachReference} given`);
+                    }
+                    if (!(eachPropertyEachReference instanceof RemoteModel)){
+                        throw new Error(`arrays of RemoteModels only supported, ${eachPropertyEachReference.constructor.name} given`);
+                    }
+                    result[eachKey].push(eachPropertyEachReference.id);
+                }
+            }
+            else if (_.isObject(eachProperty) && !(eachProperty instanceof Date)){
+                if (!(eachProperty instanceof RemoteModel)){
+                    throw new Error(`reference to RemoteModels only supported, ${eachProperty.constructor.name} given`);
+                }
+                result[eachKey+"_id"]= eachProperty.id;
+            }
+            else{
+                result[eachKey]= eachProperty;
+            }
+        }
+
+        return result;
+    }
+
+    onPublication(args, kwargs, details){
+        if (details.topic.match(/\.change$/)){
+            this.merge(kwargs);
+        }
+    }
+
+    static clearCache(){
+        this.cache.forEach(eachCache=>eachCache.clear());
+    }
+
+    async save(){
+        let plain= this.getPlain();
+        let result= await WAMPFactory.getWAMP().session.call("api:model.save", [], {
+            type: this.constructor.name,
+            plain: plain});
+        return result;
+    }
+
+    static async create(value){
+        if (!value.attachments){
+            value.attachments=[];
+        }
+        // let plain= this.getPlain(value);
+        let plain= this.prototype.getPlain.call(value);
+        let id= await WAMPFactory.getWAMP().session.call("api:model.create", [], {
+            type: this.name,
+            plain: plain});
+        id = parseInt(id);
+
+        let result= this.getReference(id);
+        Object.assign(result, value);
+        result._isLoaded= true;
+
+        await result.subscribeHelper(`api:model.${this.name}.id${result.id}.`, this.onPublication, { match: 'wildcard' } ,this);
+
+        return result;
+    }
+
     static getReference(id){
         if (!id) {
             throw new Error("Не указан идентификатор объекта id=" + JSON.stringify(id));
+        }
+        if (_.isString(id)){
+            id= parseInt(id);
         }
         if (!this.cache.has(this.name)){
             throw new Error("Неправильный тип объекта "+this.name);
         }
 
         if (!this.cache.get(this.name).has(id)) {
-            let reference= new this(id);
+            let reference= new this();
 
             reference.id= id;
             reference._isLoaded= false;
@@ -72,10 +155,15 @@ class RemoteModel extends EventEmitter{
      * @returns {Promise.<RemoteModel>}
      */
     async reload(){
-        let json= await require("../WAMPFactory").getWAMP().session.call("ru.kopa.model.get",[1,2.3],{
+        let isFirstLoad= !this._isLoaded;
+        let json= await WAMPFactory.getWAMP().session.call("ru.kopa.model.get",[1,2.3],{
             model:this.constructor.name,
             id:this.id});
         this.merge(json);
+
+        if (isFirstLoad) {
+            await this.subscribeHelper(`api:model.${this.constructor.name}.id${this.id}.`, this.onPublication, {match: 'wildcard'}, this);
+        }
 
         // console.log(this, "merged");
 
@@ -90,7 +178,7 @@ class RemoteModel extends EventEmitter{
      */
     loaded(){
         if (!this._isLoaded) {
-            return this.refresh();
+            return this.reload();
         }
         else{
             return Promise.resolve(this);
@@ -106,9 +194,49 @@ class RemoteModel extends EventEmitter{
 
     }
 
-    toString(){
-        return `[${this.id}] ${this.name}`;
+    onHelper(event, handlerWithoutContext, context){
+        this.on(event, ()=>{
+            if (context){
+                handlerWithoutContext.apply(context, arguments);
+            }
+            else{
+                throw new Error("not tested without context");
+                handlerWithoutContext(arguments);
+            }
+        });
     }
+
+    toString(){
+        return `${this.constructor.name} {${this.id}, "${this.name}"}`;
+    }
+
+    /**
+     * обертака над стандартной autobahn.Session#subscribe()
+     * допом принимает контекст обработчика
+     * и конввертирует обычне Error в autobahn.Error, которые только одни передаются по WAMP
+     *
+     * @return {Promise<autobahn.Subscription>}
+     */
+    async subscribeHelper(topic, handler, options, context) {
+        let result = await WAMPFactory.getWAMP().session.subscribe(topic, async(args, kwargs, details)=> {
+            try {
+                if (context) {
+                    await handler.call(context, args, kwargs, details);
+                    return 1;
+                }
+                else {
+                    throw new Error("not tested");
+                    await handler(args, kwargs, details);
+                }
+            }
+            catch (err) {
+                this.log.error(this.toString(), `error on "${topic}" handler`, err);
+                throw err;
+            }
+        }, options);
+        this.log.debug(`${this} subscribed to "${topic}"`);
+        return result;
+    };
 }
 
 RemoteModel.event={

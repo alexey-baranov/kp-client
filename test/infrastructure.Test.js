@@ -37,7 +37,7 @@ describe('Infrastructure', function () {
     it('WAMP discloseCaller', async function (done) {
         try{
             let result= await WAMP.session.call("ru.kopa.discloseCaller", [], {}, {disclose_me: true});
-            assert.equal(result, "alexey_baranov@inbox.ru");
+            assert.equal(result, "unittest2@domain.ru");
             done();
         }
         catch(err){
@@ -96,6 +96,16 @@ describe('Infrastructure', function () {
             else {
                 done();
             }
+        }
+    });
+
+    it('should clean unit test data', async function (done) {
+        try {
+            await require("./UnitTestTempDataCleaner").clean();
+            done();
+        }
+        catch (err) {
+            done(err);
         }
     });
 });

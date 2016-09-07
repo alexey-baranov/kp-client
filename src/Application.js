@@ -15,7 +15,7 @@ class Application {
     static async onConnectionOpen(session, details) {
         try {
             this.log.info("connection opened");
-            this.kopnik = await model.Kopnik.get(1);
+            this.kopnik = await model.Kopnik.get(2);
 
             for (var eachRodina = this.kopnik.rodina; eachRodina; eachRodina = eachRodina.parent) {
                 this.log.debug("loading kopnik rodina", eachRodina.id);
