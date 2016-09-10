@@ -13,7 +13,7 @@ class Golos extends RemoteModel{
 
         this.value= undefined;
         this.owner= undefined;
-        this.target= undefined;
+        this.for= undefined;
     }
 
     getPlain(){
@@ -21,7 +21,7 @@ class Golos extends RemoteModel{
             id: this.id,
             value: this.value,
             owner_id: this.owner?this.owner.id:null,
-            target_id: this.target?this.target.id:null,
+            for_id: this.for?this.for.id:null,
             note: this.note,
             attachments:this.attachments?this.attachments.map(each=>each.id):[]
         };

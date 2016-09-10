@@ -14,7 +14,7 @@ class Predlozhenie extends RemoteModel{
         this.value= undefined;
         this.place= undefined;
         this.initiator= undefined;
-        this.votes= undefined;
+        this.golosa= undefined;
     }
 
     getPlain(){
@@ -28,6 +28,7 @@ class Predlozhenie extends RemoteModel{
         };
         return result;
     }
+
     /**
      *  вливает новое состояние в объект и вызывает события
      */
@@ -37,11 +38,55 @@ class Predlozhenie extends RemoteModel{
 
         this._isLoaded= true;
 
+        if (json.hasOwnProperty("value")) {
+            this.value = json.value;
+        }
+        if (json.hasOwnProperty("note")) {
+            this.note = json.note;
+        }
+        if (json.hasOwnProperty("attachments")) {
+            this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
+        }
+        if (json.hasOwnProperty("initiator_id")) {
+            this.initiator = Kopnik.getReference(json.initiator_id);
+        }
+        if (json.hasOwnProperty("place_id")) {
+            this.place = Kopa.getReference(json.place_id);
+        }
+
+        if (json.hasOwnProperty("value") && this.value!=prevState.value ||
+            json.hasOwnProperty("note") && this.note!=prevState.note ||
+            json.hasOwnProperty("initiator_id") && this.initiator!=prevState.initiator ||
+            json.hasOwnProperty("place_id") && this.place!= prevState.place ||
+            json.hasOwnProperty("attachments") && _.difference(this.attachments,prevState.attachments).length){
+
+            this.emit(RemoteModel.event.change, this);
+        }
+    }
+
+    async onPublication(args, kwargs, details){
+        super.onPublication(args, kwargs, details);
+        if (details.topic.match(/\.golosAdd$/)){
+            if (this.golosa){
+                let golos= await Golos.get(args[0]);
+                this.golosa.push(golos);
+                this.emit(Predlozhenie.event.golosAdd, this, golos);
+            }
+        }
     }
 
     toString(){
-        return `${this.constructor.name} {${this.id}, "${this.value.substr(0,10)}"`;
+        return `${this.constructor.name} {${this.id}, "${this.value.substr(0,10)}"}`;
     }
 }
 
+Predlozhenie.event={
+    golosaReload: "golosaReload",
+    golosAdd: "golosAdd",
+};
+
 module.exports= Predlozhenie;
+
+let Kopnik= require("./Kopnik");
+let Kopa= require("./Kopa");
+let Golos= require("./Golos");

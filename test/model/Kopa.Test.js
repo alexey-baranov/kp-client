@@ -20,6 +20,8 @@ let WAMP = WAMPFactory.getWAMP();
 
 describe('Kopa', function () {
     before(function () {
+        models.RemoteModel.clearCache();
+
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {
                 session.prefix('api', 'ru.kopa');
@@ -66,31 +68,61 @@ describe('Kopa', function () {
         });
     });
 
-    describe('Slovo.create() emit Kopa#addSlovo', async function () {
+    describe('events', async function () {
         let kopnik,
             kopa;
-        it('Kopa#addSlovo', async function (done) {
+
+        it('Slovo.create() -> Kopa.emit(addSlovo)', async function (done) {
             try {
                 kopnik = await models.Kopnik.get(KOPNIK2);
                 kopa = await models.Kopa.get(KOPA);
+
                 kopa.dialog=[];
-
-                let value = "some Slovo temp";
-                let slovo = await models.Slovo.create({
-                    value: value,
-                    place: kopa,
-                    owner: kopnik,
-                });
-
                 kopa.on(models.Kopa.event.slovoAdd, (sender, add)=> {
                     try {
-                        assert.equal(add instanceof models.Slovo, true);
-                        assert.equal(sender.dialog[0], add);
+                        assert.equal(add instanceof models.Slovo, true, "add instanceof models.Slovo");
+                        assert.equal(sender.dialog[0], add, "sender.dialog[0], add");
                         done();
                     }
                     catch (err) {
                         done(err);
                     }
+                });
+
+                let value = "some Slovo temp "+new Date().getTime();
+                let slovo = await models.Slovo.create({
+                    value: value,
+                    place: kopa,
+                    owner: kopnik,
+                });
+            }
+            catch (err) {
+                done(err);
+            }
+        });
+
+        it('Predlozhenie.create() -> Kopa.emit(addPredlozhenie)', async function (done) {
+            try {
+                kopnik = await models.Kopnik.get(KOPNIK2);
+                kopa = await models.Kopa.get(KOPA);
+
+                kopa.result=[];
+                kopa.on(models.Kopa.event.predlozhenieAdd, (sender, add)=> {
+                    try {
+                        assert.equal(add instanceof models.Predlozhenie, true, "add instanceof models.Predlozhenie");
+                        assert.equal(sender.result[0], add, "sender.result[0], add");
+                        done();
+                    }
+                    catch (err) {
+                        done(err);
+                    }
+                });
+
+                let value = "some Predlozhenie temp "+new Date().getTime();
+                let predlozhenie = await models.Predlozhenie.create({
+                    value: value,
+                    place: kopa,
+                    initiator: kopnik,
                 });
             }
             catch (err) {

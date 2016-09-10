@@ -3,12 +3,22 @@
  */
 
 if (!global.log4javascript){
-    console.addAppender= function(){};
-    console.debug= console.log;
+    class Logger{
+        constructor(){
+            this.trace= this.debug= this.info= this.warn= this.error= this.fatal= function(){
+                console.log(" ");
+                console.log.apply(console, arguments);
+            };
+
+            this.addAppender= function(){};
+
+        }
+
+    }
 
     global.log4javascript= class{
         static getRootLogger(){
-            return console;
+            return new Logger();
         }
         static getLogger(){
             return this.getRootLogger();
@@ -21,5 +31,5 @@ if (!global.log4javascript){
     global.log4javascript.BrowserConsoleAppender= class{
         setLayout(){}
     };
-    global.log4javascript.PatternLayout= function(){};
+    global.log4javascript.PatternLayout= class{};
 }

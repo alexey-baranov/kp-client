@@ -8,15 +8,17 @@ let autobahn = require("autobahn");
 let config = require("../../cfg/main")[process.env.NODE_ENV || 'local-db'];
 require("../../src/bootstrap");
 let _ = require("lodash");
-let WAMPFactory= require("../../src/WAMPFactory");
+let WAMPFactory = require("../../src/WAMPFactory");
 
 let KOPNIK2 = 2;
 let KOPNIK3 = 3;
+let KOPNIK4 = 4;
 let ZEMLA2 = 2;
 let ZEMLA3 = 3;
-let KOPA=3;
+let KOPA = 3;
 
-let WAMP= WAMPFactory.getWAMP();
+
+let WAMP = WAMPFactory.getWAMP();
 
 describe('Kopnik', function () {
     before(function () {
@@ -31,11 +33,11 @@ describe('Kopnik', function () {
         });
     });
 
-    after(function(){
+    after(function () {
         // return require("../UnitTestTempDataCleaner").clean("Slovo");
     });
 
-    after(function(){
+    after(function () {
         return new Promise(function (res, rej) {
             WAMP.onclose = function (session, details) {
                 res();
@@ -44,64 +46,8 @@ describe('Kopnik', function () {
         });
     });
 
-    describe('#getReference()', function () {
-        it('should return Kopnik reference', function () {
-            let kopnik1 = models.Kopnik.getReference(KOPNIK2);
-            assert.equal(true, kopnik1 instanceof models.Kopnik);
-            assert.equal(KOPNIK2, kopnik1.id);
-            assert.equal(false, kopnik1._isLoaded);
-            assert.equal(kopnik1, models.Kopnik.getReference(KOPNIK2));
-        });
-    });
-
-    describe('#get()', function () {
-        let kopnik1 = null;
-        // this.timeout(5000);
-        it('should return loaded Kopnik Unit Test', function (done) {
-            // throw new Error(123);
-            models.Kopnik.get(KOPNIK2)
-                .then(function (localKopnik) {
-                    kopnik1 = localKopnik;
-                    if (kopnik1 instanceof models.Kopnik && kopnik1.name == "Unit" && kopnik1._isLoaded && _.isArray(kopnik1.attachments)) {
-                        done();
-                    }
-                    else {
-                        done(new Error());
-                    }
-                })
-                .catch(function (er) {
-                    done(er);
-                });
-        });
-
-        it("2'nd call should return equal object", function (done) {
-            models.Kopnik.get(KOPNIK2)
-                .then(function (localKopnik) {
-                    if (kopnik1 == localKopnik) {
-                        done();
-                    }
-                    else {
-                        done(new Error());
-                    }
-                })
-                .catch(function () {
-
-                });
-        });
-
-        it("should return equal as #getReference()", function (done) {
-            models.Kopnik.get(KOPNIK2)
-                .then(function (localKopnik) {
-                    if (localKopnik == models.Kopnik.getReference(KOPNIK2)) {
-                        done();
-                    }
-                    else {
-                        done(new Error())
-                    }
-                });
-        });
-
-        it('#rodina should return instance of Zemla', function (done) {
+    describe("#get()", function () {
+        it('#rodina should be instance of Zemla', function (done) {
             models.Kopnik.get(KOPNIK2)
                 .then(function (localKopnik) {
                     if (localKopnik.rodina instanceof models.Zemla) {
@@ -113,4 +59,93 @@ describe('Kopnik', function () {
                 });
         });
     });
+
+    describe("#setStarshina()", function (done) {
+        let someKopnik1,
+            someKopnik2;
+        /**
+         * создаю два копника один старшина другому на втором
+         */
+        it('should emit voiskoChange twice', async function (done) {
+            try {
+                let eventCount = 0;
+                let kopnik2 = await models.Kopnik.get(KOPNIK2);
+
+                kopnik2.on(models.Kopnik.event.voiskoChange, async()=> {
+                    eventCount++;
+
+                    if (eventCount ==1 && kopnik2.voiskoSize!=2) {
+                        done(new Error("kopnik2.voiskoSize!=2"));
+                    }
+
+                    if (eventCount ==2 && kopnik2.voiskoSize!=3) {
+                        done(new Error("kopnik2.voiskoSize!=3"));
+                    }
+                    if (eventCount ==2){
+                        done();
+                    }
+                });
+
+                someKopnik1 = await models.Kopnik.create({
+                    name: "temp",
+                    surname: "temp",
+                    patronymic: "temp",
+                    birth: 1900,
+                    starshina: models.Kopnik.getReference(KOPNIK2),
+                    zemla: models.Zemla.getReference(ZEMLA2),
+                });
+
+                someKopnik2 = await models.Kopnik.create({
+                    name: "temp",
+                    surname: "temp",
+                    patronymic: "temp",
+                    birth: 1900,
+                    starshina: someKopnik1,
+                    zemla: models.Zemla.get(ZEMLA2),
+                });
+            }
+            catch (err) {
+                done(err);
+            }
+        });
+
+        /**
+         * перекидываю копника с дружинником на третьего
+         * сначала прилетают события открепления дружины
+         * потом прикрепления
+         */
+        it('should emit voiskoChange twice', async function (done) {
+            try {
+                let kopnik4 = await models.Kopnik.get(KOPNIK4);
+
+                /**
+                 * сначала прилетают события открепления дружины
+                 * потом прикрепления
+                 */
+                kopnik2.once(models.Kopnik.event.voiskoChange, async()=> {
+                    try{
+                        assert.equal(kopnik2.voiskoSize, 1, "kopnik2.voiskoSize, 1");
+                        kopnik4.once(models.Kopnik.event.voiskoChange, async()=> {
+                            try{
+                                assert.equal(kopnik4.voiskoSize, 2, "kopnik4.voiskoSize, 2");
+                                done();
+                            }
+                            catch(err){
+                                done(err);
+                            }
+                        });
+                    }
+                    catch(err){
+                        done(err);
+                    }
+                });
+                someKopnik2.setDruzhina(models.Kopnik.getReference(KOPNIK3));
+            }
+            catch (err) {
+                done(err);
+            }
+        });
+    });
+
+
 });

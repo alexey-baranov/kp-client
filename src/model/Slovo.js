@@ -56,7 +56,7 @@ class Slovo extends RemoteModel{
         if (json.hasOwnProperty("value") && this.value!=prevState.value ||
             json.hasOwnProperty("note") && this.note!=prevState.note ||
             json.hasOwnProperty("owner_id") && this.owner!=prevState.owner ||
-            json.hasOwnProperty("place_id") && this.placeplace ||
+            json.hasOwnProperty("place_id") && this.place!= prevState.place ||
             json.hasOwnProperty("attachments") && _.difference(this.attachments,prevState.attachments).length){
 
             this.emit(RemoteModel.event.change, this);

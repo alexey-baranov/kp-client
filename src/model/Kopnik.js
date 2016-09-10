@@ -25,6 +25,8 @@ class Kopnik extends RemoteModel{
         this.starshina= undefined;
         this.druzhina= undefined;
 
+        this.voiskoSize= undefined;
+
         this.invited= undefined;
         this.initiated= undefined;
         this.sayd= undefined;
@@ -44,19 +46,6 @@ class Kopnik extends RemoteModel{
             attachments:this.attachments?this.attachments.map(each=>each.id):[]
         };
         return result;
-    }
-
-    updateLastActiveTime(){
-
-    }
-
-    onlineTimer_tick(){
-        this.updateLastActiveTime();
-    }
-
-    beOnline(){
-        this.onlineTimer.start();
-        return this.updateLastActiveTime();
     }
 
     /**
@@ -87,6 +76,31 @@ class Kopnik extends RemoteModel{
         }
     }
 
+    async onPublication(args, kwargs, details){
+        super.onPublication(args, kwargs, details);
+        if (details.topic.match(/\.voiskoChange$/)){
+            this.voiskoSize= kwargs.voiskoSize;
+            this.emit(Kopnik.event.voiskoChange, this);
+
+            if (this.druzhina){
+                throw new Error("дружина устарела");
+            }
+        }
+    }
+
+    updateLastActiveTime(){
+
+    }
+
+    onlineTimer_tick(){
+        this.updateLastActiveTime();
+    }
+
+    beOnline(){
+        this.onlineTimer.start();
+        return this.updateLastActiveTime();
+    }
+
     toString(){
         return `${this.constructor.name} {${this.id}, "${this.surname} ${this.name}"}`;
     }
@@ -98,6 +112,11 @@ Kopnik.Status= {
 };
 
 Kopnik.OFFLINE_INTERVAL=5000;
+
+Kopnik.event={
+    voiskoChange: "voiskoChange",
+    starshinaChange: "starshinaChange",
+};
 
 module.exports= Kopnik;
 

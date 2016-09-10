@@ -18,7 +18,7 @@ class Kopa extends RemoteModel{
         this.started= undefined;
         this.closed= undefined;
         this.dialog= undefined;
-        this.results= undefined;
+        this.result= undefined;
     }
 
     getPlain(){
@@ -43,6 +43,13 @@ class Kopa extends RemoteModel{
                 let slovo= await Slovo.get(args[0]);
                 this.dialog.push(slovo);
                 this.emit(Kopa.event.slovoAdd, this, slovo);
+            }
+        }
+        else if (details.topic.match(/\.predlozhenieAdd$/)){
+            if (this.result){
+                let predlozhenie= await Predlozhenie.get(args[0]);
+                this.result.push(predlozhenie);
+                this.emit(Kopa.event.predlozhenieAdd, this, predlozhenie);
             }
         }
     }
@@ -99,8 +106,10 @@ class Kopa extends RemoteModel{
 Kopa.event={
     slovaReloaded: "slovaReloaded",
     slovoAdd: "slovoAdd",
+    predlozhenieAdd: "predlozhenieAdd",
 };
 
 module.exports= Kopa;
 
 let Slovo= require("./Slovo");
+let Predlozhenie= require("./Predlozhenie");

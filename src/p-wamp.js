@@ -1,20 +1,34 @@
 /**
  * Created by alexey2baranov on 8/9/16.
  */
-var autobahn= require("autobahn");
+var autobahn = require("autobahn");
+let WAMP = require("./WAMPFactory").getWAMP();
 
-var connection = new autobahn.Connection({
-    url: "ws://127.0.0.1:8080/ws",
-    realm: "kopa"
-});
+WAMP.onopen = function (session, details) {
+    /*
+     session.call('com.myapp.add2', [2, 3])
+     .then(res=>console.log('sum is', res), session.log);
+     */
+    (async function () {
+        try {
+            let handler = function (args, kwargs, details) {
+                console.log(args, kwargs, details);
+            };
 
-connection.onopen = function (session, details) {
-/*
-    session.call('com.myapp.add2', [2, 3])
-        .then(res=>console.log('sum is', res), session.log);
-*/
+            for (let i=0; i<100; i++){
+                for (let k=0; k<500; k++) {
+                    await session.subscribe(`ru.kopa.model.Kopa.id${i}`, handler);
+                }
+                console.log(i, process.memoryUsage().rss);
+            }
 
-    session.subscribe("com.myapp.oncounter", session.log);
+            let start= new Date();
+            await session.publish("ru.kopa.model.Kopa.id0", [1, 2, 3], null, {exclude_me: false});
+            console.log("total publicsk time", (new Date()-start)/1000);
+        } catch (err) {
+            console.log(err);
+        }
+    })();
 };
 
-connection.open();
+WAMP.open();

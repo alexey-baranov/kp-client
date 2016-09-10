@@ -85,9 +85,10 @@ class RemoteModel extends EventEmitter{
         return result;
     }
 
-    onPublication(args, kwargs, details){
+    async onPublication(args, kwargs, details){
         if (details.topic.match(/\.change$/)){
-            this.merge(kwargs);
+            await this.reload();
+            this.emit(RemoteModel.event.change, this);
         }
     }
 
@@ -146,7 +147,9 @@ class RemoteModel extends EventEmitter{
     }
 
     static get(id){
-        return this.getReference(id).reload();
+        let result= this.getReference(id);
+
+        return result._isLoaded?Promise.resolve(result):result.reload();
     }
 
 
@@ -155,18 +158,26 @@ class RemoteModel extends EventEmitter{
      * @returns {Promise.<RemoteModel>}
      */
     async reload(){
-        let isFirstLoad= !this._isLoaded;
+        let isLoadedBefore= this._isLoaded;
         let json= await WAMPFactory.getWAMP().session.call("ru.kopa.model.get",[1,2.3],{
             model:this.constructor.name,
             id:this.id});
-        this.merge(json);
 
-        if (isFirstLoad) {
+        /**
+         * есть вероятность что ушло два параллельных .get()
+         * или текущий .get() начинался внутри .create()
+         * и к моменту #merge() модель уже загружена
+         */
+        if (!isLoadedBefore && this._isLoaded){
+            this.log.debug(`${this} loaded in concurent thread. merging skipped. subscription skipped`);
+        }
+        else if (!isLoadedBefore){
+            this.merge(json);
             await this.subscribeHelper(`api:model.${this.constructor.name}.id${this.id}.`, this.onPublication, {match: 'wildcard'}, this);
         }
-
-        // console.log(this, "merged");
-
+        else {
+            this.merge(json);
+        }
         return this;
     }
 
@@ -230,11 +241,12 @@ class RemoteModel extends EventEmitter{
                 }
             }
             catch (err) {
-                this.log.error(this.toString(), `error on "${topic}" handler`, err);
+                this.log.error(this.toString(), `error on "${details.topic}" subscription`, err);
                 throw err;
             }
         }, options);
         this.log.debug(`${this} subscribed to "${topic}"`);
+        // console.debug(`${this} subscribed to "${topic}"`);
         return result;
     };
 }
