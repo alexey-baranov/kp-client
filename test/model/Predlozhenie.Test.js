@@ -81,6 +81,9 @@ describe('Predlozhenie', function () {
                 predlozhenie.golosa=[];
                 predlozhenie.on(models.Predlozhenie.event.golosAdd, (sender, add)=> {
                     try {
+                        if (!golos){
+                            done(new Error("Событие прилетело раньше чем создался объект"));
+                        }
                         assert.equal(add, golos);
                         done();
                     }

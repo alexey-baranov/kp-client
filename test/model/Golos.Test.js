@@ -55,11 +55,11 @@ describe('Golos', function () {
                 let kopa = await models.Kopa.get(KOPA);
 
                 await WAMP.session.subscribe(`api:model.Predlozhenie.id${PREDLOZHENIE}.golosAdd`, function (args) {
-                    if (golos) {
-                        done();
+                    if (!golos) {
+                        done(new Error("событие пришло раньше чем голос был создан"));
                     }
                     else{
-                        done(new Error("голос не создан или событие пришло раньше создания"));
+                        done();
                     }
                 });
 

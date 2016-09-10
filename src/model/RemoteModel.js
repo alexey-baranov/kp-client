@@ -85,10 +85,21 @@ class RemoteModel extends EventEmitter{
         return result;
     }
 
-    async onPublication(args, kwargs, details){
+/*    async onPublication(args, kwargs, details){
         if (details.topic.match(/\.change$/)){
             await this.reload();
             this.emit(RemoteModel.event.change, this);
+        }
+    }*/
+    onPublication(args, kwargs, details){
+        if (details.topic.match(/\.change$/)){
+            return this.reload()
+                .then(()=>{
+                    this.emit(RemoteModel.event.change, this);
+                });
+        }
+        else{
+            return Promise.resolve();
         }
     }
 
@@ -119,7 +130,7 @@ class RemoteModel extends EventEmitter{
         Object.assign(result, value);
         result._isLoaded= true;
 
-        await result.subscribeHelper(`api:model.${this.name}.id${result.id}.`, this.onPublication, { match: 'wildcard' } ,this);
+        await result.subscribeToWAMPPublications();
 
         return result;
     }
@@ -173,12 +184,16 @@ class RemoteModel extends EventEmitter{
         }
         else if (!isLoadedBefore){
             this.merge(json);
-            await this.subscribeHelper(`api:model.${this.constructor.name}.id${this.id}.`, this.onPublication, {match: 'wildcard'}, this);
+            await this.subscribeToWAMPPublications();
         }
         else {
             this.merge(json);
         }
         return this;
+    }
+
+    async subscribeToWAMPPublications(){
+        await this.subscribeHelper(`api:model.${this.constructor.name}.id${this.id}.`, this.onPublication, {match: 'wildcard'}, this);
     }
 
 
@@ -229,11 +244,13 @@ class RemoteModel extends EventEmitter{
      * @return {Promise<autobahn.Subscription>}
      */
     async subscribeHelper(topic, handler, options, context) {
+        if (!handler){
+            throw new Error("subscribeHelper(handler==null)", topic);
+        }
         let result = await WAMPFactory.getWAMP().session.subscribe(topic, async(args, kwargs, details)=> {
             try {
                 if (context) {
                     await handler.call(context, args, kwargs, details);
-                    return 1;
                 }
                 else {
                     throw new Error("not tested");

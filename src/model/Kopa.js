@@ -37,7 +37,7 @@ class Kopa extends RemoteModel{
     }
 
     async onPublication(args, kwargs, details){
-        super.onPublication(args, kwargs, details);
+        await super.onPublication(args, kwargs, details);
         if (details.topic.match(/\.slovoAdd$/)){
             if (this.dialog){
                 let slovo= await Slovo.get(args[0]);

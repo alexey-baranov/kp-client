@@ -22,7 +22,6 @@ let WAMP = WAMPFactory.getWAMP();
 
 describe('Kopnik', function () {
     before(function () {
-        models.RemoteModel.clearCache();
 
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {
@@ -30,7 +29,12 @@ describe('Kopnik', function () {
                 res();
             };
             WAMP.open();
-        });
+        })
+            .then(function(){
+                models.RemoteModel.clearCache();
+                return WAMP.session.call("ru.kopa.unitTest.cleanTempData",['Kopnik']);
+            })
+            .catch(err=>console.log);
     });
 
     after(function () {
@@ -62,26 +66,31 @@ describe('Kopnik', function () {
 
     describe("#setStarshina()", function (done) {
         let someKopnik1,
-            someKopnik2;
+            someKopnik2,
+            kopnik2;
         /**
          * создаю два копника один старшина другому на втором
          */
         it('should emit voiskoChange twice', async function (done) {
             try {
                 let eventCount = 0;
-                let kopnik2 = await models.Kopnik.get(KOPNIK2);
+                kopnik2 = await models.Kopnik.get(KOPNIK2);
+                let listener;
 
-                kopnik2.on(models.Kopnik.event.voiskoChange, async()=> {
+                kopnik2.on(models.Kopnik.event.voiskoChange, listener= ()=> {
                     eventCount++;
 
                     if (eventCount ==1 && kopnik2.voiskoSize!=2) {
+                        kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
                         done(new Error("kopnik2.voiskoSize!=2"));
                     }
 
                     if (eventCount ==2 && kopnik2.voiskoSize!=3) {
+                        kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
                         done(new Error("kopnik2.voiskoSize!=3"));
                     }
                     if (eventCount ==2){
+                        kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
                         done();
                     }
                 });
@@ -114,7 +123,7 @@ describe('Kopnik', function () {
          * сначала прилетают события открепления дружины
          * потом прикрепления
          */
-        it('should emit voiskoChange twice', async function (done) {
+        it('should emit voiskoChange down and up', async function (done) {
             try {
                 let kopnik4 = await models.Kopnik.get(KOPNIK4);
 
@@ -122,10 +131,10 @@ describe('Kopnik', function () {
                  * сначала прилетают события открепления дружины
                  * потом прикрепления
                  */
-                kopnik2.once(models.Kopnik.event.voiskoChange, async()=> {
+                kopnik2.once(models.Kopnik.event.voiskoChange, ()=> {
                     try{
                         assert.equal(kopnik2.voiskoSize, 1, "kopnik2.voiskoSize, 1");
-                        kopnik4.once(models.Kopnik.event.voiskoChange, async()=> {
+                        kopnik4.once(models.Kopnik.event.voiskoChange, ()=> {
                             try{
                                 assert.equal(kopnik4.voiskoSize, 2, "kopnik4.voiskoSize, 2");
                                 done();
@@ -139,7 +148,7 @@ describe('Kopnik', function () {
                         done(err);
                     }
                 });
-                someKopnik2.setDruzhina(models.Kopnik.getReference(KOPNIK3));
+                someKopnik1.setStarshina(models.Kopnik.getReference(KOPNIK4));
             }
             catch (err) {
                 done(err);

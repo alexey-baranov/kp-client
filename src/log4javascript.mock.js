@@ -7,6 +7,9 @@ if (!global.log4javascript){
         constructor(){
             this.trace= this.debug= this.info= this.warn= this.error= this.fatal= function(){
                 console.log(" ");
+                if (!console.log){
+                    let x=1;
+                }
                 console.log.apply(console, arguments);
             };
 

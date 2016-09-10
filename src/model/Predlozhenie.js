@@ -65,7 +65,7 @@ class Predlozhenie extends RemoteModel{
     }
 
     async onPublication(args, kwargs, details){
-        super.onPublication(args, kwargs, details);
+        await super.onPublication(args, kwargs, details);
         if (details.topic.match(/\.golosAdd$/)){
             if (this.golosa){
                 let golos= await Golos.get(args[0]);

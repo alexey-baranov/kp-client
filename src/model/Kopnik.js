@@ -6,6 +6,7 @@
 var DisplacingTimer= require("displacing-timer");
 var RemoteModel= require("./RemoteModel");
 let _= require("lodash");
+let WAMPFactory = require("../WAMPFactory");
 
 
 class Kopnik extends RemoteModel{
@@ -77,7 +78,7 @@ class Kopnik extends RemoteModel{
     }
 
     async onPublication(args, kwargs, details){
-        super.onPublication(args, kwargs, details);
+        await super.onPublication(args, kwargs, details);
         if (details.topic.match(/\.voiskoChange$/)){
             this.voiskoSize= kwargs.voiskoSize;
             this.emit(Kopnik.event.voiskoChange, this);
@@ -86,6 +87,14 @@ class Kopnik extends RemoteModel{
                 throw new Error("дружина устарела");
             }
         }
+    }
+
+    async setStarshina(value){
+        if (!WAMPFactory.getWAMP().session){
+            let x=1;
+        }
+        await WAMPFactory.getWAMP().session.call("api:model.Kopnik.setStarshina", null, {KOPNIK: this.id, STARSHINA:value.id});
+        this.starshina= value;
     }
 
     updateLastActiveTime(){

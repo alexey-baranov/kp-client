@@ -20,6 +20,7 @@ let WAMP = WAMPFactory.getWAMP();
 
 describe('RemoteModel', function () {
     before(function () {
+        models.RemoteModel.clearCache();
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {
                 session.prefix('api', 'ru.kopa');
