@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 9/6/16.
  */
+"use strict";
 
 let _ = require("lodash");
 let WAMP= require("../src/WAMPFactory").getWAMP();

@@ -1,7 +1,6 @@
 /**
  * Created by alexey2baranov on 5/13/16.
  */
-
 "use strict";
 
 var DisplacingTimer= require("displacing-timer");
@@ -170,7 +169,7 @@ class RemoteModel extends EventEmitter{
      */
     async reload(){
         let isLoadedBefore= this._isLoaded;
-        let json= await WAMPFactory.getWAMP().session.call("ru.kopa.model.get",[1,2.3],{
+        let json= await WAMPFactory.getWAMP().session.call("ru.kopa.model.get",[],{
             model:this.constructor.name,
             id:this.id});
 
@@ -220,7 +219,7 @@ class RemoteModel extends EventEmitter{
 
     }
 
-    onHelper(event, handlerWithoutContext, context){
+/*    onHelper(event, handlerWithoutContext, context){
         this.on(event, ()=>{
             if (context){
                 handlerWithoutContext.apply(context, arguments);
@@ -230,7 +229,7 @@ class RemoteModel extends EventEmitter{
                 handlerWithoutContext(arguments);
             }
         });
-    }
+    }*/
 
     toString(){
         return `${this.constructor.name} {${this.id}, "${this.name}"}`;
@@ -258,7 +257,7 @@ class RemoteModel extends EventEmitter{
                 }
             }
             catch (err) {
-                this.log.error(this.toString(), `error on "${details.topic}" subscription`, err);
+                this.log.error(this.toString(), `error on "${details.topic}" subscription`, err, err.stack);
                 throw err;
             }
         }, options);

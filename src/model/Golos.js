@@ -3,6 +3,8 @@
  * To change this template Golos, choose Tools | Templates
  * and open the template in the editor.
  */
+"use strict";
+
 var RemoteModel= require("./RemoteModel");
 let _= require("lodash");
 

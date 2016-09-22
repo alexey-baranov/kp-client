@@ -1,6 +1,8 @@
 /**
  * Created by alexey2baranov on 8/9/16.
  */
+"use strict";
+
 var autobahn = require("autobahn");
 let WAMP = require("./WAMPFactory").getWAMP();
 

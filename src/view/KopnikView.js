@@ -1,6 +1,8 @@
 /**
  * Created by alexey2baranov on 8/25/16.
  */
+"use strict";
+
 let AbstractView= require("./AbstractView");
 let Kopnik= require("../model/Kopnik");
 let $= require("jquery");
@@ -23,8 +25,8 @@ class KopnikView extends AbstractView{
 
         model.on(Kopnik.event.change, ()=>this.invalidate());
 
-        if (model.rodina){
-            this.zemlaView= new ZemlaView(model.rodina, this, "zemla");
+        if (model.dom){
+            this.zemlaView= new ZemlaView(model.dom, this, "zemla");
         }
         else{
             this.zemlaView= null;

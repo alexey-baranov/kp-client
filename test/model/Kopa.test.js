@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 8/26/16.
  */
+"use strict";
 
 var assert = require('chai').assert;
 var models = require("../../src/model");
@@ -10,11 +11,9 @@ require("../../src/bootstrap");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
 
-let KOPNIK2 = 2;
-let KOPNIK3 = 3;
-let ZEMLA2 = 2;
-let ZEMLA3 = 3;
-let KOPA = 3;
+let KOPNIK = 2,
+    ZEMLA = 2,
+    KOPA= 3;
 
 let WAMP = WAMPFactory.getWAMP();
 
@@ -74,7 +73,7 @@ describe('Kopa', function () {
 
         it('Slovo.create() -> Kopa.emit(addSlovo)', async function (done) {
             try {
-                kopnik = await models.Kopnik.get(KOPNIK2);
+                kopnik = await models.Kopnik.get(KOPNIK);
                 kopa = await models.Kopa.get(KOPA);
 
                 kopa.dialog=[];
@@ -103,7 +102,7 @@ describe('Kopa', function () {
 
         it('Predlozhenie.create() -> Kopa.emit(addPredlozhenie)', async function (done) {
             try {
-                kopnik = await models.Kopnik.get(KOPNIK2);
+                kopnik = await models.Kopnik.get(KOPNIK);
                 kopa = await models.Kopa.get(KOPA);
 
                 kopa.result=[];

@@ -3,6 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+"use strict";
+
 var DisplacingTimer= require("displacing-timer");
 var RemoteModel= require("./RemoteModel");
 let _= require("lodash");
@@ -22,7 +24,7 @@ class Kopnik extends RemoteModel{
         this.birth= undefined;
         this.isOnline= undefined;
 
-        this.rodina= undefined;
+        this.dom= undefined;
         this.starshina= undefined;
         this.druzhina= undefined;
 
@@ -41,7 +43,7 @@ class Kopnik extends RemoteModel{
             surname: this.surname,
             patronymic: this.patronymic,
             birth: this.birth,
-            rodina_id: this.rodina?this.rodina.id:null,
+            dom_id: this.dom?this.dom.id:null,
             starshina_id: this.starshina?this.starshina.id:null,
             note: this.note,
             attachments:this.attachments?this.attachments.map(each=>each.id):[]
@@ -66,12 +68,13 @@ class Kopnik extends RemoteModel{
         this.isOnline= json.isOnline;
         this.note= json.note;
 
-        this.rodina= Zemla.getReference(json.rodina_id);
+        this.dom= Zemla.getReference(json.dom_id);
         this.attachments= json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
 
         if (this.email!=prevState.email || this.name!=prevState.name || this.surname!=prevState.surname ||
             this.patronymic!=prevState.patronymic || this.birth !=prevState.birth || this.note!=prevState.note ||
-            this.rodina!=prevState.rodina || _.difference(this.attachments,prevState.attachments).length){
+            this.dom!=prevState.dom ||
+            _.difference(this.attachments,prevState.attachments).length){
 
             this.emit(Kopnik.event.change, this);
         }
@@ -87,6 +90,9 @@ class Kopnik extends RemoteModel{
                 throw new Error("дружина устарела");
             }
         }
+        else if (details.topic.match(/\.starshinaChange$/)){
+            this.emit(Kopnik.event.starshinaChange, this);
+        }
     }
 
     async setStarshina(value){
@@ -95,6 +101,7 @@ class Kopnik extends RemoteModel{
         }
         await WAMPFactory.getWAMP().session.call("api:model.Kopnik.setStarshina", null, {KOPNIK: this.id, STARSHINA:value.id});
         this.starshina= value;
+        this.emit(Kopnik.event.starshinaChange, this);
     }
 
     updateLastActiveTime(){

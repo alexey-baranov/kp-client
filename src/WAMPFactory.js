@@ -1,6 +1,8 @@
 /**
  * Created by alexey2baranov on 8/20/16.
  */
+"use strict";
+
 let config = require("./../cfg/main")[process.env.NODE_ENV || 'local-db'];
 let autobahn = require("autobahn");
 

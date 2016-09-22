@@ -1,0 +1,12 @@
+{
+    "sourceMaps": "inline",
+    "plugins": [
+        "fast-async",
+        "transform-class-properties",
+        "transform-es2015-parameters",
+        "transform-es2015-destructuring"
+    ],
+    "ignore": [
+        "./node_modules/**/*.js"
+    ]
+}

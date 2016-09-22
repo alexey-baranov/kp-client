@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 8/20/16.
  */
+"use strict";
 
 let RemoteModel= require("./RemoteModel"); //для того чтобы правильно работали рекурсивные ссылки модулей
 let Zemla= require("./Zemla");

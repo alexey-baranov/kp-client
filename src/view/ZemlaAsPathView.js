@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 8/30/16.
  */
+"use strict";
 
 let Zemla= require("../model/Zemla");
 let $= require("jquery");
@@ -12,7 +13,7 @@ class ZemlaAsPathView extends AbstractView{
         let model= this.model;
 
         $(`#${this.io}`).click(()=>{
-            Application.page.setRodina(model);
+            Application.page.setDom(model);
         });
     }
 }

@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 8/30/16.
  */
+"use strict";
 
 let Page = require("../Page");
 let $ = require("jquery");
@@ -14,10 +15,10 @@ class PageView extends AbstractView {
     constructor(model, parent, IO) {
         super(model, parent, IO);
 
-        this.rodinasViews = [];
+        this.domsViews = [];
 
-        for (var rodina = Application.kopnik.rodina; rodina; rodina = rodina.parent) {
-            this.rodinasViews.unshift(new ZemlaAsPathView(rodina, this, "path_" + rodina.id));
+        for (var dom = Application.kopnik.dom; dom; dom = dom.parent) {
+            this.domsViews.unshift(new ZemlaAsPathView(dom, this, "path_" + dom.id));
         }
     }
 
@@ -25,10 +26,10 @@ class PageView extends AbstractView {
         super.setModel(value);
         let model = this.model;
 
-        this.onHelper(Page.event.rodinaChanged, this.onRodinaChanged, this);
-        this.onHelper(Page.event.kopaChanged, this.onKopaChanged, this);
+        this.setModelListener(Page.event.domChanged, this.onDomChanged, this);
+        this.setModelListener(Page.event.kopaChanged, this.onKopaChanged, this);
 
-        this.rodinaView = new ZemlaAsListView(model.rodina, this, "rodina");
+        this.domView = new ZemlaAsListView(model.dom, this, "dom");
         this.kopaView = new KopaView(model.kopa, this, "kopa");
     }
 
@@ -42,15 +43,15 @@ class PageView extends AbstractView {
     attach(){
         let model= this.model;
 
-        for(let eachRodinaView of this.rodinasViews){
-            eachRodinaView.attach();
+        for(let eachDomView of this.domsViews){
+            eachDomView.attach();
         }
 
         if (model.kopa){
             this.kopaView.attach();
         }
         else{
-            this.rodinaView.attach();
+            this.domView.attach();
         }
     }
 
@@ -62,7 +63,7 @@ class PageView extends AbstractView {
 
     }
 
-    onRodinaChanged() {
+    onDomChanged() {
 
     }
 }

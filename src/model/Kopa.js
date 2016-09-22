@@ -3,6 +3,8 @@
  * To change this template Golos, choose Tools | Templates
  * and open the template in the editor.
  */
+"use strict";
+
 var RemoteModel= require("./RemoteModel");
 let WAMP= require("../WAMPFactory").getWAMP();
 let _= require("lodash");
@@ -14,9 +16,7 @@ class Kopa extends RemoteModel{
         this.place= undefined;
         this.inviter= undefined;
         this.question= undefined;
-        this.planned= undefined;
-        this.started= undefined;
-        this.closed= undefined;
+        this.invited= undefined;
         this.dialog= undefined;
         this.result= undefined;
     }
@@ -27,14 +27,44 @@ class Kopa extends RemoteModel{
             place_id: this.place?this.place.id:null,
             inviter_id: this.inviter?this.inviter.id:null,
             question: this.question,
-            planned: this.planned,
-            started: this.started,
-            closed: this.closed,
+            invited: this.invited,
             note: this.note,
             attachments:this.attachments?this.attachments.map(each=>each.id):[]
         };
         return result;
     }
+
+    /**
+     *  вливает новое состояние в объект и вызывает события
+     */
+    merge(json){
+        var prevState= {};
+        Object.assign(prevState, this);
+
+        this._isLoaded= true;
+
+        if (json.hasOwnProperty("question")) {
+            this.question = json.question;
+        }
+        if (json.hasOwnProperty("invited")) {
+            this.invited = json.invited;
+        }
+        if (json.hasOwnProperty("note")) {
+            this.note = json.note;
+        }
+        if (json.hasOwnProperty("attachments")) {
+            this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
+        }
+
+        if (json.hasOwnProperty("question") && this.question!=prevState.question ||
+            json.hasOwnProperty("invited") && this.invited!=prevState.invited ||
+            json.hasOwnProperty("note") && this.note!=prevState.note ||
+            json.hasOwnProperty("attachments") && _.difference(this.attachments,prevState.attachments).length){
+
+            this.emit(RemoteModel.event.change, this);
+        }
+    }
+
 
     async onPublication(args, kwargs, details){
         await super.onPublication(args, kwargs, details);
@@ -54,49 +84,10 @@ class Kopa extends RemoteModel{
         }
     }
 
-    async setQuestion(value){
-        this.question= value;
-        await WAMP.session.call("api:model.Kopa.setQuestion",null, {id:this.id, value: value}, {disclose_me:true});
+    async invite(value){
+        await WAMP.session.call("api:model.Kopa.invite", null, {id:this.id}, {disclose_me:true});
     }
 
-    /**
-     *  вливает новое состояние в объект и вызывает события
-     */
-    merge(json){
-        var prevState= {};
-        Object.assign(prevState, this);
-
-        this._isLoaded= true;
-
-        if (json.hasOwnProperty("question")) {
-            this.question = json.question;
-        }
-        if (json.hasOwnProperty("planned")) {
-            this.planned = json.planned;
-        }
-        if (json.hasOwnProperty("started")) {
-            this.started = json.started;
-        }
-        if (json.hasOwnProperty("closed")) {
-            this.closed = json.closed;
-        }
-        if (json.hasOwnProperty("note")) {
-            this.note = json.note;
-        }
-        if (json.hasOwnProperty("attachments")) {
-            this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
-        }
-
-        if (json.hasOwnProperty("question") && this.question!=prevState.question ||
-            json.hasOwnProperty("planned") && this.planned!=prevState.planned ||
-            json.hasOwnProperty("started") && this.started!=prevState.started ||
-            json.hasOwnProperty("closed") && this.closed!=prevState.closed ||
-            json.hasOwnProperty("note") && this.note!=prevState.note ||
-            json.hasOwnProperty("attachments") && _.difference(this.attachments,prevState.attachments).length){
-
-            this.emit(RemoteModel.event.change, this);
-        }
-    }
 
     toString(){
         return `${this.constructor.name} {${this.id}, "${this.question.substring(0, 10)}"}`;

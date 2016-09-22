@@ -1,15 +1,15 @@
 /**
  * Created by alexey2baranov on 8/30/16.
  */
+"use strict";
+
+global= global || window;
 
 if (!global.log4javascript){
     class Logger{
         constructor(){
             this.trace= this.debug= this.info= this.warn= this.error= this.fatal= function(){
                 console.log(" ");
-                if (!console.log){
-                    let x=1;
-                }
                 console.log.apply(console, arguments);
             };
 

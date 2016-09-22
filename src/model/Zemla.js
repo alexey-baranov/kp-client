@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+"use strict";
 
 var RemoteModel = require("./RemoteModel");
 let WAMP= require("../WAMPFactory").getWAMP();
@@ -13,13 +14,14 @@ class Zemla extends RemoteModel {
         super();
 
         this.name = undefined;
+
         // разрешенное количество собираемых коп в 1 год
         this.intensity = undefined;
-        this.ownersCount = undefined;
-        this.kopas= undefined;
+        this.obshinaSize = undefined;
+        this.kopi= undefined;
         this.parent= undefined;
         this.children= undefined;
-        this.rod= undefined;
+        this.obshina= undefined;
     }
 
     /**
@@ -39,27 +41,40 @@ class Zemla extends RemoteModel {
         return result;
     }
 
-    async onKopaStarted(args, kwargs, details){
-        if (!this.kopas){
-            this.log.debug("список коп еще не загружен");
-            return;
+    async onPublication(args, kwargs, details){
+        await super.onPublication(args, kwargs, details);
+
+        if (details.topic.match(/\.kopaAdd$/)){
+            if (!this.kopi){
+                this.log.debug("список коп еще не загружен");
+            }
+            else {
+                let KOPA = args[0];
+
+                let kopa = this.kopi.find(eachKopa=>eachKopa.id == KOPA);
+                //созвана копа, которая уже в списке
+                if (kopa) {
+                    this.log.debug("созвана копа, которая уже в списке");
+                }
+                //чужая копа, которой нет в списке
+                else {
+                    kopa = await Kopa.get(KOPA);
+                    this.kopi.push(kopa);
+                }
+                this.emit(Zemla.event.kopaAdd, this, kopa);
+            }
+        }
+        else if (details.topic.match(/\.obshinaChange$/)){
+            this.obshinaSize= kwargs.obshinaSize;
+            this.emit(Zemla.event.obshinaChange, this);
+
+            if (this.children){
+                throw new Error("дочки устарели");
+            }
         }
 
-        let KOPA= args[0];
-
-        let kopa= this.kopas.find(eachKopa=>eachKopa.id== KOPA);
-        //стартовала копа, которая уже в списке
-        if (kopa) {
-            this.log.debug("стартовала копа, которая уже в списке");
-        }
-        //чужая копа, которой нет в списке
-        else{
-            kopa= await model.Kopa.get(KOPA);
-            this.kopas.push(kopa);
-            this.kopas= this.kopas.sort((a,b)=>(a.started||a.planned).getTime() - (b.started || b.planned).getTime());
-        }
-        this.emit(Zemla.event.kopaStarted, this, kopa);
     }
+
 
     /**
      *  вливает новое состояние в объект и вызывает события
@@ -88,15 +103,23 @@ class Zemla extends RemoteModel {
         }
     }
 
-    async reloadKopas(){
-        this.kopas= await WAMP.session.call("ru.kopa.promiseKopas",[],{PLACE:this.id, BEFORE:null}, {disclose_me:true});
-        this.emit(Zemla.event.kopasReloaded, this);
+    async setParent(value){
+        await WAMP.session.call("ru.kopa.model.Zemla.setParent",[],{ZEMLA:this.id, PARENT:value?value.id:null}, {disclose_me:true});
+        this.emit(Zemla.event.parentChange, this);
+    }
+
+    async reloadKopi(){
+        this.kopi= await WAMP.session.call("ru.kopa.promiseKopi",[],{PLACE:this.id, BEFORE:null}, {disclose_me:true});
+        this.emit(Zemla.event.kopiReload, this);
     }
 }
 
 Zemla.event={
-    kopasReloaded: "kopasReloaded",
-    kopaStarted: "kopaStarted"
+    kopiReload: "kopiReload",
+    kopaAdd: "kopaAdd",
+    parentChange: "parentChange",
 };
 
 module.exports = Zemla;
+
+let Kopa= require("./Kopa");

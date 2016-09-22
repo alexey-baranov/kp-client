@@ -1,9 +1,9 @@
 <div id="{{io}}" class="Page">
-    <div id="{{io}}_rodinas" class="rodinas">
-        {{#rodinasViews}}
+    <div id="{{io}}_doms" class="doms">
+        {{#domsViews}}
             <span class="delimiter"> > </span>
-            <span class="Zemla rodina" id="{{io}}">{{model.name}}</span>
-        {{/rodinasViews}}
+            <span class="Zemla dom" id="{{io}}">{{model.name}}</span>
+        {{/domsViews}}
     </div>
 
     <div id="{{io}}_header">
@@ -15,10 +15,10 @@
             {{>KopaView}}
         {{/model.kopa}}
         {{^model.kopa}}
-            {{#rodinaView}}
+            {{#domView}}
                 <div>ZemlaAsListView</div>
                 {{>ZemlaAsListView}}
-            {{/rodinaView}}
+            {{/domView}}
         {{/model.kopa}}
 
     </div>

@@ -1,6 +1,8 @@
 /**
  * Created by alexey2baranov on 8/9/16.
  */
+"use strict";
+
 let fs = require("fs");
 var Handlebars = require("handlebars");
 
@@ -14,7 +16,7 @@ let ZEMLA_TEMPLATE = fs.readFileSync(__dirname + "/../public/poligon-handlebars/
 
 require("../src/templates");
 
-Handlebars.registerPartial("zemla", Handlebars.templates.currentRodina);
+Handlebars.registerPartial("zemla", Handlebars.templates.currentDom);
 Handlebars.registerPartial("message", Handlebars.templates.message);
 Handlebars.registerPartial("Node", Handlebars.templates.Node);
 Handlebars.registerHelper("getIO", function(base, suffix){
@@ -22,7 +24,7 @@ Handlebars.registerHelper("getIO", function(base, suffix){
 });
 
 
-let zemlaView= Handlebars.templates.currentRodina({id:6, name:"Сургут"});
+let zemlaView= Handlebars.templates.currentDom({id:6, name:"Сургут"});
 
 console.log(Handlebars.templates.Node(
     {
@@ -45,7 +47,7 @@ Handlebars.templates.kopnik({
         {id:1, value:"hello"},
         {id:2, value:"by"},
     ],
-    currentRodina:{id:6, name:"Сургут"},
+    currentDom:{id:6, name:"Сургут"},
     messages:[
         {id:1, name:"lexey_baranov@inbox.ru"},
         {id:2, name:"dlebars.registerPartial("},

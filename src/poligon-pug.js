@@ -1,6 +1,8 @@
 /**
  * Created by alexey2baranov on 8/9/16.
  */
+"use strict";
+
 let pug = require("pug");
 
 let alexey2baranov= {

@@ -1,6 +1,9 @@
 /**
  * Created by alexey2baranov on 8/30/16.
  */
+"use strict";
+
+global= global || window;
 
 //configuring loggers
 {

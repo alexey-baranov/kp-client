@@ -1,8 +1,11 @@
 /**
  * Created by alexey2baranov on 8/25/16.
  */
+"use strict";
+
 let EventEmitter= require("events").EventEmitter;
 let $= require("jquery");
+// let models= require("../model"); ради jsdom тестов
 
 /**
  * @param  model
@@ -11,18 +14,48 @@ let $= require("jquery");
  * @constructor
  */
 class AbstractView extends EventEmitter{
-    constructor(model, parent, IO) {  //can't find setModel() from constructor()
+    constructor(model, parent, IO) {
         super();
 
-        this.log= this.constructor.name;
-        // this.log = log4javascript.getLogger(this.constructor.name);
+        this.log= (global||window).log4javascript.getLogger(this.constructor.name);
         this.parent = parent;
         this.IO = IO;
 
         this.isVisible = false; //пока show() не вызвал он не может быть true
 
+        this.modelListeners= new Map();
+
         if (model){
             this.setModel(model);
+        }
+    }
+
+    /**
+     * сохряняет слушателей в служебный массив
+     * для дальнейшего снятия этих слушателей
+     *
+     * @param eventName
+     * @param listener
+     */
+    setModelListener(eventName, listener){
+        if (this.modelListeners.get(eventName)){
+            throw new Error(`Слушатель на событие ${model}->${eventName} уже установлен`);
+        }
+        this.modelListeners.set(eventName, listener);
+        this.model.on(eventName, listener);
+    }
+
+    setModelListeners(){
+        let model= this.model;
+
+        this.setModelListener("change", ()=>{
+            this.invalidate();
+        });
+    }
+
+    removeModelListeners(){
+        for(let [eventName, listener] of this.modelListeners){
+            this.model.removeListener(eventName, listener);
         }
     }
 
@@ -33,8 +66,14 @@ class AbstractView extends EventEmitter{
      * @type AbstractView
      */
     setModel(model) {
+        if (this.model){
+            this.removeModelListeners();
+        }
         this.model = model;
-        //this.show();
+        if (this.model) {
+            this.setModelListeners();
+        }
+
         return this;
     }
 
@@ -53,6 +92,10 @@ class AbstractView extends EventEmitter{
         return $(this.getHTML());
     }
 
+    get $(){
+        return this.get$();
+    }
+
     /**
      * привязать вьюшку к существующему HTML
      */
@@ -66,8 +109,8 @@ class AbstractView extends EventEmitter{
      *
      * @type AbstractView
      */
-    invalidate () {
-
+    invalidate(){
+        this.$.replaceAll(`${this.io}`);
     }
 
     getFullIO () {
@@ -125,20 +168,6 @@ class AbstractView extends EventEmitter{
      * need to be overriden in every view
      */
     _doHide () {
-    }
-
-    onHelper(event, handlerWithoutContext, context){
-        let handler= ()=>{
-            if (context){
-                handlerWithoutContext.apply(context, arguments);
-            }
-            else{
-                throw new Error("not tested without context");
-                handlerWithoutContext(arguments);
-            }
-        };
-        this.on(event, handler);
-        return handler;
     }
 }
 

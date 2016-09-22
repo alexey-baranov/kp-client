@@ -1,6 +1,8 @@
 /**
  * Created by alexey2baranov on 8/20/16.
  */
+"use strict";
+
 let $= require("jquery");
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandel rejection in promise. Reason: ' + JSON.stringify(reason), JSON.stringify(promise));

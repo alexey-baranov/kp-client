@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 8/30/16.
  */
+"use strict";
 
 let Zemla = require("../model/Zemla");
 let $ = require("jquery");
@@ -10,7 +11,7 @@ let KopaAsListItemView = require("./KopaAsListItemView");
 class ZemlaAsListView extends AbstractView {
     setModel(value) {
         if (this.model){
-            this.model.removeListener(Zemla.event.kopasReloaded, this.onModelKopasReloadedWrapper);
+            this.model.removeListener(Zemla.event.kopiReload, this.onModelKopasReloadedWrapper);
         }
 
         if (this.kopasViews){
@@ -22,13 +23,13 @@ class ZemlaAsListView extends AbstractView {
         super.setModel(value);
         let model = value;
 
-        if (model.kopas) {
-            this.kopasViews = model.kopas.map(eachKopa=>new KopaAsListItemView(eachKopa, this, "kopas_" + eachKopa.id));
+        if (model.kopi) {
+            this.kopasViews = model.kopi.map(eachKopa=>new KopaAsListItemView(eachKopa, this, "kopas_" + eachKopa.id));
         }
         else {
             this.kopasViews = undefined;
         }
-        this.onModelKopasReloadedWrapper= model.onHelper(Zemla.event.kopasReloaded, this.onModelKopasReloaded, this);
+        this.onModelKopasReloadedWrapper= model.setModelListener(Zemla.event.kopiReload, this.onModelKopasReloaded, this);
     }
 
     getHTML() {
@@ -41,7 +42,7 @@ class ZemlaAsListView extends AbstractView {
         let model = this.model;
 
         this.kopasViews = [];
-        for (let eachKopa of model.kopas) {
+        for (let eachKopa of model.kopi) {
             let eachKopaView = new KopaAsListItemView(eachKopa, this, "kopa_"+eachKopa.id);
             this.kopasViews.push(eachKopaView);
 
@@ -53,7 +54,7 @@ class ZemlaAsListView extends AbstractView {
     attach() {
         let model = this.model;
         if (!model.kopasViews) {
-            model.reloadKopas();
+            model.reloadKopi();
         }
     }
 }

@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 8/26/16.
  */
+"use strict";
 
 var assert = require('chai').assert;
 
@@ -96,16 +97,6 @@ describe('Infrastructure', function () {
             else {
                 done();
             }
-        }
-    });
-
-    it('should clean unit test data', async function (done) {
-        try {
-            await require("./UnitTestTempDataCleaner").clean();
-            done();
-        }
-        catch (err) {
-            done(err);
         }
     });
 });

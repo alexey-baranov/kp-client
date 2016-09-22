@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 8/26/16.
  */
+"use strict";
 
 var assert = require('chai').assert;
 var models = require("../../src/model");
@@ -22,7 +23,7 @@ let WAMP = WAMPFactory.getWAMP();
 
 describe('Kopnik', function () {
     before(function () {
-
+        models.RemoteModel.clearCache();
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {
                 session.prefix('api', 'ru.kopa');
@@ -30,9 +31,8 @@ describe('Kopnik', function () {
             };
             WAMP.open();
         })
-            .then(function(){
-                models.RemoteModel.clearCache();
-                return WAMP.session.call("ru.kopa.unitTest.cleanTempData",['Kopnik']);
+            .then(function () {
+                return WAMP.session.call("ru.kopa.unitTest.cleanTempData", ['Kopnik']);
             })
             .catch(err=>console.log);
     });
@@ -51,10 +51,10 @@ describe('Kopnik', function () {
     });
 
     describe("#get()", function () {
-        it('#rodina should be instance of Zemla', function (done) {
+        it('#dom should be instance of Zemla', function (done) {
             models.Kopnik.get(KOPNIK2)
                 .then(function (localKopnik) {
-                    if (localKopnik.rodina instanceof models.Zemla) {
+                    if (localKopnik.dom instanceof models.Zemla) {
                         done();
                     }
                     else {
@@ -77,21 +77,27 @@ describe('Kopnik', function () {
                 kopnik2 = await models.Kopnik.get(KOPNIK2);
                 let listener;
 
-                kopnik2.on(models.Kopnik.event.voiskoChange, listener= ()=> {
-                    eventCount++;
+                kopnik2.on(models.Kopnik.event.voiskoChange, listener = async()=> {
+                    try {
+                        eventCount++;
 
-                    if (eventCount ==1 && kopnik2.voiskoSize!=2) {
-                        kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
-                        done(new Error("kopnik2.voiskoSize!=2"));
-                    }
+                        if (eventCount == 1 && kopnik2.voiskoSize != 2) {
+                            kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
+                            done(new Error("kopnik2.voiskoSize!=2"));
+                        }
 
-                    if (eventCount ==2 && kopnik2.voiskoSize!=3) {
-                        kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
-                        done(new Error("kopnik2.voiskoSize!=3"));
-                    }
-                    if (eventCount ==2){
-                        kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
-                        done();
+                        if (eventCount == 2 && kopnik2.voiskoSize != 3) {
+                            kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
+                            done(new Error("kopnik2.voiskoSize!=3"));
+                        }
+                        if (eventCount == 2) {
+                            kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
+                            assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
+                            assert.equal(someKopnik2.starshina.starshina, kopnik2, "someKopnik2.starshina.starshina, kopnik2");
+                            done();
+                        }
+                    } catch (err) {
+                        done(err);
                     }
                 });
 
@@ -100,18 +106,20 @@ describe('Kopnik', function () {
                     surname: "temp",
                     patronymic: "temp",
                     birth: 1900,
-                    starshina: models.Kopnik.getReference(KOPNIK2),
-                    zemla: models.Zemla.getReference(ZEMLA2),
+                    dom: models.Zemla.getReference(ZEMLA2),
                 });
+                await someKopnik1.setStarshina(models.Kopnik.getReference(KOPNIK2));
+
 
                 someKopnik2 = await models.Kopnik.create({
                     name: "temp",
                     surname: "temp",
                     patronymic: "temp",
                     birth: 1900,
-                    starshina: someKopnik1,
-                    zemla: models.Zemla.get(ZEMLA2),
+                    dom: models.Zemla.getReference(ZEMLA2),
                 });
+                await someKopnik2.setStarshina(someKopnik1);
+                let x = 1;
             }
             catch (err) {
                 done(err);
@@ -119,32 +127,44 @@ describe('Kopnik', function () {
         });
 
         /**
-         * перекидываю копника с дружинником на третьего
+         * перекидываю копника с дружинником на четвертого
          * сначала прилетают события открепления дружины
          * потом прикрепления
          */
-        it('should emit voiskoChange down and up', async function (done) {
+        it('should emit voiskoChange down and up, emit starshina changed', async function (done) {
             try {
                 let kopnik4 = await models.Kopnik.get(KOPNIK4);
 
                 /**
                  * сначала прилетают события открепления дружины
-                 * потом прикрепления
+                 * потом прикрепления,
+                 * потом события о смене старшины от голосы к хвосту
                  */
                 kopnik2.once(models.Kopnik.event.voiskoChange, ()=> {
-                    try{
+                    try {
                         assert.equal(kopnik2.voiskoSize, 1, "kopnik2.voiskoSize, 1");
                         kopnik4.once(models.Kopnik.event.voiskoChange, ()=> {
-                            try{
+                            try {
                                 assert.equal(kopnik4.voiskoSize, 2, "kopnik4.voiskoSize, 2");
-                                done();
+                                assert.equal(someKopnik1.starshina, kopnik4, "someKopnik1.starshina, kopnik4");
+                                someKopnik2.once(models.Kopnik.event.starshinaChange, async()=> {
+                                    try {
+                                        await someKopnik2.reload();
+                                        assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
+                                        await someKopnik2.starshina.reload();
+                                        assert.equal(someKopnik2.starshina.starshina, kopnik4, "someKopnik2.starshina.starshina, kopnik4");
+                                        done();
+                                    } catch (err) {
+                                        done(err);
+                                    }
+                                });
                             }
-                            catch(err){
+                            catch (err) {
                                 done(err);
                             }
                         });
                     }
-                    catch(err){
+                    catch (err) {
                         done(err);
                     }
                 });

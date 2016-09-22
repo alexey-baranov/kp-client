@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 8/30/16.
  */
+"use strict";
 
 class Application {
     static run() {
@@ -17,14 +18,14 @@ class Application {
             this.log.info("connection opened");
             this.kopnik = await model.Kopnik.get(2);
 
-            for (var eachRodina = this.kopnik.rodina; eachRodina; eachRodina = eachRodina.parent) {
-                this.log.debug("loading kopnik rodina", eachRodina.id);
-                await eachRodina.reload();
-                this.log.debug("loaded ", eachRodina.name);
+            for (var eachDom = this.kopnik.dom; eachDom; eachDom = eachDom.parent) {
+                this.log.debug("loading kopnik dom", eachDom.id);
+                await eachDom.reload();
+                this.log.debug("loaded ", eachDom.name);
             }
 
             this.page = new Page();
-            this.page.rodina= this.kopnik.rodina;
+            this.page.dom= this.kopnik.dom;
             this.pageView = new PageView(this.page, null, "p");
 
             this.pageView.get$().appendTo(document.body);

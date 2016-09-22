@@ -1,6 +1,8 @@
 /**
  * Created by alexey2baranov on 8/31/16.
  */
+"use strict";
+
 function staff() {
     console.log("do some staff");
 }

@@ -1,6 +1,8 @@
 /**
  * Created by alexey2baranov on 8/9/16.
  */
+"use strict";
+
 require("./log4javascript.mock");
 
 let log= global.log4javascript.getLogger("test");

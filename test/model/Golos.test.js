@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 8/26/16.
  */
+"use strict";
 
 var assert = require('chai').assert;
 var models = require("../../src/model");
