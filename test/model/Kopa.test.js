@@ -5,8 +5,6 @@
 
 var assert = require('chai').assert;
 var models = require("../../src/model");
-let autobahn = require("autobahn");
-let config = require("../../cfg/main")[process.env.NODE_ENV || 'local-db'];
 require("../../src/bootstrap");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
@@ -20,7 +18,6 @@ let WAMP = WAMPFactory.getWAMP();
 describe('Kopa', function () {
     before(function () {
         models.RemoteModel.clearCache();
-
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {
                 session.prefix('api', 'ru.kopa');
@@ -53,17 +50,11 @@ describe('Kopa', function () {
     });
 
     describe('#get()', function () {
-        it('should return loaded Kopa', async function (done) {
-            try {
+        it('should return loaded Kopa', async function () {
                 kopa = await models.Kopa.get(KOPA);
                 assert.equal(kopa instanceof models.Kopa, true);
                 assert.equal(kopa._isLoaded, true);
                 assert.equal(_.isArray(kopa.attachments), true);
-                done();
-            }
-            catch (err) {
-                done(err);
-            }
         });
     });
 

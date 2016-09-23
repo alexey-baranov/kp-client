@@ -15,7 +15,7 @@ let WAMPFactory = require("../src/WAMPFactory");
 let WAMP = WAMPFactory.getWAMP();
 
 
-describe('order', function () {
+describe.skip('order', function () {
     before(function () {
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {

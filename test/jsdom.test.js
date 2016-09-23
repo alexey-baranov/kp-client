@@ -16,7 +16,7 @@ let ZEMLA3 = 3,
 
     SLOVO = 1;
 
-describe('jsdom', function () {
+describe.skip('jsdom', function () {
 
     before(function () {
     });

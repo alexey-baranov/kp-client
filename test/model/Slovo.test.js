@@ -5,8 +5,6 @@
 
 var assert = require('chai').assert;
 var models = require("../../src/model");
-let autobahn = require("autobahn");
-let config = require("../../cfg/main")[process.env.NODE_ENV || 'local-db'];
 require("../../src/bootstrap");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
@@ -24,6 +22,7 @@ let WAMP = WAMPFactory.getWAMP();
 
 describe('Slovo', function () {
     before(function () {
+        models.RemoteModel.clearCache();
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {
                 session.prefix('api', 'ru.kopa');

@@ -5,8 +5,6 @@
 
 var assert = require('chai').assert;
 var models = require("../../src/model");
-let autobahn = require("autobahn");
-let config = require("../../cfg/main")[process.env.NODE_ENV || 'local-db'];
 require("../../src/bootstrap");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
@@ -33,8 +31,8 @@ describe('Kopnik', function () {
         })
             .then(function () {
                 return WAMP.session.call("ru.kopa.unitTest.cleanTempData", ['Kopnik']);
-            })
-            .catch(err=>console.log);
+            });
+            // .catch(err=>console.log);
     });
 
     after(function () {
@@ -51,20 +49,13 @@ describe('Kopnik', function () {
     });
 
     describe("#get()", function () {
-        it('#dom should be instance of Zemla', function (done) {
-            models.Kopnik.get(KOPNIK2)
-                .then(function (localKopnik) {
-                    if (localKopnik.dom instanceof models.Zemla) {
-                        done();
-                    }
-                    else {
-                        done(new Error());
-                    }
-                });
+        it('#dom should be instance of Zemla', async function () {
+            let kopnik2= await models.Kopnik.get(KOPNIK2);
+            assert.equal(kopnik2.dom instanceof models.Zemla, true);
         });
     });
 
-    describe("#setStarshina()", function (done) {
+    describe("#setStarshina()", function () {
         let someKopnik1,
             someKopnik2,
             kopnik2;
@@ -119,7 +110,6 @@ describe('Kopnik', function () {
                     dom: models.Zemla.getReference(ZEMLA2),
                 });
                 await someKopnik2.setStarshina(someKopnik1);
-                let x = 1;
             }
             catch (err) {
                 done(err);

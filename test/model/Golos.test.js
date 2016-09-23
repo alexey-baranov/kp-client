@@ -5,8 +5,6 @@
 
 var assert = require('chai').assert;
 var models = require("../../src/model");
-let autobahn = require("autobahn");
-let config = require("../../cfg/main")[process.env.NODE_ENV || 'local-db'];
 require("../../src/bootstrap");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
@@ -25,6 +23,7 @@ let WAMP = WAMPFactory.getWAMP();
 
 describe('Golos', function () {
     before(function () {
+        models.RemoteModel.clearCache();
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {
                 session.prefix('api', 'ru.kopa');
@@ -56,12 +55,15 @@ describe('Golos', function () {
                 let kopa = await models.Kopa.get(KOPA);
 
                 await WAMP.session.subscribe(`api:model.Predlozhenie.id${PREDLOZHENIE}.golosAdd`, function (args) {
+                    done();
+/*
                     if (!golos) {
                         done(new Error("событие пришло раньше чем голос был создан"));
                     }
                     else{
                         done();
                     }
+*/
                 });
 
                 golos = await models.Golos.create({

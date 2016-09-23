@@ -16,7 +16,10 @@ let WAMP = WAMPFactory.getWAMP();
 
 
 describe('Infrastructure', function () {
-    after(function(){
+    after(function () {
+        if (!WAMP.session.opened) {
+            return;
+        }
         return new Promise(function (res) {
             WAMP.onclose = function () {
                 res();
@@ -25,78 +28,58 @@ describe('Infrastructure', function () {
         });
     });
 
-    it('WAMP', function (done) {
+    it('WAMP', function () {
         return new Promise(function (res, rej) {
             WAMP.onopen = function (session, details) {
-                done();
                 res();
+            };
+            WAMP.onclose = function () {
+                rej();
             };
             WAMP.open();
         });
     });
 
-    it('WAMP discloseCaller', async function (done) {
-        try{
-            let result= await WAMP.session.call("ru.kopa.discloseCaller", [], {}, {disclose_me: true});
-            assert.equal(result, "unittest2@domain.ru");
-            done();
-        }
-        catch(err){
-            done(err);
+    it('WAMP discloseCaller', async function () {
+        let result = await WAMP.session.call("ru.kopa.discloseCaller", [], {}, {disclose_me: true});
+        assert.equal(result, "unittest2@domain.ru");
+    });
+
+    it('server', async function () {
+        let result = await WAMP.session.call("ru.kopa.pingPong", [1, 2, 3], {x: 1, y: 2, z: 3}, {disclose_me: true})
+        if (_.difference(result.args, [1, 2, 3]).length && _.isEqual(result.kwargs, {x: 1, y: 2, z: 3})) {
+            throw Error("difference");
         }
     });
 
-    it('server', function (done) {
-        WAMP.session.call("ru.kopa.pingPong", [1, 2, 3], {x: 1, y: 2, z: 3}, {disclose_me: true})
-            .then(function (res) {
-                if (!_.difference(res.args, [1, 2, 3]).length && _.isEqual(res.kwargs, {x: 1, y: 2, z: 3})) {
-                    done();
-                }
-                else {
-                    throw Error();
-                }
-            })
-            .catch(function (er) {
-                done(er);
-            });
-    });
-
-    it('database', function (done) {
+    it('database', async function () {
         let word = "КОПА";
-        WAMP.session.call("ru.kopa.pingPongDatabase", [word])
-            .then(function (res) {
-                if (res == word) {
-                    done();
-                }
-                else {
-                    done(new Error(`database send result other then word ("${word}" <> "${res}")`));
-                }
-            })
-            .catch(function (er) {
-                done(er);
-            });
+        let result= await WAMP.session.call("ru.kopa.pingPongDatabase", [word]);
+        assert.equal(result, word);
     });
 
 
-    it('should throw Error', async function (done) {
+    it('should throw Error', async function () {
         let errorMessage = "sadkljfaskldjfs;af";
+        let errorWasNotThrown= false;
         try {
             await WAMP.session.call("ru.kopa.error", [errorMessage]);
-            done(new Error("Error was not thrown"));
+            errorWasNotThrown= true;
         }
         catch (err) {
             if (err.error != "MySuperError") {
-                done(new Error("invalid error type"));
+                throw new Error("invalid error type");
             }
             else if (err.args[0] != errorMessage) {
-                done(new Error("invalid error message"));
+                throw new Error("invalid error message");
             }
             else if (!_.isArray(err.kwargs.stack)) {
-                done(new Error("invalid error stack"));
+                throw new Error("invalid error stack");
             }
-            else {
-                done();
-            }
+        }
+
+        if (errorWasNotThrown){
+            throw new Error("error was not thrown");
         }
     });
 });
