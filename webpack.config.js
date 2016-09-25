@@ -7,6 +7,7 @@ var webpack= require('webpack');
 
 module.exports = {
     entry: {
+        "karma.test": `./test/Karma.test.js`,
         // "test.browser": `mocha!${__dirname}/test/index.browser.js`,
         // "index": './src/index.js',
         // "poligon-log4javascript": './src/poligon-log4javascript.js',
@@ -37,14 +38,14 @@ module.exports = {
         publicPath: true
     },
     // devtool: 'eval',
-    devtool: 'cheap-module-source-map',
+    // devtool: 'cheap-module-source-map',
+    devtool: 'inline-source-map',
     plugins:[
         new webpack.NoErrorsPlugin(),
         new webpack.dependencies.LabeledModulesPlugin(),
         new webpack.IgnorePlugin(/vertx/),
     ],
     watch: true,
-    noParse: /jquery/,
     module: {
         loaders: [
             { test: /\.json$/, loader: 'json', },
