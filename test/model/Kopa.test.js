@@ -11,7 +11,7 @@ let WAMPFactory = require("../../src/WAMPFactory");
 
 let KOPNIK = 2,
     ZEMLA = 2,
-    KOPA= 3;
+    KOPA = 3;
 
 let WAMP = WAMPFactory.getWAMP();
 
@@ -24,7 +24,10 @@ describe('Kopa', function () {
                 res();
             };
             WAMP.open();
-        });
+        })
+            .then(()=> {
+                return WAMP.session.call("ru.kopa.unitTest.cleanTempData", ['Slovo']);
+            });
     });
 
     after(function () {
@@ -51,10 +54,45 @@ describe('Kopa', function () {
 
     describe('#get()', function () {
         it('should return loaded Kopa', async function () {
-                kopa = await models.Kopa.get(KOPA);
-                assert.equal(kopa instanceof models.Kopa, true);
-                assert.equal(kopa._isLoaded, true);
-                assert.equal(_.isArray(kopa.attachments), true);
+            kopa = await models.Kopa.get(KOPA);
+            assert.equal(kopa instanceof models.Kopa, true);
+            assert.equal(kopa._isLoaded, true);
+            assert.equal(_.isArray(kopa.attachments), true);
+        });
+    });
+
+    describe('#loadDialog()', function () {
+        let result,
+            kopa;
+
+        it("should return array of Slovo", async function () {
+            kopa = await models.Kopa.get(KOPA);
+            result = await kopa.loadDialog();
+
+            assert.equal(_.isArray(result), true);
+            for (var eachResult of result) {
+                assert.equal(eachResult instanceof models.Slovo, true);
+            }
+        });
+
+        it('size should be 3', function () {
+            assert.equal(result.length, 3, "result.length, 3");
+        });
+
+        it('should be ordered by created', function () {
+            assert.equal(result[0].created < result[1].created, true);
+            assert.equal(result[1].created < result[2].created, true);
+        });
+
+        it("should append +1 Slovo", async function () {
+            kopa.dialog.shift();
+            result = await kopa.loadDialog();
+            assert.equal(result.length, 3, "result.length, 3");
+        });
+
+        it('should prepend to begining', function () {
+            assert.equal(result[0].created < result[1].created, true);
+            assert.equal(result[1].created < result[2].created, true);
         });
     });
 
@@ -67,7 +105,7 @@ describe('Kopa', function () {
                 kopnik = await models.Kopnik.get(KOPNIK);
                 kopa = await models.Kopa.get(KOPA);
 
-                kopa.dialog=[];
+                kopa.dialog = [];
                 kopa.on(models.Kopa.event.slovoAdd, (sender, add)=> {
                     try {
                         assert.equal(add instanceof models.Slovo, true, "add instanceof models.Slovo");
@@ -79,7 +117,7 @@ describe('Kopa', function () {
                     }
                 });
 
-                let value = "some Slovo temp "+new Date().getTime();
+                let value = "some Slovo " + new Date().getTime() + " temp";
                 let slovo = await models.Slovo.create({
                     value: value,
                     place: kopa,
@@ -96,7 +134,7 @@ describe('Kopa', function () {
                 kopnik = await models.Kopnik.get(KOPNIK);
                 kopa = await models.Kopa.get(KOPA);
 
-                kopa.result=[];
+                kopa.result = [];
                 kopa.on(models.Kopa.event.predlozhenieAdd, (sender, add)=> {
                     try {
                         assert.equal(add instanceof models.Predlozhenie, true, "add instanceof models.Predlozhenie");
@@ -108,7 +146,7 @@ describe('Kopa', function () {
                     }
                 });
 
-                let value = "some Predlozhenie temp "+new Date().getTime();
+                let value = "some Predlozhenie temp " + new Date().getTime();
                 let predlozhenie = await models.Predlozhenie.create({
                     value: value,
                     place: kopa,

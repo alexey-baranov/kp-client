@@ -16,6 +16,7 @@ class Slovo extends RemoteModel{
 
         this.owner= undefined;
         this.place= undefined;
+        this.created= undefined;
     }
 
     getPlain(){
@@ -25,7 +26,8 @@ class Slovo extends RemoteModel{
             owner_id: this.owner?this.owner.id:null,
             value: this.value,
             note: this.note,
-            attachments:this.attachments?this.attachments.map(each=>each.id):[]
+            attachments:this.attachments?this.attachments.map(each=>each.id):[],
+            created: this.created
         };
         return result;
     }
@@ -54,6 +56,7 @@ class Slovo extends RemoteModel{
         if (json.hasOwnProperty("place_id")) {
             this.place = Kopa.getReference(json.place_id);
         }
+        this.created= new Date(json.created_at);
 
         if (json.hasOwnProperty("value") && this.value!=prevState.value ||
             json.hasOwnProperty("note") && this.note!=prevState.note ||

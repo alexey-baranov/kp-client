@@ -88,6 +88,29 @@ class Kopa extends RemoteModel{
         await WAMP.session.call("api:model.Kopa.invite", null, {id:this.id}, {disclose_me:true});
     }
 
+    /**
+     * подгружает диалог
+     * или предыдущую порцию, если он уже начат загружаться
+     */
+    async loadDialog(){
+        let BEFORE= this.dialog && this.dialog.length?this.dialog[0].created.getTime():null;
+        let dialog= await WAMP.session.call("api:model.Kopa.getDialog",[],{PLACE:this.id, BEFORE:BEFORE}, {disclose_me:true});
+        for(let eachIndex=0; eachIndex< dialog.length; eachIndex++){
+            let eachSlovo= Slovo.getReference(dialog[eachIndex].id);
+            eachSlovo.merge(dialog[eachIndex]);
+            dialog[eachIndex]= eachSlovo;
+        }
+
+        if (!this.dialog || !this.dialog.length){
+            this.dialog= dialog;
+        }
+        else{
+            this.dialog= dialog.concat(this.dialog);
+        }
+        this.emit(Kopa.event.dialogLoad, this);
+
+        return this.dialog;
+    }
 
     toString(){
         return `${this.constructor.name} {${this.id}, "${this.question.substring(0, 10)}"}`;
@@ -95,9 +118,9 @@ class Kopa extends RemoteModel{
 }
 
 Kopa.event={
-    slovaReloaded: "slovaReloaded",
     slovoAdd: "slovoAdd",
     predlozhenieAdd: "predlozhenieAdd",
+    dialogLoad: "dialogLoad",
 };
 
 module.exports= Kopa;

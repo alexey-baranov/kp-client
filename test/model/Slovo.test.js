@@ -69,4 +69,16 @@ describe('Slovo', function () {
             }
         });
     });
+
+    describe('#get()', async function () {
+        let slovo;
+        it('should load Slovo', async function () {
+            slovo = await models.Slovo.get(1);
+            assert.equal(slovo instanceof models.Slovo, true);
+        });
+
+        it('should have created Date', function () {
+            assert.equal(slovo.created instanceof Date, true);
+        });
+    });
 });
