@@ -17,9 +17,6 @@ let WAMP = WAMPFactory.getWAMP();
 
 describe('Infrastructure', function () {
     after(function () {
-        if (!WAMP.session.opened) {
-            return;
-        }
         return new Promise(function (res) {
             WAMP.onclose = function () {
                 res();
@@ -57,7 +54,6 @@ describe('Infrastructure', function () {
         let result= await WAMP.session.call("ru.kopa.pingPongDatabase", [word]);
         assert.equal(result, word);
     });
-
 
     it('should throw Error', async function () {
         let errorMessage = "sadkljfaskldjfs;af";

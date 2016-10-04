@@ -9,7 +9,7 @@ if (!global.log4javascript){
     class Logger{
         constructor(){
             this.trace= this.debug= this.info= this.warn= this.error= this.fatal= function(){
-                console.log(" ");
+                // console.log(" ");
                 console.log.apply(console, arguments);
             };
 

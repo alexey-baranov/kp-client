@@ -6,8 +6,8 @@
 "use strict";
 
 var RemoteModel = require("./RemoteModel");
-let WAMP= require("../WAMPFactory").getWAMP();
-let _= require("lodash");
+let WAMP = require("../WAMPFactory").getWAMP();
+let _ = require("lodash");
 
 class Zemla extends RemoteModel {
     constructor() {
@@ -18,10 +18,10 @@ class Zemla extends RemoteModel {
         // разрешенное количество собираемых коп в 1 год
         this.intensity = undefined;
         this.obshinaSize = undefined;
-        this.kopi= undefined;
-        this.parent= undefined;
-        this.children= undefined;
-        this.obshina= undefined;
+        this.kopi = undefined;
+        this.parent = undefined;
+        this.children = undefined;
+        this.obshina = undefined;
     }
 
     /**
@@ -29,23 +29,23 @@ class Zemla extends RemoteModel {
      * для передачина в Server#model_save()
      * @param value
      */
-    getPlain(){
-        let result=  {
+    getPlain() {
+        let result = {
             id: this.id,
             name: this.name,
             intensity: this.intensity,
-            parent_id: this.parent?this.parent.id:null,
+            parent_id: this.parent ? this.parent.id : null,
             note: this.note,
-            attachments:this.attachments?this.attachments.map(each=>each.id):[]
+            attachments: this.attachments ? this.attachments.map(each=>each.id) : []
         };
         return result;
     }
 
-    async onPublication(args, kwargs, details){
+    async onPublication(args, kwargs, details) {
         await super.onPublication(args, kwargs, details);
 
-        if (details.topic.match(/\.kopaAdd$/)){
-            if (!this.kopi){
+        if (details.topic.match(/\.kopaAdd$/)) {
+            if (!this.kopi) {
                 this.log.debug("список коп еще не загружен");
             }
             else {
@@ -64,11 +64,11 @@ class Zemla extends RemoteModel {
                 this.emit(Zemla.event.kopaAdd, this, kopa);
             }
         }
-        else if (details.topic.match(/\.obshinaChange$/)){
-            this.obshinaSize= kwargs.obshinaSize;
+        else if (details.topic.match(/\.obshinaChange$/)) {
+            this.obshinaSize = kwargs.obshinaSize;
             this.emit(Zemla.event.obshinaChange, this);
 
-            if (this.children){
+            if (this.children) {
                 throw new Error("дочки устарели");
             }
         }
@@ -88,13 +88,13 @@ class Zemla extends RemoteModel {
         this.name = json.name;
         this.intensity = json.intensity;
         this.obshinaSize = json.obshinaSize;
-        if(json.parent_id){
-            this.parent= Zemla.getReference(json.parent_id);
+        if (json.parent_id) {
+            this.parent = Zemla.getReference(json.parent_id);
         }
-        else{
-            this.parent= null;
+        else {
+            this.parent = null;
         }
-        this.note= json.note;
+        this.note = json.note;
         this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
 
         if (this.name != prevState.name ||
@@ -103,22 +103,35 @@ class Zemla extends RemoteModel {
             this.note != prevState.note ||
             _.difference(this.attachments, prevState.attachments).length) {
 
-            this.emit(Zemla.event.change, this);
+            this.emit(RemoteModel.event.change, this);
         }
     }
 
-    async setParent(value){
-        await WAMP.session.call("ru.kopa.model.Zemla.setParent",[],{ZEMLA:this.id, PARENT:value?value.id:null}, {disclose_me:true});
+    async setParent(value) {
+        await WAMP.session.call("ru.kopa.model.Zemla.setParent", [], {
+            ZEMLA: this.id,
+            PARENT: value ? value.id : null
+        }, {disclose_me: true});
         this.emit(Zemla.event.parentChange, this);
     }
 
-    async reloadKopi(){
-        this.kopi= await WAMP.session.call("ru.kopa.model.Zemla.promiseKopi",[],{PLACE:this.id, BEFORE:null}, {disclose_me:true});
+    async reloadKopi() {
+        let kopiAsPlain = await WAMP.session.call("ru.kopa.model.Zemla.promiseKopi", [], {
+            PLACE: this.id,
+            BEFORE: null
+        }, {disclose_me: true});
+
+        this.kopi = kopiAsPlain.map(eachKopaAsPlain => {
+            let result = Kopa.getReference(eachKopaAsPlain.id);
+            result.merge(eachKopaAsPlain);
+            return result;
+        });
+
         this.emit(Zemla.event.kopiReload, this);
     }
 }
 
-Zemla.event={
+Zemla.event = {
     kopiReload: "kopiReload",
     kopaAdd: "kopaAdd",
     parentChange: "parentChange",
@@ -126,4 +139,4 @@ Zemla.event={
 
 module.exports = Zemla;
 
-let Kopa= require("./Kopa");
+let Kopa = require("./Kopa");

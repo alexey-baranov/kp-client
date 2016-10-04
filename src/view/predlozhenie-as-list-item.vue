@@ -1,9 +1,13 @@
 <template>
-    <li :id= "id" class="slovo-as-list-item" >
-        <div class="created">{{model.created}}</div>
+    <li :id= "id" class="predlozhenie-as-list-item" >
         <div class="value">{{model.value}}</div>
         <div class="note">{{model.note}}</div>
-        <div class="toolbar">поддерживаю - не поддерживаю</div>
+        <div class="toolbar">
+            <span class="author">{{model.author.id}} </span>
+            <span class="created">{{model.created}} </span>
+            <span class="created">{{model.totalZa}} </span>
+            <span class="created">{{model.totalProtiv}} x</span>
+        </div>
     </li>
 </template>
 
@@ -17,7 +21,7 @@
 </script>
 
 <style scoped>
-    .slovo-as-list-item {
+    .predlozhenie-as-list-item {
         border: solid black 1px;
     }
 

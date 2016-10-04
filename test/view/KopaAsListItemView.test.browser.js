@@ -23,7 +23,7 @@ let model,
 
 let WAMP = WAMPFactory.getWAMP();
 
-describe('SlovoAsListItemView', function () {
+describe('KopaAsListItemView', function () {
     let model;
 
     before(function (done) {
@@ -42,19 +42,17 @@ describe('SlovoAsListItemView', function () {
         WAMP.close();
     });
 
-    it('should $mount view', function () {
-        (async function () {
-            model = await models.Slovo.get(MODEL);
-            view = new Vue(Object.assign(require("../../src/view/slovo-as-list-item.vue"),
-                {
-                    propsData: {
-                        model: model,
-                        id: "default"
-                    }
-                }));
-            view.$mount();
-            // console.log($(".value", view.$el).text());
-            console.log(view.$el);
-        })();
+    it('should $mount view', async function () {
+        const kopa1 = await models.Kopa.get(1);
+
+        view = new Vue(Object.assign(require("../../src/view/kopa-as-list-item.vue"),
+            {
+                propsData: {
+                    model: kopa1,
+                    id: "default"
+                }
+            }));
+        view.$mount();
+        assert.equal(view.$el.innerHTML.indexOf(kopa1.question) >= 0, true);
     });
 });

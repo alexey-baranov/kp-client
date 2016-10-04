@@ -43,8 +43,8 @@ module.exports = {
         warnings: false,
         publicPath: true
     },
-    devtool: 'eval',
-    // devtool: 'cheap-module-source-map',
+    // devtool: 'eval',
+    devtool: 'cheap-module-source-map',
     // devtool: 'inline-source-map',
     plugins:[
         new webpack.NoErrorsPlugin(),

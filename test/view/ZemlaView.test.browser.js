@@ -17,13 +17,13 @@ let KOPNIK3 = 3;
 let ZEMLA2 = 2;
 let ZEMLA3 = 3,
 
-    MODEL = 1;
+    ZEMLA = 1;
 let model,
     view;
 
 let WAMP = WAMPFactory.getWAMP();
 
-describe('SlovoAsListItemView', function () {
+describe('ZemlaView', function () {
     let model;
 
     before(function (done) {
@@ -42,19 +42,15 @@ describe('SlovoAsListItemView', function () {
         WAMP.close();
     });
 
-    it('should $mount view', function () {
-        (async function () {
-            model = await models.Slovo.get(MODEL);
-            view = new Vue(Object.assign(require("../../src/view/slovo-as-list-item.vue"),
-                {
-                    propsData: {
-                        model: model,
-                        id: "default"
-                    }
-                }));
-            view.$mount();
-            // console.log($(".value", view.$el).text());
-            console.log(view.$el);
-        })();
+    it('should $mount view', async function () {
+        model = await models.Zemla.get(ZEMLA);
+        view = new Vue(Object.assign(require("../../src/view/zemla.vue"),
+            {
+                propsData: {
+                    model: model,
+                    id: "default"
+                }
+            }));
+        view.$mount();
     });
 });

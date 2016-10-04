@@ -17,17 +17,15 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            {pattern: 'test/**/Karma.test.js', watched: false},
+            // {pattern: 'test/**/Karma.test.js', watched: false},
             // {pattern: 'test/*.test.js', watched: false},
             // {pattern: 'test/**/*.test.js', watched: false},
-            /*
-             {pattern: 'test/!**!/!*.test.browser.js', watched: false},
-             */
+            {pattern: 'test/**/*.test.browser.js', watched: false},
         ],
 
 
         // list of files to exclude
-        exclude: [],
+        exclude: ["test/index.browser.js"],
 
 
         // preprocess matching files before serving them to the browser
@@ -54,7 +52,7 @@ module.exports = function (config) {
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['progress'],
+        reporters: ['mocha'],
 
 
         // web server port

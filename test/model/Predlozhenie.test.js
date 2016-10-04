@@ -61,7 +61,7 @@ describe('Predlozhenie', function () {
 
                 predlozhenie = await models.Predlozhenie.create({
                     value: predlozhenieValue,
-                    initiator: kopnik,
+                    author: kopnik,
                     place: kopa,
                 });
             }

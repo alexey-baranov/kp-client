@@ -23,7 +23,7 @@ let model,
 
 let WAMP = WAMPFactory.getWAMP();
 
-describe('SlovoAsListItemView', function () {
+describe('SidePanelView', function () {
     let model;
 
     before(function (done) {
@@ -42,19 +42,29 @@ describe('SlovoAsListItemView', function () {
         WAMP.close();
     });
 
-    it('should $mount view', function () {
-        (async function () {
-            model = await models.Slovo.get(MODEL);
-            view = new Vue(Object.assign(require("../../src/view/slovo-as-list-item.vue"),
+    it('should $mount view async', function (done) {
+        (async function(){
+            const kopnik1 = await models.Kopnik.get(1);
+
+            view = new Vue(Object.assign(require("../../src/view/side-panel.vue"),
                 {
                     propsData: {
-                        model: model,
+                        kopnik: kopnik1,
                         id: "default"
                     }
                 }));
             view.$mount();
-            // console.log($(".value", view.$el).text());
-            console.log(view.$el);
+
+            const Rus= models.Zemla.getReference(1);
+            Rus.on(models.RemoteModel.event.change, ()=>{
+                try {
+                    assert.equal(view.$el.innerHTML.indexOf("Сургут") >= 0, true);
+                    done();
+                }
+                catch(err){
+                    done(err);
+                }
+            });
         })();
     });
 });

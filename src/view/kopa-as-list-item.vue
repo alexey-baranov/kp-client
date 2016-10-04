@@ -1,14 +1,13 @@
 <template>
-    <li :id= "id" class="slovo-as-list-item" >
-        <div class="created">{{model.created}}</div>
-        <div class="value">{{model.value}}</div>
-        <div class="note">{{model.note}}</div>
-        <div class="toolbar">поддерживаю - не поддерживаю</div>
+    <li :id= "id" class="kopa-as-list-item" >
+        <div class="question">{{model.question}}</div>
     </li>
 </template>
 
 <script>
-    module.exports = {
+    let RemoteModel= require("../model/RemoteModel");
+
+    export default  {
         props: ["id", "model"],
         created: function () {
             this.model.loaded();
@@ -17,7 +16,7 @@
 </script>
 
 <style scoped>
-    .slovo-as-list-item {
+    .kopa-as-list-item {
         border: solid black 1px;
     }
 

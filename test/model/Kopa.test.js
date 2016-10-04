@@ -150,7 +150,7 @@ describe('Kopa', function () {
                 let predlozhenie = await models.Predlozhenie.create({
                     value: value,
                     place: kopa,
-                    initiator: kopnik,
+                    author: kopnik,
                 });
             }
             catch (err) {

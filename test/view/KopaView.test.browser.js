@@ -17,13 +17,13 @@ let KOPNIK3 = 3;
 let ZEMLA2 = 2;
 let ZEMLA3 = 3,
 
-    MODEL = 1;
+    KOPA = 1;
 let model,
     view;
 
 let WAMP = WAMPFactory.getWAMP();
 
-describe('SlovoAsListItemView', function () {
+describe('KopaView', function () {
     let model;
 
     before(function (done) {
@@ -42,19 +42,31 @@ describe('SlovoAsListItemView', function () {
         WAMP.close();
     });
 
-    it('should $mount view', function () {
+    it('should $mount view', async function () {
+        model = await models.Kopa.get(KOPA);
+        view = new Vue(Object.assign(require("../../src/view/kopa.vue"),
+            {
+                propsData: {
+                    model: model,
+                    id: "default"
+                }
+            }));
+        view.$mount();
+    });
+
+    it('should invalidate on model change', function (done) {
         (async function () {
-            model = await models.Slovo.get(MODEL);
-            view = new Vue(Object.assign(require("../../src/view/slovo-as-list-item.vue"),
-                {
-                    propsData: {
-                        model: model,
-                        id: "default"
-                    }
-                }));
-            view.$mount();
-            // console.log($(".value", view.$el).text());
-            console.log(view.$el);
+            model.on("change", ()=> {
+                try {
+                    assert.equal($(".note", view.$el).text(), model.note);
+                    done();
+                }
+                catch (err) {
+                    done(err);
+                }
+            });
+            model.note = new Date().toString();
+            await model.save();
         })();
     });
 });

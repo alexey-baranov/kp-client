@@ -23,7 +23,7 @@ let model,
 
 let WAMP = WAMPFactory.getWAMP();
 
-describe('SlovoAsListItemView', function () {
+describe('AddressView', function () {
     let model;
 
     before(function (done) {
@@ -42,19 +42,31 @@ describe('SlovoAsListItemView', function () {
         WAMP.close();
     });
 
-    it('should $mount view', function () {
-        (async function () {
-            model = await models.Slovo.get(MODEL);
-            view = new Vue(Object.assign(require("../../src/view/slovo-as-list-item.vue"),
+    it('should $mount view async', function (done) {
+        (async function(){
+            const zemla3 = await models.Zemla.get(3);
+
+            view = new Vue(Object.assign(require("../../src/view/address.vue"),
                 {
                     propsData: {
-                        model: model,
+                        dom: zemla3,
                         id: "default"
                     }
                 }));
             view.$mount();
-            // console.log($(".value", view.$el).text());
-            console.log(view.$el);
+
+            const Rus= models.Zemla.getReference(1);
+
+            Rus.on(models.RemoteModel.event.change, ()=>{
+                try {
+                    console.log(view.$el.innerHTML);
+                    assert.equal(view.$el.innerHTML.indexOf("UnitTest2") >= 0, true);
+                    done();
+                }
+                catch(err){
+                    done(err);
+                }
+            });
         })();
     });
 });

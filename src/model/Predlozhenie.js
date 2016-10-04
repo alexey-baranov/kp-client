@@ -15,8 +15,10 @@ class Predlozhenie extends RemoteModel{
 
         this.value= undefined;
         this.place= undefined;
-        this.initiator= undefined;
+        this.author= undefined;
         this.golosa= undefined;
+        this.totalZa= undefined;
+        this.totalProtiv= undefined;
     }
 
     getPlain(){
@@ -24,7 +26,7 @@ class Predlozhenie extends RemoteModel{
             id: this.id,
             value: this.value,
             place_id: this.place?this.place.id:null,
-            initiator_id: this.initiator?this.initiator.id:null,
+            author_id: this.author?this.author.id:null,
             note: this.note,
             attachments:this.attachments?this.attachments.map(each=>each.id):[]
         };
@@ -49,16 +51,21 @@ class Predlozhenie extends RemoteModel{
         if (json.hasOwnProperty("attachments")) {
             this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
         }
-        if (json.hasOwnProperty("initiator_id")) {
-            this.initiator = Kopnik.getReference(json.initiator_id);
+        if (json.hasOwnProperty("author_id")) {
+            this.author = Kopnik.getReference(json.author_id);
         }
         if (json.hasOwnProperty("place_id")) {
             this.place = Kopa.getReference(json.place_id);
         }
 
+        this.totalZa= json.totalZa;
+        this.totalProtiv= json.totalProtiv;
+
         if (json.hasOwnProperty("value") && this.value!=prevState.value ||
             json.hasOwnProperty("note") && this.note!=prevState.note ||
-            json.hasOwnProperty("initiator_id") && this.initiator!=prevState.initiator ||
+            this.totalZa!=prevState.totalZa ||
+            this.totalProtiv!=prevState.totalProtiv ||
+            this.author!=prevState.author ||
             json.hasOwnProperty("place_id") && this.place!= prevState.place ||
             json.hasOwnProperty("attachments") && _.difference(this.attachments,prevState.attachments).length){
 
