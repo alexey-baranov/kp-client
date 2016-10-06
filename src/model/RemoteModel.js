@@ -179,7 +179,7 @@ class RemoteModel extends EventEmitter{
          * и к моменту #merge() модель уже загружена
          */
         if (!isLoadedBefore && this._isLoaded){
-            this.log.debug(`${this} loaded in concurent thread. merging skipped. subscription skipped`);
+            // this.log.debug(`${this} loaded in concurent thread. merging skipped. subscription skipped`);
         }
         else if (!isLoadedBefore){
             this.merge(json);
@@ -261,8 +261,7 @@ class RemoteModel extends EventEmitter{
                 throw err;
             }
         }, options);
-        this.log.debug(`${this} subscribed to "${topic}"`);
-        // console.debug(`${this} subscribed to "${topic}"`);
+        // this.log.debug(`${this} subscribed to "${topic}"`);
         return result;
     };
 }

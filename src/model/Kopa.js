@@ -67,6 +67,7 @@ class Kopa extends RemoteModel {
 
 
     async onPublication(args, kwargs, details) {
+        console.log(this.question, "onPublication");
         await super.onPublication(args, kwargs, details);
         if (details.topic.match(/\.slovoAdd$/)) {
             if (this.dialog) {
@@ -94,15 +95,17 @@ class Kopa extends RemoteModel {
      */
     async loadDialog() {
         let BEFORE = this.dialog && this.dialog.length ? this.dialog[0].created.getTime() : null;
-        let dialog = await WAMP.session.call("api:model.Kopa.getDialog", [], {
+        let dialogAsPlain = await WAMP.session.call("api:model.Kopa.getDialog", [], {
             PLACE: this.id,
             BEFORE: BEFORE
         }, {disclose_me: true});
-        for (let eachIndex = 0; eachIndex < dialog.length; eachIndex++) {
-            let eachSlovo = Slovo.getReference(dialog[eachIndex].id);
-            eachSlovo.merge(dialog[eachIndex]);
-            dialog[eachIndex] = eachSlovo;
-        }
+
+        let dialog = await Promise.all(dialogAsPlain.map(async eachSlovoAsPlain => {
+            let eachSlovo = Slovo.getReference(eachSlovoAsPlain.id);
+            eachSlovo.merge(eachSlovoAsPlain);
+            await eachSlovo.subscribeToWAMPPublications();
+            return eachSlovo;
+        }));
 
         if (!this.dialog || !this.dialog.length) {
             this.dialog = dialog;
@@ -115,6 +118,35 @@ class Kopa extends RemoteModel {
         return this.dialog;
     }
 
+    /**
+     * подгружает результат
+     * или предыдущую порцию, если он уже начат загружаться
+     */
+    async loadResult() {
+        let BEFORE = this.result && this.result.length ? this.result[0].created.getTime() : null;
+        let resultAsPlain = await WAMP.session.call("api:model.Kopa.getResult", [], {
+            PLACE: this.id,
+            BEFORE: BEFORE
+        }, {disclose_me: true});
+
+        let result = await Promise.all(resultAsPlain.map(async eachResultAsPlain => {
+            let eachResult = Predlozhenie.getReference(eachResultAsPlain.id);
+            eachResult.merge(eachResultAsPlain);
+            await eachResult.subscribeToWAMPPublications();
+            return eachResult;
+        }));
+
+        if (!this.result || !this.result.length) {
+            this.result = result;
+        }
+        else {
+            this.result = result.concat(this.result);
+        }
+        this.emit(Kopa.event.resultLoad, this);
+
+        return this.result;
+    }
+
     toString() {
         return `${this.constructor.name} {${this.id}, "${this.question.substring(0, 10)}"}`;
     }
@@ -124,6 +156,7 @@ Kopa.event = {
     slovoAdd: "slovoAdd",
     predlozhenieAdd: "predlozhenieAdd",
     dialogLoad: "dialogLoad",
+    resultLoad: "resultLoad",
 };
 
 module.exports = Kopa;

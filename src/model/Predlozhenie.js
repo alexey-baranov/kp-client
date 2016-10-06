@@ -57,7 +57,7 @@ class Predlozhenie extends RemoteModel{
         if (json.hasOwnProperty("place_id")) {
             this.place = Kopa.getReference(json.place_id);
         }
-
+        this.created= new Date(json.created_at);
         this.totalZa= json.totalZa;
         this.totalProtiv= json.totalProtiv;
 

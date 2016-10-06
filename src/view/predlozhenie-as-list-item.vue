@@ -1,13 +1,21 @@
 <template>
-    <li :id= "id" class="predlozhenie-as-list-item" >
-        <div class="value">{{model.value}}</div>
-        <div class="note">{{model.note}}</div>
-        <div class="toolbar">
-            <span class="author">{{model.author.id}} </span>
-            <span class="created">{{model.created}} </span>
-            <span class="created">{{model.totalZa}} </span>
-            <span class="created">{{model.totalProtiv}} x</span>
-        </div>
+    <li :id="id" class="predlozhenie-as-list-item">
+        <template v-if="model.id">
+            <div class="value">{{model.value}}</div>
+            <div class="note">{{model.note}}</div>
+            <div class="toolbar">
+                <span class="author">{{model.author.id}}</span>
+                <span class="created">{{model.created}}</span>
+                <span class="created">{{model.totalZa}}</span>
+                <span class="created">{{model.totalProtiv}}</span>
+            </div>
+        </template>
+        <template v-else>
+            <textarea class="value" v-model="model.value"
+                      placeholder="Ваше предложение, которое будет поставлено на голосование на копе"> </textarea>
+            <textarea class="note" v-model="model.note" placeholder="Примечание"></textarea>
+            <slot></slot>
+        </template>
     </li>
 </template>
 
@@ -15,8 +23,10 @@
     module.exports = {
         props: ["id", "model"],
         created: function () {
-            this.model.loaded();
-        }
+            if (this.model.id) {
+                this.model.loaded();
+            }
+        },
     }
 </script>
 

@@ -25,8 +25,8 @@ describe('Kopa', function () {
             };
             WAMP.open();
         })
-            .then(()=> {
-                return WAMP.session.call("ru.kopa.unitTest.cleanTempData", ['Slovo']);
+            .then((q)=> {
+                return WAMP.session.call("ru.kopa.unitTest.cleanTempData", ['Slovo', "Predlozhenie"]);
             });
     });
 
@@ -84,9 +84,44 @@ describe('Kopa', function () {
             assert.equal(result[1].created < result[2].created, true);
         });
 
-        it("should append +1 Slovo", async function () {
+        it("should prepend +1 Slovo", async function () {
             kopa.dialog.shift();
             result = await kopa.loadDialog();
+            assert.equal(result.length, 3, "result.length, 3");
+        });
+
+        it('should prepend to begining', function () {
+            assert.equal(result[0].created < result[1].created, true);
+            assert.equal(result[1].created < result[2].created, true);
+        });
+    });
+
+    describe('#loadResult()', function () {
+        let result,
+            kopa;
+
+        it("should return array of Predlozhenie", async function () {
+            kopa = await models.Kopa.get(KOPA);
+            result = await kopa.loadResult();
+
+            assert.equal(_.isArray(result), true);
+            for (var eachResult of result) {
+                assert.equal(eachResult instanceof models.Predlozhenie, true);
+            }
+        });
+
+        it('size should be 3', function () {
+            assert.equal(result.length, 3, "result.length, 3");
+        });
+
+        it('should be ordered by created', function () {
+            assert.equal(result[0].created < result[1].created, true);
+            assert.equal(result[1].created < result[2].created, true);
+        });
+
+        it("should prepend +1 Predlozhenie", async function () {
+            kopa.result.shift();
+            result = await kopa.loadResult();
             assert.equal(result.length, 3, "result.length, 3");
         });
 
@@ -117,7 +152,7 @@ describe('Kopa', function () {
                     }
                 });
 
-                let value = "some Slovo " + new Date().getTime() + " temp";
+                let value = new Date().getTime() + " temp";
                 let slovo = await models.Slovo.create({
                     value: value,
                     place: kopa,
@@ -129,7 +164,7 @@ describe('Kopa', function () {
             }
         });
 
-        it('Predlozhenie.create() -> Kopa.emit(addPredlozhenie)', async function (done) {
+        it('Predlozhenie.create() z-> Kopa.emit(addPredlozhenie)', async function (done) {
             try {
                 kopnik = await models.Kopnik.get(KOPNIK);
                 kopa = await models.Kopa.get(KOPA);
@@ -146,7 +181,7 @@ describe('Kopa', function () {
                     }
                 });
 
-                let value = "some Predlozhenie temp " + new Date().getTime();
+                let value = new Date().getTime()+ "temp";
                 let predlozhenie = await models.Predlozhenie.create({
                     value: value,
                     place: kopa,

@@ -14,7 +14,7 @@ module.exports = {
         // "test": 'mocha!./test/view/index.js'
         // "bootstrap": './src/bootstrap.js',
         //'mocha!./test/view/index.js',
-        "poligon-vue": "./public/poligon-vue/js/logic.js"
+        "poligon-vue": "./public/poligonvue/js/logic.js"
     },
     output: {
         path: __dirname+'/bin',

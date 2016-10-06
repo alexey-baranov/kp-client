@@ -121,11 +121,12 @@ class Zemla extends RemoteModel {
             BEFORE: null
         }, {disclose_me: true});
 
-        this.kopi = kopiAsPlain.map(eachKopaAsPlain => {
-            let result = Kopa.getReference(eachKopaAsPlain.id);
-            result.merge(eachKopaAsPlain);
-            return result;
-        });
+        this.kopi = await Promise.all(kopiAsPlain.map(async eachKopaAsPlain => {
+            let eachKopa = Kopa.getReference(eachKopaAsPlain.id);
+            eachKopa.merge(eachKopaAsPlain);
+            await eachKopa.subscribeToWAMPPublications();
+            return eachKopa;
+        }));
 
         this.emit(Zemla.event.kopiReload, this);
     }

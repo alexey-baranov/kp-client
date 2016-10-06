@@ -9,6 +9,7 @@ var models = require("../../src/model");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
 let Vue = require("vue");
+let VueRouter = require('vue-router');
 let $ = require("jquery");
 
 let window,
@@ -21,6 +22,7 @@ let ZEMLA3 = 3,
 let model,
     view;
 
+Vue.use(VueRouter);
 let WAMP = WAMPFactory.getWAMP();
 
 describe('SidePanelView', function () {
@@ -51,7 +53,8 @@ describe('SidePanelView', function () {
                     propsData: {
                         kopnik: kopnik1,
                         id: "default"
-                    }
+                    },
+                    router: new VueRouter()
                 }));
             view.$mount();
 

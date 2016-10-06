@@ -24,7 +24,7 @@ let model,
 
 let WAMP = WAMPFactory.getWAMP();
 Vue.use(VueRouter);
-describe('ZemlaAsLinkView', function () {
+describe('ZemlaAsKopaListView', function () {
     let model;
 
     before(function (done) {
@@ -43,19 +43,22 @@ describe('ZemlaAsLinkView', function () {
         WAMP.close();
     });
 
-    it('should $mount view', async function () {
-            const zemla3 = await models.Zemla.get(3);
+    it('output', async function () {
+            console.log(1234);
+     });
 
-            view = new Vue(Object.assign(require("../../src/view/zemla-as-link.vue"),
+    it('should $mount view', async function () {
+            const zemla2 = await models.Zemla.get(2);
+            await zemla2.reloadKopi();
+
+            view = new Vue(Object.assign(require("../../src/view/zemla-as-kopa-list.vue"),
                 {
                     propsData: {
-                        model: zemla3,
+                        model: zemla2,
                         id: "default"
                     },
                     router: new VueRouter()
-                }));
-            view.$mount();
-
-            assert.equal(view.$el.innerHTML.indexOf("UnitTest3") >= 0, true);
+                })).$mount();
+            assert.equal(view.$el.innerHTML.indexOf("далеко") >= 0, true);
     });
 });

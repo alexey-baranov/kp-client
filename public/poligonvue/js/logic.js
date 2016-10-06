@@ -7,7 +7,7 @@ require("../../../src/bootstrap");
 let Vue = require("vue");
 let VueRouter = require('vue-router');
 let $ = require("jquery");
-let models = require("../../../src/model");
+let models = window.models= require("../../../src/model");
 let WAMPFactory = require("../../../src/WAMPFactory");
 
 global.log4javascript.getRootLogger().debug("starting...");
@@ -22,33 +22,40 @@ WAMP.onopen = async function (session) {
 
     Vue.use(VueRouter);
 
+    console.log(__dirname);
     const router = new VueRouter({
         mode: 'history',
+        base: "public/poligonvue",
         routes: [
             {
-                path: '/public/poligon-vue/zemla/:ZEMLA',
+                path: '/zemla/:ZEMLA',
                 name: "zemla",
-                component: require("./../../../src/view/zemla.vue")
+                component: require("./../../../src/view/zemla.vue"),
             },
             {
-                path: '/public/poligon-vue/zemla/:ZEMLA/kopa/:KOPA',
+                path: '/kopa/:KOPA',
                 name: "kopa",
                 component: require("./../../../src/view/kopa.vue")
             },
             {
-                path: '',
-                component: require("./../../../src/view/kopa.vue")
+                path: '/',
+                beforeEnter: async (to, from, next) => {
+                    console.log("inside / route");
+                    await kopnik.loaded();
+                    next({name:"zemla", params:{ZEMLA:kopnik.dom.id}})
+                }
             },
         ]
     });
 
-
     const component = require("./../../../src/view/application.vue");
+    var kopnik = models.Kopnik.current= models.Kopnik.getReference(2);
+
     const view = new Vue(Object.assign(component,
         {
             data: {
                 model: {
-                    kopnik: models.Kopnik.getReference(2)
+                    kopnik: kopnik
                 }
             },
             propsData: {},

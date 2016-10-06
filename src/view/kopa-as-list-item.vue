@@ -1,16 +1,30 @@
 <template>
-    <li :id= "id" class="kopa-as-list-item" >
-        <div class="question">{{model.question}}</div>
+    <li class="kopa-as-list-item">
+        <template v-if="model.id">
+            <div class="question">
+                <router-link :to="{ name: 'kopa', params: { KOPA: model.id }}">{{model.question}}</router-link>
+            </div>
+        </template>
+        <template v-else>
+            <textarea class="question" v-model="model.question"
+                      placeholder="Вопрос, который нужно обсудить на копе">            </textarea>
+            <textarea class="note" v-model="model.note" placeholder="Примечание">            </textarea>
+            <textarea class="predlozhenie" v-model="model.result[0].value"
+                      placeholder="Предложение, которое будет поставлено на голосование на копе">            </textarea>
+            <slot></slot>
+        </template>
     </li>
 </template>
 
 <script>
-    let RemoteModel= require("../model/RemoteModel");
+    let RemoteModel = require("../model/RemoteModel");
 
     export default  {
         props: ["id", "model"],
         created: function () {
-            this.model.loaded();
+            if (this.model.id) {
+                this.model.loaded();
+            }
         }
     }
 </script>

@@ -20,7 +20,8 @@ module.exports = function (config) {
             // {pattern: 'test/**/Karma.test.js', watched: false},
             // {pattern: 'test/*.test.js', watched: false},
             // {pattern: 'test/**/*.test.js', watched: false},
-            {pattern: 'test/**/*.test.browser.js', watched: false},
+            // {pattern: 'test/**/*.test.browser.js', watched: false},
+            {pattern: 'test/**/ZemlaAsKopaListView.test.browser.js', watched: false},
         ],
 
 

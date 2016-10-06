@@ -43,7 +43,7 @@ describe('HeaderView', function () {
     });
 
     it('should $mount view', async function () {
-        view = new Vue(Object.assign(require("../../src/view/header.vue"),
+        view = new Vue(Object.assign(require("../../src/view/application-header.vue"),
             {
             }));
         view.$mount();

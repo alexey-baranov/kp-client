@@ -82,7 +82,7 @@ describe('Zemla', function () {
         /**
          * создаю двве земли одна родитель другая дочка
          */
-        it("#create() -> parent.on(obshinaChane)", async function (done) {
+        it("#create() -> parent.on(obshinaChange)", async function (done) {
             try {
                 let eventCount = 0;
                 zemla2 = await models.Zemla.get(ZEMLA2);
