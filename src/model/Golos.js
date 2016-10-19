@@ -15,15 +15,16 @@ class Golos extends RemoteModel{
 
         this.value= undefined;
         this.owner= undefined;
-        this.for= undefined;
+        this.subject= undefined;
     }
 
     getPlain(){
+
         let result=  {
             id: this.id,
             value: this.value,
             owner_id: this.owner?this.owner.id:null,
-            for_id: this.for?this.for.id:null,
+            subject_id: this.subject?this.subject.id:null,
             note: this.note,
             attachments:this.attachments?this.attachments.map(each=>each.id):[]
         };
@@ -39,6 +40,31 @@ class Golos extends RemoteModel{
 
         this._isLoaded= true;
 
+        if (json.hasOwnProperty("value")) {
+            this.value = json.value;
+        }
+        if (json.hasOwnProperty("note")) {
+            this.note = json.note;
+        }
+        if (json.hasOwnProperty("attachments")) {
+            this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
+        }
+        if (json.hasOwnProperty("owner_id")) {
+            this.owner = Kopnik.getReference(json.owner_id);
+        }
+        if (json.hasOwnProperty("subject_id")) {
+            this.subject= Predlozhenie.getReference(json.subject_id);
+        }
+        this.created= new Date(json.created_at);
+
+        if (json.hasOwnProperty("value") && this.value!=prevState.value ||
+            json.hasOwnProperty("note") && this.note!=prevState.note ||
+            this.owner!=prevState.owner ||
+            json.hasOwnProperty("subject_id") && this.subject!= prevState.subject ||
+            json.hasOwnProperty("attachments") && _.difference(this.attachments,prevState.attachments).length){
+
+            this.emit(RemoteModel.event.change, this);
+        }
     }
 
     toString(){
@@ -47,3 +73,6 @@ class Golos extends RemoteModel{
 }
 
 module.exports= Golos;
+
+let Predlozhenie= require("./Predlozhenie");
+let Kopnik= require("./Kopnik");

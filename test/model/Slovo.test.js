@@ -48,20 +48,27 @@ describe('Slovo', function () {
     describe('#create()', async function () {
         let slovoValue = "some Slovo temp";
 
-        it('должен опубликовать "kopa.id3.slovoAdded"', async function (done) {
+        it('должен опубликовать "kopa.id3.slovoAdd"', async function (done) {
             try {
                 let kopnik = models.Kopnik.getReference(KOPNIK);
                 let kopa = await models.Kopa.get(KOPA);
                 let slovo;
 
-                await WAMP.session.subscribe(`api:model.Kopa.id${KOPA}.slovoAdd`, function (args) {
-                    done();
+                await WAMP.session.subscribe(`api:model.Kopa.id${KOPA}.slovoAdd`, async function (args) {
+                    try{
+                        slovo= await models.Slovo.get(args[0]);
+                        assert.equal(slovo.owner.id, KOPNIK2, "slovo.owner.id, KOPNIK2");
+                        done();
+                    }
+                    catch(err){
+                        done(err);
+                    }
                 });
 
                 slovo = await models.Slovo.create({
+                    place: kopa,
                     value: slovoValue,
                     owner: kopnik,
-                    place: kopa,
                 });
             }
             catch (err) {

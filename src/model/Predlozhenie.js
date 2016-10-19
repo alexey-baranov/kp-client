@@ -5,30 +5,32 @@
  */
 "use strict";
 
-var RemoteModel= require("./RemoteModel");
-let _= require("lodash");
+var RemoteModel = require("./RemoteModel");
+let _ = require("lodash");
+let WAMP = require("../WAMPFactory").getWAMP();
 
-
-class Predlozhenie extends RemoteModel{
+class Predlozhenie extends RemoteModel {
     constructor() {
         super();
 
-        this.value= undefined;
-        this.place= undefined;
-        this.author= undefined;
-        this.golosa= undefined;
-        this.totalZa= undefined;
-        this.totalProtiv= undefined;
+        this.value = undefined;
+        this.place = undefined;
+        this.author = undefined;
+        this.state = undefined;
+        this.golosa = undefined;
+        this.totalZa = undefined;
+        this.totalProtiv = undefined;
     }
 
-    getPlain(){
-        let result=  {
+    getPlain() {
+        let result = {
             id: this.id,
             value: this.value,
-            place_id: this.place?this.place.id:null,
-            author_id: this.author?this.author.id:null,
+            state: this.state,
+            place_id: this.place ? this.place.id : null,
+            author_id: this.author ? this.author.id : null,
             note: this.note,
-            attachments:this.attachments?this.attachments.map(each=>each.id):[]
+            attachments: this.attachments ? this.attachments.map(each=>each.id) : []
         };
         return result;
     }
@@ -36,14 +38,17 @@ class Predlozhenie extends RemoteModel{
     /**
      *  вливает новое состояние в объект и вызывает события
      */
-    merge(json){
-        var prevState= {};
+    merge(json) {
+        var prevState = {};
         Object.assign(prevState, this);
 
-        this._isLoaded= true;
+        this._isLoaded = true;
 
         if (json.hasOwnProperty("value")) {
             this.value = json.value;
+        }
+        if (json.hasOwnProperty("state")) {
+            this.state = json.state;
         }
         if (json.hasOwnProperty("note")) {
             this.note = json.note;
@@ -57,45 +62,112 @@ class Predlozhenie extends RemoteModel{
         if (json.hasOwnProperty("place_id")) {
             this.place = Kopa.getReference(json.place_id);
         }
-        this.created= new Date(json.created_at);
-        this.totalZa= json.totalZa;
-        this.totalProtiv= json.totalProtiv;
+        this.created = new Date(json.created_at);
+        this.totalZa = json.totalZa;
+        this.totalProtiv = json.totalProtiv;
 
-        if (json.hasOwnProperty("value") && this.value!=prevState.value ||
-            json.hasOwnProperty("note") && this.note!=prevState.note ||
-            this.totalZa!=prevState.totalZa ||
-            this.totalProtiv!=prevState.totalProtiv ||
-            this.author!=prevState.author ||
-            json.hasOwnProperty("place_id") && this.place!= prevState.place ||
-            json.hasOwnProperty("attachments") && _.difference(this.attachments,prevState.attachments).length){
+        if (json.hasOwnProperty("value") && this.value != prevState.value ||
+            json.hasOwnProperty("state") && this.state != prevState.state ||
+            json.hasOwnProperty("note") && this.note != prevState.note ||
+            this.totalZa != prevState.totalZa ||
+            this.totalProtiv != prevState.totalProtiv ||
+            this.author != prevState.author ||
+            json.hasOwnProperty("place_id") && this.place != prevState.place ||
+            json.hasOwnProperty("attachments") && _.difference(this.attachments, prevState.attachments).length) {
 
             this.emit(RemoteModel.event.change, this);
         }
     }
 
-    async onPublication(args, kwargs, details){
+    async onPublication(args, kwargs, details) {
         await super.onPublication(args, kwargs, details);
-        if (details.topic.match(/\.golosAdd$/)){
-            if (this.golosa){
-                let golos= await Golos.get(args[0]);
-                this.golosa.push(golos);
-                this.emit(Predlozhenie.event.golosAdd, this, golos);
+        if (details.topic.match(/\.rebalance$/)) {
+            if (this.golosa) {
+                this.totalZa = kwargs.totalZa;
+                this.totalProtiv = kwargs.totalProtiv;
+                let golos;
+                switch (kwargs.action) {
+                    case "add":
+                        golos = await Golos.get(kwargs["GOLOS"]);
+                        this.golosa.push(golos);
+                        break;
+                    case "remove":
+                        this.golosa = this.golosa.filter(eachGolos=>eachGolos.id != kwargs["GOLOS"]);
+                        break;
+                    case "update":
+                        golos = this.golosa.find(eachGolos=>eachGolos.id = kwargs["GOLOS"]);
+                        if (golos) {
+                            golos.value = kwargs.value;
+                        }
+                        break;
+                }
+                this.emit(Predlozhenie.event.rebalance, this, kwargs);
             }
         }
     }
 
-    toString(){
-        return `${this.constructor.name} {${this.id}, "${this.value.substr(0,10)}"}`;
+    /**
+     * загружает прямые голоса
+     */
+    async reloadGolosa() {
+        let golosaAsPlain = await WAMP.session.call("api:model.Predlozhenie.getGolosa", [], {
+            PREDLOZHENIE: this.id
+        }, {disclose_me: true});
+
+        let golosa = await Promise.all(golosaAsPlain.map(async eachGolosAsPlain => {
+            let eachGolos = Golos.getReference(eachGolosAsPlain.id);
+            eachGolos.merge(eachGolosAsPlain);
+            await eachGolos.subscribeToWAMPPublications();
+            return eachGolos;
+        }));
+
+        this.golosa = golosa;
+        this.emit(Predlozhenie.event.golosaReload, this);
+
+        return this.golosa;
+    }
+
+    get za() {
+        if (!this.golosa) {
+            return undefined;
+        }
+        return this.golosa.filter(eachGolos=>eachGolos.value == 1);
+    }
+
+    get protiv() {
+        if (!this.golosa) {
+            return undefined;
+        }
+        return this.golosa.filter(eachGolos=>eachGolos.value == -1);
+    }
+
+    toString() {
+        return `${this.constructor.name} {${this.id}, "${this.value.substr(0, 10)}"}`;
     }
 }
 
-Predlozhenie.event={
+Predlozhenie.event = {
     golosaReload: "golosaReload",
-    golosAdd: "golosAdd",
+    /*
+     * golosAdd неправильное название потому что ребаланс может произойти не только в результате нового голоса,
+     * но и в результате передумал и проголосовал по другому и в результате передумал и решил вообще не голосоваться
+     * общее название для всех этих событий ребаланс
+     * golosAdd: "golosAdd",
+     */
+
+    /**
+     * kwargs {
+     *  totalZa,
+     *  totalProtiv,
+     *  ADD?,
+     *  REMOVE?
+     * }
+     */
+    rebalance: "rebalance",
 };
 
-module.exports= Predlozhenie;
+module.exports = Predlozhenie;
 
-let Kopnik= require("./Kopnik");
-let Kopa= require("./Kopa");
-let Golos= require("./Golos");
+let Kopnik = require("./Kopnik");
+let Kopa = require("./Kopa");
+let Golos = require("./Golos");

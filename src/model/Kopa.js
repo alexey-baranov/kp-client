@@ -55,6 +55,12 @@ class Kopa extends RemoteModel {
         if (json.hasOwnProperty("attachments")) {
             this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
         }
+        if (json.hasOwnProperty("inviter_id")) {
+            this.inviter = Kopnik.getReference(json.inviter_id);
+        }
+        if (json.hasOwnProperty("place_id")) {
+            this.place = Zemla.getReference(json.place_id);
+        }
 
         if (json.hasOwnProperty("question") && this.question != prevState.question ||
             json.hasOwnProperty("invited") && this.invited != prevState.invited ||
@@ -67,7 +73,6 @@ class Kopa extends RemoteModel {
 
 
     async onPublication(args, kwargs, details) {
-        console.log(this.question, "onPublication");
         await super.onPublication(args, kwargs, details);
         if (details.topic.match(/\.slovoAdd$/)) {
             if (this.dialog) {
@@ -161,5 +166,8 @@ Kopa.event = {
 
 module.exports = Kopa;
 
+let Kopnik = require("./Kopnik");
 let Slovo = require("./Slovo");
+let Zemla = require("./Zemla");
 let Predlozhenie = require("./Predlozhenie");
+let x=1;

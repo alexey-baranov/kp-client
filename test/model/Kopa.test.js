@@ -55,11 +55,45 @@ describe('Kopa', function () {
     describe('#get()', function () {
         it('should return loaded Kopa', async function () {
             kopa = await models.Kopa.get(KOPA);
-            assert.equal(kopa instanceof models.Kopa, true);
+            assert.equal(kopa instanceof models.Kopa, true, "kopa instanceof models.Kopa");
+            assert.equal(kopa.place instanceof models.Zemla, true);
             assert.equal(kopa._isLoaded, true);
             assert.equal(_.isArray(kopa.attachments), true);
         });
     });
+
+    describe('#create()', async function () {
+        let kopaQuestion = "some Kopa temp";
+
+        it('должен опубликовать "zemla.id2.kopaAddy"', async function (done) {
+            try {
+                let kopnik = models.Kopnik.getReference(KOPNIK);
+                let zemla = await models.Zemla.get(ZEMLA);
+                let kopa;
+
+                await WAMP.session.subscribe(`api:model.Zemla.id${ZEMLA}.kopaAdd`, async function (args) {
+                    try{
+                        kopa= await models.Kopa.get(args[0]);
+                        assert.equal(kopa.inviter.id, KOPNIK, "kopa.inviter.id, KOPNIK2");
+                        done();
+                    }
+                    catch(err){
+                        done(err);
+                    }
+                });
+
+                kopa = await models.Kopa.create({
+                    place: zemla,
+                    question: kopaQuestion,
+                    inviter: kopnik,
+                });
+                kopa.invite();
+            }
+            catch (err) {
+                done(err);
+            }
+        });
+    });    
 
     describe('#loadDialog()', function () {
         let result,
@@ -100,7 +134,7 @@ describe('Kopa', function () {
         let result,
             kopa;
 
-        it("should return array of Predlozhenie", async function () {
+        it("should return array of Predlozheniex", async function () {
             kopa = await models.Kopa.get(KOPA);
             result = await kopa.loadResult();
 
@@ -154,8 +188,8 @@ describe('Kopa', function () {
 
                 let value = new Date().getTime() + " temp";
                 let slovo = await models.Slovo.create({
-                    value: value,
                     place: kopa,
+                    value: value,
                     owner: kopnik,
                 });
             }
@@ -183,8 +217,8 @@ describe('Kopa', function () {
 
                 let value = new Date().getTime()+ "temp";
                 let predlozhenie = await models.Predlozhenie.create({
-                    value: value,
                     place: kopa,
+                    value: value,
                     author: kopnik,
                 });
             }

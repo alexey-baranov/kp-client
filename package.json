@@ -10,10 +10,12 @@
     "webpack": "webpack",
     "dev": "webpack-dev-server",
     "test": "mocha --timeout 5000 --require babel-register --require source-map-support  './test/**/*test.js'",
-    "test:watch:full": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch \"test/**/*.test.js\"",
+    "test:watch:all": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch \"test/**/*.test.js\"",
     "test:watch": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch",
     "test:browser:watch": "webpack-dev-server --config webpack.config.test.browser.js --hot --inline",
     "test:browser:karma": "karma start",
+    "test:browser:karma:run": "karma run",
+    "test:browser:karma:run:file": "karma run -- --grep KopaAsListItem",
     "hulk": "../hogan.js/bin/hulk -w commonjs -o src/view/tmpl/js ./src/view/tmpl/*.mustache"
   },
   "repository": {

@@ -43,10 +43,6 @@ describe('ZemlaAsKopaListView', function () {
         WAMP.close();
     });
 
-    it('output', async function () {
-            console.log(1234);
-     });
-
     it('should $mount view', async function () {
             const zemla2 = await models.Zemla.get(2);
             await zemla2.reloadKopi();

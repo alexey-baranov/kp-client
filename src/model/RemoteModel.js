@@ -32,6 +32,7 @@ class RemoteModel extends EventEmitter{
         this.log= global.log4javascript.getLogger(this.constructor.name);
 
         this._isLoaded = false;
+        this._isSubscribedToWAMPPublications= false;
         this.id = undefined;
         this.note= undefined;
         this.attachments= undefined;
@@ -156,10 +157,24 @@ class RemoteModel extends EventEmitter{
         return this.cache.get(this.name).get(id);
     }
 
-    static get(id){
-        let result= this.getReference(id);
+    static async get(what){
+        let result;
 
-        return result._isLoaded?Promise.resolve(result):result.reload();
+        if (_.isNumber(what) || _.isString(what)){
+            result= this.getReference(what);
+            if (!result._isLoaded){
+                await result.reload();
+            }
+            return result;
+        }
+        else{
+            result= this.getReference(what.id);
+            result.merge(what);
+            if (!result._isSubscribedToWAMPPublications){
+                await result.subscribeToWAMPPublications();
+            }
+            return result;
+        }
     }
 
 
@@ -167,8 +182,9 @@ class RemoteModel extends EventEmitter{
      * загружает все поля в томи числе скалярные и ссылки на другие объеты
      * @returns {Promise.<RemoteModel>}
      */
-    async reload(){
+    async reload(source){
         let isLoadedBefore= this._isLoaded;
+
         let json= await WAMPFactory.getWAMP().session.call("ru.kopa.model.get",[],{
             model:this.constructor.name,
             id:this.id});
@@ -192,6 +208,14 @@ class RemoteModel extends EventEmitter{
     }
 
     async subscribeToWAMPPublications(){
+        if (this._isSubscribedToWAMPPublications){
+            throw new Error(`${this} allready subscribed to WAMP publications`);
+        }
+        /**
+         * это устанавливается до подписки потому что в противном случае возможна маленькая вероятность того
+         * что две подписки произойдут одновременно в двух потоках
+         */
+        this._isSubscribedToWAMPPublications= true;
         await this.subscribeHelper(`api:model.${this.constructor.name}.id${this.id}.`, this.onPublication, {match: 'wildcard'}, this);
     }
 

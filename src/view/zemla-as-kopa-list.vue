@@ -1,37 +1,37 @@
 <template>
-        <ul class="kopa-list">
-            <kopa-as-list-item v-for="eachKopa of model2.kopi" :model="eachKopa"></kopa-as-list-item>
-        </ul>
+    <ul class="kopa-list">
+        <kopa-as-list-item v-for="eachKopa of model2.kopi" :model="eachKopa"></kopa-as-list-item>
+    </ul>
 </template>
 
 <script>
     let models = require("../model");
 
     export default{
-        props: ["id", "model"],
+        props: ["idd", "model"],
         components: {
             "kopa-as-list-item": require("./kopa-as-list-item.vue")
         },
-        watch:{
+        watch: {
             $route(){
                 this.reloadModel();
             }
         },
-        created: function(){
+        created: function () {
             this.reloadModel();
         },
-        computed:{
+        computed: {
             model2(){
-                if (!this.model && this.$route.params.ZEMLA){
+                if (!this.model && this.$route.params.ZEMLA) {
                     return models.Zemla.getReference(this.$route.params.ZEMLA)
                 }
-                else{
+                else {
                     return this.model;
                 }
             }
         },
-        methods:{
-            reloadModel: async function(){
+        methods: {
+            reloadModel: async function () {
 //                await this.model2.loaded();
                 if (!this.model2.kopi) {
                     await this.model2.reloadKopi();
@@ -42,5 +42,5 @@
 </script>
 
 
-<style scoped>
+<style scopedd>
 </style>

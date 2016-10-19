@@ -9,6 +9,7 @@ var models = require("../../src/model");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
 let Vue = require("vue");
+let VueRouter= require("vue-router");
 let $ = require("jquery");
 
 let window,
@@ -22,6 +23,7 @@ let model,
     view;
 
 let WAMP = WAMPFactory.getWAMP();
+Vue.use(VueRouter);
 
 describe('KopaAsListItemView', function () {
     let model;
@@ -50,7 +52,8 @@ describe('KopaAsListItemView', function () {
                 propsData: {
                     model: kopa1,
                     id: "default"
-                }
+                },
+                router: new VueRouter(),
             }));
         view.$mount();
         assert.equal(view.$el.innerHTML.indexOf(kopa1.question) >= 0, true);

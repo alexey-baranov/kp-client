@@ -145,7 +145,7 @@ describe('RemoteModel', function () {
             slovo = await models.Slovo.create({
                 place: models.Kopa.getReference(KOPA),
                 owner: models.Kopnik.getReference(KOPNIK2),
-                value: "some value temp " + new Date().getTime(),
+                value: "temp " + new Date().getTime(),
             });
         });
     });

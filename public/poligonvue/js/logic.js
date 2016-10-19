@@ -17,12 +17,10 @@ let SlovoAsListItemView = require("./../../../src/view/slovo-as-list-item.vue");
 let KopaView = require("./../../../src/view/kopa.vue");
 
 WAMP.onopen = async function (session) {
-    console.log('opened');
     session.prefix('api', 'ru.kopa');
 
     Vue.use(VueRouter);
 
-    console.log(__dirname);
     const router = new VueRouter({
         mode: 'history',
         base: "public/poligonvue",
@@ -38,9 +36,13 @@ WAMP.onopen = async function (session) {
                 component: require("./../../../src/view/kopa.vue")
             },
             {
+                path: '/kopnik/:KOPNIK',
+                name: "kopnik",
+                component: require("./../../../src/view/kopnik.vue")
+            },
+            {
                 path: '/',
                 beforeEnter: async (to, from, next) => {
-                    console.log("inside / route");
                     await kopnik.loaded();
                     next({name:"zemla", params:{ZEMLA:kopnik.dom.id}})
                 }
@@ -49,7 +51,8 @@ WAMP.onopen = async function (session) {
     });
 
     const component = require("./../../../src/view/application.vue");
-    var kopnik = models.Kopnik.current= models.Kopnik.getReference(2);
+    var kopnik = window.kopnik= models.Kopnik.current= models.Kopnik.getReference(2);
+    window.predlozhenie= models.Predlozhenie.getReference(1);
 
     const view = new Vue(Object.assign(component,
         {
@@ -61,8 +64,6 @@ WAMP.onopen = async function (session) {
             propsData: {},
             router
         })).$mount("#kopa");
-
-    console.log("done");
 
     /*    new Vue({
      el: "#kopa",

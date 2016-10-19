@@ -47,34 +47,20 @@ describe('Golos', function () {
     });
 
     describe('#create()', async function () {
-        let golos;
-
-        it('should publish "Predlozhenie.id1.golosAdd"', async function (done) {
-            try {
-                let kopnik = models.Kopnik.getReference(KOPNIK);
-                let kopa = await models.Kopa.get(KOPA);
-
-                await WAMP.session.subscribe(`api:model.Predlozhenie.id${PREDLOZHENIE}.golosAdd`, function (args) {
+        it('should throw error', function (done) {
+            (async function(){
+                try {
+                    golos= await models.Golos.create({
+                        subject: models.Predlozhenie.getReference(PREDLOZHENIE),
+                        value: 1,
+                        owner: models.Kopnik.getReference(KOPNIK2),
+                    });
+                    done(new Error("golos was created"));
+                }
+                catch (err) {
                     done();
-/*
-                    if (!golos) {
-                        done(new Error("событие пришло раньше чем голос был создан"));
-                    }
-                    else{
-                        done();
-                    }
-*/
-                });
-
-                golos = await models.Golos.create({
-                    for: models.Predlozhenie.getReference(PREDLOZHENIE),
-                    owner: kopnik,
-                    value: 1,
-                });
-            }
-            catch (err) {
-                done(err);
-            }
+                }
+            })();
         });
     });
 });

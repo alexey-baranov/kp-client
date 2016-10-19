@@ -12,7 +12,7 @@ module.exports = function (config) {
 
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['mocha'],
+      frameworks: ['mocha'],
 
 
         // list of files / patterns to load in the browser
@@ -20,8 +20,8 @@ module.exports = function (config) {
             // {pattern: 'test/**/Karma.test.js', watched: false},
             // {pattern: 'test/*.test.js', watched: false},
             // {pattern: 'test/**/*.test.js', watched: false},
-            // {pattern: 'test/**/*.test.browser.js', watched: false},
-            {pattern: 'test/**/ZemlaAsKopaListView.test.browser.js', watched: false},
+            {pattern: 'test/**/*.test.browser.js', watched: false},
+            // {pattern: 'test/**/KopnikAsListItemView.test.browser.js', watched: false},
         ],
 
 

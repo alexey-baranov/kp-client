@@ -59,7 +59,6 @@ describe('AddressView', function () {
 
             Rus.on(models.RemoteModel.event.change, ()=>{
                 try {
-                    console.log(view.$el.innerHTML);
                     assert.equal(view.$el.innerHTML.indexOf("UnitTest2") >= 0, true);
                     done();
                 }
