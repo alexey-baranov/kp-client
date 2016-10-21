@@ -71,6 +71,7 @@ class Kopnik extends RemoteModel {
         this.voiskoSize = json.voiskoSize;
 
         this.dom = Zemla.getReference(json.dom_id);
+        this.starshina = json.starshina_id?Kopnik.getReference(json.starshina_id):null;
         this.attachments = json.attachments?json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT)):undefined;
 /*      это асинхронная штукенция поэтому непонятно как ее тут выполнять даже
         if (json.druzhina) {
@@ -97,7 +98,10 @@ class Kopnik extends RemoteModel {
             this.emit(Kopnik.event.voiskoChange, this);
         }
         else if (details.topic.match(/\.starshinaChange$/)) {
-            this.emit(Kopnik.event.starshinaChange, this);
+            if (kwargs.KOPNIK==this.id){
+                this.starshina= kwargs.STARSHINA?Kopnik.getReference(kwargs.STARSHINA):null;
+            }
+            this.emit(Kopnik.event.starshinaChange, this, kwargs);
         }
         else if (details.topic.match(/\.druzhinaChange$/) && this.druzhina) {
             switch(kwargs.action){
@@ -118,7 +122,7 @@ class Kopnik extends RemoteModel {
             KOPNIK: this.id,
             STARSHINA: value?value.id:null
         }, {disclose_me: true});
-        this.starshina = value;
+        // this.starshina = value;
         this.emit(Kopnik.event.starshinaChange, this);
     }
 

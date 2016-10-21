@@ -16,13 +16,35 @@
         created: function () {
         }
     }
+
+
+
+
 </script>
 
 
 <style>
+    * {
+        font-size: 25px;
+    }
+
+    .material-icons.md-1em{
+        font-size: 1em;
+    }
+
+    .material-icons.md-dark {
+        color: rgba(0, 0, 0, 0.54);
+    }
+
+    .material-icons.md-dark.md-inactive {
+        color: rgba(0, 0, 0, 0.26);
+    }
+
     ul {
         margin: 0;
     }
+
+
 </style>
 
 <style scoped>
@@ -30,4 +52,8 @@
         background-color: #cccccc;
         font-size: smaller;
     }
+
+
+
+
 </style>

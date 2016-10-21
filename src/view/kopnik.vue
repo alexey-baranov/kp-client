@@ -2,6 +2,11 @@
     <div class="kopnik">
         <div class="fio">
             ФИО: {{model2.surname}} {{model2.name}} {{model2.patronymic}}
+            <template v-if="currentKopnik!= model2">
+                <button @click="setStarshina_click">
+                    {{currentKopnik.starshina != model2?"Выбрать копника своим старшиной":"Выйти из дружины копника"}}
+                </button>
+            </template>
         </div>
         <div v-if="model2.dom" class="dom">
             Дом:
@@ -12,7 +17,9 @@
             <kopnik-as-link :model="model2.starshina"></kopnik-as-link>
         </div>
         <div class="druzhina">
-            <span class="druzhina-toggler" @click="onDruzhinaToggle()">+</span> Дружина ({{model2.voiskoSize}}):
+            <div style="cursor:pointer" @click="onDruzhinaToggle()">
+                <span class="material-icons md-dark md-1em">{{druzhinaDisplay?'keyboard_arrow_down':'keyboard_arrow_right'}}</span> Дружина ({{model2.voiskoSize}}):
+            </div>
             <ul v-show="druzhinaDisplay">
                 <kopnik-as-druzhe v-for="eachDruzhe of model2.druzhina" :model="eachDruzhe"></kopnik-as-druzhe>
             </ul>
@@ -30,6 +37,7 @@
                  * значение druzhina.display= true || false
                  */
                 druzhinaDisplay: false,
+                currentKopnik: models.Kopnik.current,
             };
         },
         props: ["id", "model", "short"],
@@ -58,22 +66,28 @@
                 else {
                     return this.model;
                 }
-            }
+            },
         },
         methods: {
             loadModel: async function () {
                 await this.model2.loaded();
             },
 
-            /**
-             * Создает новое слово
-             */
             onDruzhinaToggle: async function () {
                 this.druzhinaDisplay=!this.druzhinaDisplay;
                 if (this.druzhinaDisplay && !this.model2.druzhina) {
                     this.model2.loadDruzhina();
                 }
             },
+
+            setStarshina_click: async function(){
+                if (models.Kopnik.current.starshina== this.model2){
+                    await models.Kopnik.current.setStarshina(null);
+                }
+                else{
+                    await models.Kopnik.current.setStarshina(this.model2);
+                }
+            }
         }
     }
 

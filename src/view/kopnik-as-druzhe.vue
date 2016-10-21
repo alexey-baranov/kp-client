@@ -1,7 +1,8 @@
 <template>
     <div class="kopnik-as-druzhe">
         <div class="fio">
-            <span class="druzhina-toggler" @click="onDruzhinaToggle()">+</span> {{model.surname}} {{model.name}} {{model.patronymic}} ({{model.voiskoSize}})
+            <span style="cursor: pointer;" class="material-icons md-dark md-1em" @click="onDruzhinaToggle()">{{druzhinaDisplay?'keyboard_arrow_down':'keyboard_arrow_right'}}</span>
+            <kopnik-as-link :model="model"> ({{model.voiskoSize}})</kopnik-as-link>
         </div>
         <div v-show="druzhinaDisplay" class="druzhina">
             <ul v-show="model.druzhina">
@@ -26,7 +27,7 @@
         },
         props: ["id", "model"],
         components: {
-            //"kopnik-as-druzhe": require("./kopnik-as-druzhe.vue"),
+            "kopnik-as-link": require("./kopnik-as-link.vue"),
         },
         created: function () {
             this.loadModel();
