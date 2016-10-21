@@ -83,34 +83,25 @@ describe('Kopnik', function () {
          */
         it('should emit voiskoChange twice', async function (done) {
             try {
-                let eventCount = 0;
                 kopnik2 = await models.Kopnik.get(KOPNIK2);
-                let listener;
 
-                kopnik2.on(models.Kopnik.event.voiskoChange, listener = async()=> {
+                kopnik2.once(models.Kopnik.event.voiskoChange, async()=> {
                     try {
-                        eventCount++;
-
-                        if (eventCount == 1 && kopnik2.voiskoSize != 2) {
-                            kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
-                            done(new Error("kopnik2.voiskoSize!=2"));
-                        }
-
-                        if (eventCount == 2 && kopnik2.voiskoSize != 3) {
-                            kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
-                            done(new Error("kopnik2.voiskoSize!=3"));
-                        }
-                        if (eventCount == 2) {
-                            kopnik2.removeListener(models.Kopnik.event.voiskoChange, listener);
-                            assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
-                            assert.equal(someKopnik2.starshina.starshina, kopnik2, "someKopnik2.starshina.starshina, kopnik2");
-                            done();
-                        }
+                        assert.equal(kopnik2.voiskoSize, 4, "kopnik2.voiskoSize, 4");
+                        assert.equal(someKopnik1.starshina, kopnik2, "someKopnik1.starshina, kopnik2");
+                        kopnik2.once(models.Kopnik.event.voiskoChange, async()=> {
+                            try {
+                                assert.equal(kopnik2.voiskoSize, 5, "kopnik2.voiskoSize, 5");
+                                assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
+                                done();
+                            } catch (err) {
+                                done(err);
+                            }
+                        });
                     } catch (err) {
                         done(err);
                     }
                 });
-
                 someKopnik1 = await models.Kopnik.create({
                     name: "temp",
                     surname: "temp",
@@ -118,8 +109,7 @@ describe('Kopnik', function () {
                     birth: 1900,
                     dom: models.Zemla.getReference(ZEMLA2),
                 });
-                await someKopnik1.setStarshina(models.Kopnik.getReference(KOPNIK2));
-
+                await someKopnik1.setStarshina(kopnik2);
 
                 someKopnik2 = await models.Kopnik.create({
                     name: "temp",
@@ -151,7 +141,7 @@ describe('Kopnik', function () {
                  */
                 kopnik2.once(models.Kopnik.event.voiskoChange, ()=> {
                     try {
-                        assert.equal(kopnik2.voiskoSize, 1, "kopnik2.voiskoSize, 1");
+                        assert.equal(kopnik2.voiskoSize, 3, "kopnik2.voiskoSize, 3");
                         kopnik4.once(models.Kopnik.event.voiskoChange, ()=> {
                             try {
                                 assert.equal(kopnik4.voiskoSize, 2, "kopnik4.voiskoSize, 2");
@@ -190,7 +180,6 @@ describe('Kopnik', function () {
         it('should reset starshina', function (done) {
             (async function (){
                 try {
-                    someKopnik1.setStarshina(null);
                     kopnik4.once(models.Kopnik.event.voiskoChange, ()=> {
                         try {
                             assert.equal(kopnik4.voiskoSize, 0, "kopnik4.voiskoSize, 0");
@@ -201,6 +190,7 @@ describe('Kopnik', function () {
                             done(err);
                         }
                     });
+                    someKopnik1.setStarshina(null);
                 }
                 catch (err) {
                     done(err);
@@ -219,11 +209,18 @@ describe('Kopnik', function () {
                     kopnik2.once(models.Kopnik.event.druzhinaChange,()=> {
                         try {
                             assert.equal(kopnik2.druzhina.indexOf(someKopnik1)>=0, true, "kopnik2.druzhina.indexOf(someKopnik1)>=0");
+                            kopnik2.once(models.Kopnik.event.druzhinaChange,()=> {
+                                try {
+                                    assert.equal(kopnik2.druzhina.length, 0, "kopnik2.druzhina.length, 0");
+                                    done();
+                                } catch (err) {
+                                    done(err);
+                                }
+                            });
                         } catch (err) {
                             done(err);
                         }
                     });
-
                     someKopnik1 = await models.Kopnik.create({
                         name: "temp",
                         surname: "temp",
@@ -232,17 +229,7 @@ describe('Kopnik', function () {
                         dom: models.Zemla.getReference(ZEMLA2),
                     });
                     await someKopnik1.setStarshina(kopnik2);
-
                     await someKopnik1.setStarshina(null);
-                    kopnik2.once(models.Kopnik.event.druzhinaChange,()=> {
-                        try {
-                            assert.equal(kopnik2.druzhina.length, 0, "kopnik2.druzhina.length, 0");
-                            done();
-                        } catch (err) {
-                            done(err);
-                        }
-                    });
-
                 }
                 catch (err) {
                     done(err);
@@ -272,21 +259,23 @@ describe('Kopnik', function () {
 
         /**
          * создаю предложение, голосую и жду когда выстрелит Predlozhenie#balanceChange
+         * В этом тесте проверяется неголосуемость копника 6 (он живет в другом доме)
          */
         it('should vote', function (done) {
             (async function () {
                 try {
-                    let listenverhfvxc,
+                    let listener,
                         eventNumber = -1;
 
-                    somePredlozhenie.on(models.Predlozhenie.event.rebalance, function () {
+                    somePredlozhenie.on(models.Predlozhenie.event.rebalance, listener=function () {
                         try {
                             switch (eventNumber--) {
                                 case -1:
-                                    assert.equal(somePredlozhenie.totalZa, 2, "somePredlozhenie.totalZa, 2");
+                                    assert.equal(somePredlozhenie.totalZa, 3, "somePredlozhenie.totalZa, 3");
                                     assert.equal(somePredlozhenie.totalProtiv, 0, "somePredlozhenie.totalProtiv, 0");
                                     assert.equal(somePredlozhenie.golosa.length, 1, "somePredlozhenie.golosa.length, 1");
                                     assert.equal(somePredlozhenie.golosa[0] instanceof models.Golos, true, "somePredlozhenie.golosa[0] instanceof models.Golos, true");
+                                    // somePredlozhenie.removeListener(listener); не работает
                                     done();
                                     break;
                                 case 0:
@@ -296,7 +285,7 @@ describe('Kopnik', function () {
                                     break;
                                 case 1:
                                     assert.equal(somePredlozhenie.totalZa, 0, "somePredlozhenie.totalZa, 0");
-                                    assert.equal(somePredlozhenie.totalProtiv, 2, "somePredlozhenie.totalProtiv, 2");
+                                    assert.equal(somePredlozhenie.totalProtiv, 3, "somePredlozhenie.totalProtiv, 3");
                                     assert.equal(somePredlozhenie.golosa.length, 1, "somePredlozhenie.golosa.length, 1");
                                     assert.equal(somePredlozhenie.golosa[0] instanceof models.Golos, true, "somePredlozhenie.golosa[0] instanceof models.Golos");
 

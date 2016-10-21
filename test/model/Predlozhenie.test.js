@@ -88,16 +88,4 @@ describe('Predlozhenie', function () {
             }
         });
     });
-
-    describe('getGolosa', async function () {
-        let predlozhenie;
-
-        it('Golos.create() -> Predlozhenie.emit(addGolos)', async function () {
-            predlozhenie = await models.Predlozhenie.get(PREDLOZHENIE);
-            await predlozhenie.reloadGolosa();
-            assert.equal(_.isArray(predlozhenie.golosa), true, "_.isArray(predlozhenie.golosa)");
-            assert.equal(predlozhenie.golosa.length > 0, true, "typeof predlozhenie.golosa.length>0");
-            assert.equal(predlozhenie.golosa[0] instanceof models.Golos, true, "");
-        });
-    });
 });

@@ -17,7 +17,7 @@ class Predlozhenie extends RemoteModel {
         this.place = undefined;
         this.author = undefined;
         this.state = undefined;
-        this.golosa = undefined;
+        this.golosa = undefined; //массив ПРЯМЫХ голосов, голоса дружины здесь не числятся потому что этот массив будет раздут до нескольких миллионов элементов
         this.totalZa = undefined;
         this.totalProtiv = undefined;
     }

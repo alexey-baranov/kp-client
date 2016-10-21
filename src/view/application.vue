@@ -19,6 +19,12 @@
 </script>
 
 
+<style>
+    ul {
+        margin: 0;
+    }
+</style>
+
 <style scoped>
     .header {
         background-color: #cccccc;

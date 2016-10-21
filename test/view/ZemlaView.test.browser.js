@@ -9,6 +9,7 @@ var models = require("../../src/model");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
 let Vue = require("vue");
+let VueRouter= require("vue-router");
 let $ = require("jquery");
 
 let window,
@@ -22,6 +23,7 @@ let model,
     view;
 
 let WAMP = WAMPFactory.getWAMP();
+Vue.use(VueRouter);
 
 describe('ZemlaView', function () {
     let model;
@@ -49,7 +51,8 @@ describe('ZemlaView', function () {
                 propsData: {
                     model: model,
                     id: "default"
-                }
+                },
+                router: new VueRouter(),
             }));
         view.$mount();
     });

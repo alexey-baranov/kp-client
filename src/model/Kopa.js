@@ -106,9 +106,7 @@ class Kopa extends RemoteModel {
         }, {disclose_me: true});
 
         let dialog = await Promise.all(dialogAsPlain.map(async eachSlovoAsPlain => {
-            let eachSlovo = Slovo.getReference(eachSlovoAsPlain.id);
-            eachSlovo.merge(eachSlovoAsPlain);
-            await eachSlovo.subscribeToWAMPPublications();
+            let eachSlovo = await Slovo.get(eachSlovoAsPlain);
             return eachSlovo;
         }));
 
@@ -135,9 +133,7 @@ class Kopa extends RemoteModel {
         }, {disclose_me: true});
 
         let result = await Promise.all(resultAsPlain.map(async eachResultAsPlain => {
-            let eachResult = Predlozhenie.getReference(eachResultAsPlain.id);
-            eachResult.merge(eachResultAsPlain);
-            await eachResult.subscribeToWAMPPublications();
+            let eachResult = Predlozhenie.get(eachResultAsPlain);
             return eachResult;
         }));
 

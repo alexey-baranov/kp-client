@@ -149,10 +149,10 @@ describe('Zemla', function () {
                  */
                 zemla2.once(models.Zemla.event.obshinaChange, ()=> {
                     try {
-                        assert.equal(zemla2.obshinaSize, 4, "zemla2.obshinaSize, 4");
+                        assert.equal(zemla2.obshinaSize, 5, "zemla2.obshinaSize, 5");
                         zemla4.once(models.Zemla.event.obshinaChange, ()=> {
                             try {
-                                assert.equal(zemla4.obshinaSize, 1, "zemla4.obshinaSize, 1");
+                                assert.equal(zemla4.obshinaSize, 2, "zemla4.obshinaSize, 2");
                                 done();
                             }
                             catch (err) {

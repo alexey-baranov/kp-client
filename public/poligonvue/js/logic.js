@@ -45,6 +45,7 @@ WAMP.onopen = async function (session) {
                 beforeEnter: async (to, from, next) => {
                     await kopnik.loaded();
                     next({name:"zemla", params:{ZEMLA:kopnik.dom.id}})
+                    // next({name:"kopnik", params:{KOPNIK:kopnik.id}})
                 }
             },
         ]

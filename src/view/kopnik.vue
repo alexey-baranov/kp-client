@@ -3,19 +3,21 @@
         <div class="fio">
             ФИО: {{model2.surname}} {{model2.name}} {{model2.patronymic}}
         </div>
-        <div class="dom">
+        <div v-if="model2.dom" class="dom">
             Дом:
-            <zemla-as-link :model="model2.starshina"></zemla-as-link>
+            <zemla-as-link :model="model2.dom"></zemla-as-link>
         </div>
-        <div class="starshina">
+        <div v-if="model2.starshina" class="starshina">
             Старшина:
             <kopnik-as-link :model="model2.starshina"></kopnik-as-link>
         </div>
         <div class="druzhina">
-            <span @click="onDruzhinaToggle()">+</span> Дружина:
-                <ul v-if="druzhinaDisplay">
-                    <kopnik v-for="eachDruzhe of model2.druzhina" :model="eachDruzhe"></kopnik>
+            <span class="druzhina-toggler" @click="onDruzhinaToggle()">+</span> Дружина ({{model2.voiskoSize}}):
+            <template v-if="druzhinaDisplay">
+                <ul v-if="model2.druzhina">
+                    <kopnik-as-druzhe v-for="eachDruzhe of model2.druzhina" :model="eachDruzhe"></kopnik-as-druzhe>
                 </ul>
+            </template>
         </div>
     </div>
 </template>
@@ -36,7 +38,7 @@
         components: {
             "zemla-as-link": require("./zemla-as-link.vue"),
             "kopnik-as-link": require("./kopnik-as-link.vue"),
-            "kopnik": require("./kopnik.vue"),
+            "kopnik-as-druzhe": require("./kopnik-as-druzhe.vue"),
         },
         watch: {
             /**
@@ -86,6 +88,10 @@
     }
 
     .druzhina {
-        padding-left: 5em;
+        padding-left: 1em;
+    }
+
+    .druzhina-toggler{
+        cursor: pointer;
     }
 </style>

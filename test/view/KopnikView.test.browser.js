@@ -9,7 +9,7 @@ var models = require("../../src/model");
 let _ = require("lodash");
 let WAMPFactory = require("../../src/WAMPFactory");
 let Vue = require("vue");
-let VueRouter = require("vue-router");
+let VueRouter= require("vue-router");
 let $ = require("jquery");
 
 let window,
@@ -18,14 +18,14 @@ let KOPNIK3 = 3;
 let ZEMLA2 = 2;
 let ZEMLA3 = 3,
 
-    KOPA = 1;
+    ZEMLA = 1;
 let model,
     view;
 
 let WAMP = WAMPFactory.getWAMP();
 Vue.use(VueRouter);
 
-describe('KopaView', function () {
+describe('KopnikView', function () {
     let model;
 
     before(function (done) {
@@ -45,14 +45,14 @@ describe('KopaView', function () {
     });
 
     it('should $mount view', async function () {
-        model = await models.Kopnik2.get(KOPNIK2);
+        model = await models.Kopnik.get(KOPNIK2);
         view = new Vue(Object.assign(require("../../src/view/kopnik.vue"),
             {
                 propsData: {
                     model: model,
                     id: "default"
                 },
-                router: new VueRouter()
+                router: new VueRouter(),
             }));
         view.$mount();
     });
