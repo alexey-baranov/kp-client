@@ -13,11 +13,9 @@
         </div>
         <div class="druzhina">
             <span class="druzhina-toggler" @click="onDruzhinaToggle()">+</span> Дружина ({{model2.voiskoSize}}):
-            <template v-if="druzhinaDisplay">
-                <ul v-if="model2.druzhina">
-                    <kopnik-as-druzhe v-for="eachDruzhe of model2.druzhina" :model="eachDruzhe"></kopnik-as-druzhe>
-                </ul>
-            </template>
+            <ul v-show="druzhinaDisplay">
+                <kopnik-as-druzhe v-for="eachDruzhe of model2.druzhina" :model="eachDruzhe"></kopnik-as-druzhe>
+            </ul>
         </div>
     </div>
 </template>
@@ -78,6 +76,7 @@
             },
         }
     }
+
 </script>
 
 
@@ -87,11 +86,8 @@
         font-size: smaller;
     }
 
-    .druzhina {
-        padding-left: 1em;
-    }
-
     .druzhina-toggler{
         cursor: pointer;
     }
+
 </style>

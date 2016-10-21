@@ -1,10 +1,10 @@
 <template>
     <div class="kopnik-as-druzhe">
         <div class="fio">
-            <span class="druzhina-toggler" @click="onDruzhinaToggle()">+</span> {{model.surname}} {{model.name}} {{model.patronymic}} Дружина ({{model.voiskoSize}})
+            <span class="druzhina-toggler" @click="onDruzhinaToggle()">+</span> {{model.surname}} {{model.name}} {{model.patronymic}} ({{model.voiskoSize}})
         </div>
-        <div v-if="druzhinaDisplay" class="druzhina">
-            <ul v-if="model.druzhina">
+        <div v-show="druzhinaDisplay" class="druzhina">
+            <ul v-show="model.druzhina">
                 <kopnik-as-druzhe v-for="eachDruzhe of model.druzhina" :model="eachDruzhe"></kopnik-as-druzhe>
             </ul>
         </div>
@@ -15,6 +15,7 @@
     const models = require("../model");
 
     export default{
+        name: "kopnik-as-druzhe",
         data: function () {
             return {
                 /**
@@ -25,7 +26,7 @@
         },
         props: ["id", "model"],
         components: {
-            "kopnik-as-druzhe": require("./kopnik-as-druzhe.vue"),
+            //"kopnik-as-druzhe": require("./kopnik-as-druzhe.vue"),
         },
         created: function () {
             this.loadModel();
@@ -53,10 +54,6 @@
     .header {
         background-color: #cccccc;
         font-size: smaller;
-    }
-
-    .druzhina {
-        padding-left: 1em;
     }
 
     .druzhina-toggler{

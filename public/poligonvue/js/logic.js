@@ -44,8 +44,8 @@ WAMP.onopen = async function (session) {
                 path: '/',
                 beforeEnter: async (to, from, next) => {
                     await kopnik.loaded();
-                    next({name:"zemla", params:{ZEMLA:kopnik.dom.id}})
-                    // next({name:"kopnik", params:{KOPNIK:kopnik.id}})
+                    // next({name:"zemla", params:{ZEMLA:kopnik.dom.id}})
+                    next({name:"kopnik", params:{KOPNIK:kopnik.id}})
                 }
             },
         ]
