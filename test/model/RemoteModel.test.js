@@ -106,7 +106,7 @@ describe('RemoteModel', function () {
 
     describe('.create() (by Slovo)', function () {
         let slovo;
-        let slovoValue = "123 temp",
+        let slovoValue = "temp 123",
             slovoNote = "456";
         it("should create new Slovo with id", async function () {
             slovo = await models.Slovo.create({

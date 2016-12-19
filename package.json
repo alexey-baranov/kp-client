@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "crossbar": "cd ../kp-sequelizejs && crossbar start",
-    "server": "cd ../kp-sequelizejs && export NODE_ENV=local-db && /usr/bin/babel-node --use-strict /home/alexey2baranov/htdocs/kp-sequelizejs/src/index.js",
-    "server:init": "cd ../kp-sequelizejs && export NODE_ENV=local-db && /usr/bin/babel-node --use-strict /home/alexey2baranov/htdocs/kp-sequelizejs/src/init.js",
+    "crossbar": "cd ../kp-sequelizejs && export NODE_ENV=dev && crossbar start",
+    "server": "cd ../kp-sequelizejs && export NODE_ENV=dev && /usr/bin/babel-node --use-strict /home/alexey2baranov/htdocs/kp-sequelizejs/src/index.js",
+    "server:init-test": "cd ../kp-sequelizejs && export NODE_ENV=test && /usr/bin/babel-node --use-strict /home/alexey2baranov/htdocs/kp-sequelizejs/src/init.js",
     "webpack": "webpack",
     "dev": "webpack-dev-server",
     "test": "mocha --timeout 5000 --require babel-register --require source-map-support  './test/**/*test.js'",
@@ -15,8 +15,7 @@
     "test:browser:watch": "webpack-dev-server --config webpack.config.test.browser.js --hot --inline",
     "test:browser:karma": "karma start",
     "test:browser:karma:run": "karma run",
-    "test:browser:karma:run:file": "karma run -- --grep KopaAsListItem",
-    "hulk": "../hogan.js/bin/hulk -w commonjs -o src/view/tmpl/js ./src/view/tmpl/*.mustache"
+    "test:browser:karma:run:file": "karma run -- --grep KopaAsListItem"
   },
   "repository": {
     "type": "git",

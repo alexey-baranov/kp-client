@@ -3,11 +3,8 @@
  */
 "use strict";
 
-let config = require("./../cfg/main")[process.env.NODE_ENV || 'local-db'];
+let config = require("./../cfg/main")[process.env.NODE_ENV];
 let autobahn = require("autobahn");
-
-// let authid= "alexey_baranov@inbox.ru";
-let authid= "unittest2@domain.ru";
 
 class WAMPFactory {
     /**
@@ -19,10 +16,9 @@ class WAMPFactory {
                 url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
                 realm: "kopa",
                 authmethods: ['ticket'],
-                // authid: "alexey_baranov@inbox.ru",
-                "authid": authid,
+                "authid": config.unittest2.username,
                 onchallenge: function (session, method, extra) {
-                    return authid;
+                    return config.unittest2.password;
                 },
                 use_es6_promises: true,
                 max_retries: -1,

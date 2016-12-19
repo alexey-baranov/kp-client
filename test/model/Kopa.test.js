@@ -63,7 +63,7 @@ describe('Kopa', function () {
     });
 
     describe('#create()', async function () {
-        let kopaQuestion = "some Kopa temp";
+        let kopaQuestion = "temp some Kopa";
 
         it('должен опубликовать "zemla.id2.kopaAddy"', async function (done) {
             try {
@@ -186,7 +186,7 @@ describe('Kopa', function () {
                     }
                 });
 
-                let value = new Date().getTime() + " temp";
+                let value = "temp "+new Date().getTime();
                 let slovo = await models.Slovo.create({
                     place: kopa,
                     value: value,
@@ -215,7 +215,7 @@ describe('Kopa', function () {
                     }
                 });
 
-                let value = new Date().getTime()+ "temp";
+                let value = "temp "+new Date().getTime();
                 let predlozhenie = await models.Predlozhenie.create({
                     place: kopa,
                     value: value,

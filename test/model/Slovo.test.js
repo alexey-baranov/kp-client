@@ -46,7 +46,7 @@ describe('Slovo', function () {
     });
 
     describe('#create()', async function () {
-        let slovoValue = "some Slovo temp";
+        let slovoValue = "temp some Slovo";
 
         it('должен опубликовать "kopa.id3.slovoAdd"', async function (done) {
             try {
