@@ -39,10 +39,6 @@ describe('Zemla', function () {
     });
 
     after(function () {
-        // return require("../UnitTestTempDataCleaner").clean("Zemla");
-    });
-
-    after(function () {
         return new Promise(function (res, rej) {
             WAMP.onclose = function (session, details) {
                 res();
@@ -54,7 +50,7 @@ describe('Zemla', function () {
     describe('events', async function () {
         let zemla;
 
-        it('Kopa#invite() -> Zemla.emit(kopaAdd)', async function (done) {
+        it('Kopa#invite() should emit Zemla.event.kopaAdd', async function (done) {
             try {
                 zemla = await models.Zemla.get(ZEMLA);
 
@@ -79,44 +75,29 @@ describe('Zemla', function () {
         let someZemla1,
             someZemla2,
             zemla2;
+
         /**
-         * создаю двве земли одна родитель другая дочка
+         * создаю две земли одна дочка другой
+         * и на дочке создаю копника
+         * прилетают два события сначала на дочке потом но матери
          */
-        it("#create() -> parent.on(obshinaChange)", async function (done) {
+        it('Kopnik#create() should emit Zemla.event.obshinaChange', async function (done) {
             try {
-                let eventCount = 0;
-                zemla2 = await models.Zemla.get(ZEMLA2);
-                let listener;
-
-                zemla2.on(models.Zemla.event.obshinaChange, listener = ()=> {
-                    eventCount++;
-
-                    if (eventCount == 2) {
-                        zemla2.removeListener(models.Zemla.event.obshinaChange, listener);
-                        done();
-                    }
-                });
-
                 someZemla1 = await models.Zemla.create({
-                    name: "temp",
+                    name: "temp1",
                     parent: models.Zemla.getReference(ZEMLA2),
                 });
 
                 someZemla2 = await models.Zemla.create({
-                    name: "temp",
+                    name: "temp2",
                     parent: someZemla1,
                 });
-            }
-            catch (err) {
-                done(err);
-            }
-        });
 
-        it('Kopnik.create() should emit Zemla.event.obshinaChange', async function (done) {
-            try {
-                let listener;
-                someZemla1.once(models.Zemla.event.obshinaChange, listener = (sender)=> {
-                    someZemla1.removeListener(models.Zemla.event.obshinaChange, listener);
+                someZemla2.once(models.Zemla.event.obshinaChange, (sender)=> {
+                    assert(sender.obshinaSize, 1);
+                });
+
+                someZemla1.once(models.Zemla.event.obshinaChange, (sender)=> {
                     assert(sender.obshinaSize, 1);
                     done();
                 });
@@ -135,12 +116,13 @@ describe('Zemla', function () {
         });
 
         /**
-         * перекидываю землю с дочками на четвертую
+         * перекидываю землю с дочкой на ZEMLA4
          * сначала прилетают события открепления общины
          * потом прикрепления
          */
-        it('should emit obshinaChange down and up', async function (done) {
+        it('Zemla#setParent2() should emit obshinaChange down and up', async function (done) {
             try {
+                let zemla2= await models.Zemla.get(ZEMLA2);
                 let zemla4 = await models.Zemla.get(ZEMLA4);
 
                 /**

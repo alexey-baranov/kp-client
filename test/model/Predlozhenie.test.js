@@ -31,10 +31,6 @@ describe('Predlozhenie', function () {
         WAMP.open();
     });
 
-    after(function () {
-        // return require("../UnitTestTempDataCleaner").clean("Predlozhenie");
-    });
-
     after(function (done) {
         WAMP.onclose = function (session, details) {
             done();

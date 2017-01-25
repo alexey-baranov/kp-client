@@ -33,10 +33,6 @@ describe('Slovo', function () {
     });
 
     after(function () {
-        // return require("../UnitTestTempDataCleaner").clean("Slovo");
-    });
-
-    after(function () {
         return new Promise(function (res, rej) {
             WAMP.onclose = function (session, details) {
                 res();

@@ -1,12 +1,10 @@
 {
-    "sourceMaps": "inline",
-    "plugins": [
-        "fast-async",
-        "transform-class-properties",
-        "transform-es2015-parameters",
-        "transform-es2015-destructuring"
-    ],
-    "ignore": [
-        "./node_modules/**/*.js"
-    ]
+  "presets": ["es2015", "stage-2"],
+  "plugins": ["transform-runtime"],
+  "comments": false,
+  "env": {
+    "test": {
+      "plugins": [ "istanbul" ]
+    }
+  }
 }
