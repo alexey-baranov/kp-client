@@ -4,11 +4,13 @@
 "use strict";
 
 import Connection from './Connection'
+let config = require("./../cfg/main")[process.env.NODE_ENV];
+let model = require("./model");
 
-class Application {
+export default class Application {
   constructor() {
-    this.state= Application.State.Auth
-
+    this.state = undefined
+    this.user = null
   }
 
   static getInstance() {
@@ -18,61 +20,45 @@ class Application {
     return Application.instance
   }
 
-  run() {
-    document.applicationView= new
-      el: document.createElement('div'),
-      render: (h) => h(Hello)
+  /**
+   *
+   * @param email
+   * @param password
+   */
+  auth(email, password) {
+    let connection = Connection.getInstance({
+      authid: email,
+      onchallenge: function (session, method, extra) {
+        return password
+      }
     })
 
-    WAMP.onopen = (session, details) => this.onConnectionOpen(session, details);
-    WAMP.onclose = (reason, details) => this.onConnectionClose(reason, details);
+    connection.onopen = async(session, details) => {
+      console.log.info("connection opened")
+      this.user = await model.Kopnik.getByEmail(email)
 
-    WAMP.open();
-  }
-
-  static async onConnectionOpen(session, details) {
-    try {
-      this.log.info("connection opened");
-      this.kopnik = await model.Kopnik.get(2);
-
-      for (var eachDom = this.kopnik.dom; eachDom; eachDom = eachDom.parent) {
-        this.log.debug("loading kopnik dom", eachDom.id);
-        await eachDom.reload();
-        this.log.debug("loaded ", eachDom.name);
+      for (let eachDom = this.user.dom; eachDom; eachDom = eachDom.parent) {
+        console.log.debug("loading user dom", eachDom.id)
+        await eachDom.reload()
+        console.log.debug("loaded ", eachDom.name)
       }
+    }
 
-      this.page = new Page();
-      this.page.dom = this.kopnik.dom;
-      this.pageView = new PageView(this.page, null, "p");
+    connection.onclose = async(reason, details) => {
+      console.log.info("connection closed");
+    }
 
-      this.pageView.get$().appendTo(document.body);
-      this.pageView.attach();
-    }
-    catch (err) {
-      this.log.error("Application.onConnectionOpen()", err);
-      throw err;
-    }
-  };
-
-  static async onConnectionClose(reason, details) {
-    try {
-      this.log.info("connection closed");
-    }
-    catch (err) {
-      this.log.error("Application.onConnectionClose()", err);
-      throw err;
-    }
-  };
+    connection.open()
+  }
 }
 
-Application.State={
+/**
+ * состояние приложения в текущий момент
+ * больше нужно для сохранения состояния
+ * @type {{Auth: string, Register: string, Main: string}}
+ */
+Application.State = {
   Auth: "auth",
   Register: "register",
   Main: "main"
 }
-
-module.exports = global.Application = Application;
-
-let config = require("./../cfg/main")[process.env.NODE_ENV];
-let autobahn = require('autobahn');
-let model = require("./model");

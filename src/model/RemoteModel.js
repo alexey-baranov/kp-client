@@ -6,7 +6,7 @@
 var DisplacingTimer= require("displacing-timer");
 let Core= require("./../Core");
 let EventEmitter= require("events").EventEmitter;
-let WAMPFactory = require("../WAMPFactory");
+let Connection = require("../Connection")
 let _= require("lodash");
 
 
@@ -109,7 +109,7 @@ class RemoteModel extends EventEmitter{
 
     async save(){
         let plain= this.getPlain();
-        let result= await WAMPFactory.getWAMP().session.call("api:model.save", [], {
+        let result= await Connection.getInstance().session.call("api:model.save", [], {
             type: this.constructor.name,
             plain: plain});
         return result;
@@ -121,7 +121,7 @@ class RemoteModel extends EventEmitter{
         }
         // let plain= this.getPlain(value);
         let plain= this.prototype.getPlain.call(value);
-        let id= await WAMPFactory.getWAMP().session.call("api:model.create", [], {
+        let id= await Connection.getInstance().session.call("api:model.create", [], {
             type: this.name,
             plain: plain});
         id = parseInt(id);
@@ -185,14 +185,14 @@ class RemoteModel extends EventEmitter{
     async reload(source){
         let isLoadedBefore= this._isLoaded;
 
-        let json= await WAMPFactory.getWAMP().session.call("ru.kopa.model.get",[],{
+        let json= await Connection.getInstance().session.call("ru.kopa.model.get",[],{
             model:this.constructor.name,
             id:this.id});
 
         /**
          * есть вероятность что ушло два параллельных .get()
          * или текущий .get() начинался внутри .create()
-         * и к моменту #merge() модель уже загружена
+         * и к этому моменту модель уже загружена
          */
         if (!isLoadedBefore && this._isLoaded){
             // this.log.debug(`${this} loaded in concurent thread. merging skipped. subscription skipped`);
@@ -201,6 +201,10 @@ class RemoteModel extends EventEmitter{
             this.merge(json);
             await this.subscribeToWAMPPublications();
         }
+        /**
+         * модель уже загружена и ее зачем-то обновляют
+         * хз зачем вроде она должна само обновиться по входящему ->change
+         */
         else {
             this.merge(json);
         }
@@ -270,7 +274,7 @@ class RemoteModel extends EventEmitter{
         if (!handler){
             throw new Error("subscribeHelper(handler==null)", topic);
         }
-        let result = await WAMPFactory.getWAMP().session.subscribe(topic, async(args, kwargs, details)=> {
+        let result = await Connection.getInstance().session.subscribe(topic, async(args, kwargs, details)=> {
             try {
                 if (context) {
                     await handler.call(context, args, kwargs, details);

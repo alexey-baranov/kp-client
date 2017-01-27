@@ -21,7 +21,13 @@ export default class Connection extends AutobahnConnection{
   }
 
   /**
-   * @param {object} options {"authid": username, onchallenge: function (session, method, extra) { return 'xxx' } }
+   * Обязательные параметры для создания коннекшина
+   * {
+   *  authid: username,
+   *  onchallenge: function (session, method, extra) { return 'xxx' }
+   * }
+   *
+   * @param {object} options
    *
    * @returns {Connection}
    */

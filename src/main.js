@@ -8,19 +8,27 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import $= from "jquery"
+import $ from "jquery"
 import Vue from 'vue'
 let VueRouter = require('vue-router');
 
-import ApplicationView from './view/application.vue'
+import Application from './Application'
+import applicationView from './view/application.vue'
 let models = window.models= require("./model")
 
 let application= window.application= Application.getInstance()
-let applicationView= window.applicationView= new ApplicationView()
-applicationView.data={model: application}
+application.state= Application.State.Auth
+
+
+// let applicationView= window.applicationView= new applicationView()
+applicationView.data={
+  id: "a",
+  model: application
+}
 applicationView.el="#application"
 
-new Vue(applicationView)
+window.applicationView = new Vue(applicationView)
+let x=1;
 
 /*
 
