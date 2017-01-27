@@ -12,15 +12,15 @@
     "build": "node build/build.js",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "test": "npm run unit",
-
+    "test:watch": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js",
 
     "test0": "mocha --timeout 5000 --require babel-register --require source-map-support  './test/**/*test.js'",
-    "test:watch:all": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch \"test/**/*.test.js\"",
-    "test:watch": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch",
-    "test:browser:watch": "webpack-dev-server --config webpack.config.test.browser.js --hot --inline",
-    "test:browser:karma": "karma start",
-    "test:browser:karma:run": "karma run",
-    "test:browser:karma:run:file": "karma run -- --grep KopaAsListItem"
+    "test0:watch:all": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch \"test/**/*.test.js\"",
+    "test0:watch": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch",
+    "test0:browser:watch": "webpack-dev-server --config webpack.config.test.browser.js --hot --inline",
+    "test0:browser:karma": "karma start",
+    "test0:browser:karma:run": "karma run",
+    "test0:browser:karma:run:file": "karma run -- --grep KopaAsListItem"
   },
   "repository": {
     "type": "git",

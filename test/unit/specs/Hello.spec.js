@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import CM from 'src/WAMPConnectionManager.js'
+import Hello from 'src/components/Hello.vue'
 
 describe('Hello.vue', () => {
   it('should render correct contents', () => {

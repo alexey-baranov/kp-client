@@ -47,21 +47,23 @@ module.exports = function (config) {
     // 2. add it to the `browsers` array below.
     browsers: ['PhantomJS'],
     frameworks: ['mocha', 'sinon-chai'],
-    reporters: ['spec', 'coverage'],
-    files: ['./index.js'],
+    reporters: ['spec'/*, 'coverage'*/],
+    files: [
+      './index.js'
+    ],
     preprocessors: {
       './index.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfig,
     webpackMiddleware: {
       noInfo: true
-    },
+    },/*
     coverageReporter: {
       dir: './coverage',
       reporters: [
         { type: 'lcov', subdir: '.' },
         { type: 'text-summary' }
       ]
-    }
+    }*/
   })
 }
