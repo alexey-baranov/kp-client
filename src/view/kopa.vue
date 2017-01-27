@@ -24,7 +24,9 @@
 </template>
 
 <script>
-    const models = require("../model");
+  let log = require("loglevel").getLogger("kopa.vue")
+
+  const models = require("../model");
     export default{
         data: function () {
             return {

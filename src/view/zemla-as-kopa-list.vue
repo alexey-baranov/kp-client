@@ -6,6 +6,7 @@
 
 <script>
     let models = require("../model");
+    const log = require("loglevel").getLogger("zemla-as-kopa-list.vue")
 
     export default{
         props: ["idd", "model"],

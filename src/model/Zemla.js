@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -6,7 +6,7 @@
 "use strict";
 
 var RemoteModel = require("./RemoteModel");
-let WAMP = require("../WAMPFactory").getWAMP();
+import Connection from "../Connection"
 let _ = require("lodash");
 
 class Zemla extends RemoteModel {
@@ -108,7 +108,7 @@ class Zemla extends RemoteModel {
     }
 
     async setParent(value) {
-        await WAMP.session.call("ru.kopa.model.Zemla.setParent", [], {
+        await Connection.getInstance().session.call("ru.kopa.model.Zemla.setParent", [], {
             ZEMLA: this.id,
             PARENT: value ? value.id : null
         }, {disclose_me: true});
@@ -116,7 +116,7 @@ class Zemla extends RemoteModel {
     }
 
     async reloadKopi() {
-        let kopiAsPlain = await WAMP.session.call("ru.kopa.model.Zemla.promiseKopi", [], {
+        let kopiAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Zemla.promiseKopi", [], {
             PLACE: this.id,
             BEFORE: null
         }, {disclose_me: true});

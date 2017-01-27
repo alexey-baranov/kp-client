@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template Golos, choose Tools | Templates
  * and open the template in the editor.
@@ -6,7 +6,7 @@
 "use strict";
 
 var RemoteModel = require("./RemoteModel");
-let WAMP = require("../WAMPFactory").getWAMP();
+import Connection from "../Connection"
 let _ = require("lodash");
 
 class Kopa extends RemoteModel {
@@ -91,7 +91,7 @@ class Kopa extends RemoteModel {
     }
 
     async invite(value) {
-        await WAMP.session.call("api:model.Kopa.invite", null, {id: this.id}, {disclose_me: true});
+        await Connection.getInstance().session.call("api:model.Kopa.invite", null, {id: this.id}, {disclose_me: true});
     }
 
     /**
@@ -100,7 +100,7 @@ class Kopa extends RemoteModel {
      */
     async loadDialog() {
         let BEFORE = this.dialog && this.dialog.length ? this.dialog[0].created.getTime() : null;
-        let dialogAsPlain = await WAMP.session.call("api:model.Kopa.getDialog", [], {
+        let dialogAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getDialog", [], {
             PLACE: this.id,
             BEFORE: BEFORE
         }, {disclose_me: true});
@@ -127,7 +127,7 @@ class Kopa extends RemoteModel {
      */
     async loadResult() {
         let BEFORE = this.result && this.result.length ? this.result[0].created.getTime() : null;
-        let resultAsPlain = await WAMP.session.call("api:model.Kopa.getResult", [], {
+        let resultAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getResult", [], {
             PLACE: this.id,
             BEFORE: BEFORE
         }, {disclose_me: true});

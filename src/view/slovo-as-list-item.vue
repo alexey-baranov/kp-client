@@ -15,6 +15,8 @@
 </template>
 
 <script>
+  const log = require("loglevel").getLogger("slovo-as-list-item.vue")
+
     module.exports = {
         props: ["id", "model"],
         created: function () {

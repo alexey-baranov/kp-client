@@ -29,6 +29,7 @@
 
 <script>
     const models = require("../model");
+const log = require("loglevel").getLogger("kopnik.vue")
 
     export default{
         data: function () {

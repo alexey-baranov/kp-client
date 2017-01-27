@@ -14,6 +14,7 @@
 
 <script>
     const models = require("../model");
+    const log = require("loglevel").getLogger("kopnik-as-druzhe.vue")
 
     export default{
         name: "kopnik-as-druzhe",

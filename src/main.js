@@ -9,59 +9,59 @@ process.on('unhandledRejection', (reason, promise) => {
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import $ from "jquery"
+import log from "loglevel"
 import Vue from 'vue'
-let VueRouter = require('vue-router');
 
 import Application from './Application'
 import applicationView from './view/application.vue'
-let models = window.models= require("./model")
+let config = require("../cfg/main")[process.env.NODE_ENV]
+let models = global.models = require("./model")
 
-let application= window.application= Application.getInstance()
-application.state= Application.State.Auth
+// (async()=> {
+  /**
+   * прокачка логов
+   */
+  let originalFactory = log.methodFactory
+  log.methodFactory = function (methodName, logLevel, loggerName) {
+    let rawMethod = originalFactory(methodName, logLevel, loggerName);
 
+    return function () {
+      let originalArguments = arguments
+      let newArguments = [new Date().toLocaleString(), `[${methodName}]`, `${loggerName ? loggerName : "root"} - `,]
+
+      for (let eachOriginalArgument of originalArguments) {
+        newArguments.push(eachOriginalArgument)
+      }
+
+      rawMethod.apply(null, newArguments);
+    };
+  };
+  log.setLevel(log.levels.TRACE); // Be sure to call setLevel method in order to apply plugin
+
+  /**
+   * инициализация application
+   */
+  let application = global.application = Application.getInstance()
+  application.state = Application.State.Auth
+
+  /**
+   * временный автозаход
+   */
+  application.auth(config.unittest2.username, config.unittest2.password)
+    .then(user=> {
+      return user.dom.loaded()
+    })
+    .then(dom=>{
+      application.setBody(dom)
+      application.state= Application.State.Main
+    })
 
 // let applicationView= window.applicationView= new applicationView()
-applicationView.data={
-  id: "a",
-  model: application
-}
-applicationView.el="#application"
+  applicationView.data = {
+    id: "a",
+    model: application
+  }
+  applicationView.el = "#application"
 
-window.applicationView = new Vue(applicationView)
-let x=1;
-
-/*
-
-WAMP.onopen = async function (session) {
-  console.log("opened")
-
-  return
-
-  session.prefix('api', 'ru.kopa');
-
-  Vue.use(VueRouter);
-
-  var kopnik = window.kopnik= models.Kopnik.current= models.Kopnik.getReference(2);
-  window.predlozhenie= models.Predlozhenie.getReference(1);
-
-  const view = new Vue(Object.assign(component,
-    {
-      data: {
-        model: {
-          kopnik: kopnik
-        }
-      },
-      propsData: {},
-      router
-    })).$mount("#kopa");
-};
-WAMP.open();
-*/
-
-/*
-new Vue({
-  el: '#app',
-  template: '<App/>',
-  components: { App }
-})
-*/
+  global.applicationView = new Vue(applicationView)
+// })()

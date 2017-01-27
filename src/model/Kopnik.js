@@ -8,8 +8,7 @@
 var DisplacingTimer = require("displacing-timer");
 var RemoteModel = require("./RemoteModel");
 let _ = require("lodash");
-let Connection = require("../Connection")
-
+import Connection from "../Connection"
 
 class Kopnik extends RemoteModel {
   constructor() {
@@ -175,10 +174,9 @@ class Kopnik extends RemoteModel {
   }
 
   static async getByEmail(email) {
-    let result,
-      RESULT = await Connection.getInstance().session.call("ru.kopa.model.getKOPNIKByEmail", [], {email: email});
+    let RESULT= await Connection.getInstance().session.call("ru.kopa.model.getKOPNIKByEmail", [], {email: email});
+    let result = await this.get(RESULT)
 
-    result = await this.get(RESULT)
     return result
   }
 }

@@ -7,13 +7,11 @@
     "crossbar": "cd ../kp-sequelizejs && export NODE_ENV=dev && crossbar start",
     "server": "cd ../kp-sequelizejs && export NODE_ENV=dev && /usr/bin/babel-node --use-strict /home/alexey2baranov/htdocs/kp-sequelizejs/src/index.js",
     "server:init-test": "cd ../kp-sequelizejs && export NODE_ENV=test && /usr/bin/babel-node --use-strict /home/alexey2baranov/htdocs/kp-sequelizejs/src/init.js",
-
     "dev": "node build/dev-server.js",
     "build": "node build/build.js",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "test": "npm run unit",
     "test:watch": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js",
-
     "test0": "mocha --timeout 5000 --require babel-register --require source-map-support  './test/**/*test.js'",
     "test0:watch:all": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch \"test/**/*.test.js\"",
     "test0:watch": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch",
@@ -40,6 +38,7 @@
     "jquery": "^3.1.0",
     "lodash": "^4.15.0",
     "log4js": "^0.6.38",
+    "loglevel": "^1.4.1",
     "mustache": "^2.2.1",
     "vue": "^2.1.0",
     "vue-router": "^2.0.0"
@@ -73,7 +72,6 @@
     "vue-html-loader": "^1.2.3",
     "vue-style-loader": "^1.0.0",
     "webpack": "^1.13.2",
-
     "autoprefixer": "^6.4.0",
     "babel-core": "^6.0.0",
     "babel-preset-stage-2": "^6.0.0",

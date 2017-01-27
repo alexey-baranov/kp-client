@@ -1,20 +1,24 @@
 <template>
   <div :id="id" class="auth">
-    <div>Имя пользователя</div>
-    <div>
-      <input type="text" name="username" required v-model="email">
-    </div>
+    <form>
+      <div>Имя пользователя</div>
+      <div>
+        <input type="text" name="username" required v-model="email">
+      </div>
 
-    <div>Пароль</div>
-    <div>
-      <input type="password" name="password" required v-model="password">
-    </div>
+      <div>Пароль</div>
+      <div>
+        <input type="password" name="password" required v-model="password">
+      </div>
 
-    <input type="submit" value="Войти" @click="submit_click">
+      <input type="submit" value="Войти" @click="submit_click">
+    </form>
   </div>
 </template>
 
 <script>
+  let log = require("loglevel").getLogger("auth.vue")
+
   export default{
     data: function () {
       return {

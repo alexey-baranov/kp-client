@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template Golos, choose Tools | Templates
  * and open the template in the editor.
@@ -7,7 +7,7 @@
 
 var RemoteModel = require("./RemoteModel");
 let _ = require("lodash");
-let WAMP = require("../WAMPFactory").getWAMP();
+import Connection from "../Connection"
 
 class Predlozhenie extends RemoteModel {
     constructor() {
@@ -110,7 +110,7 @@ class Predlozhenie extends RemoteModel {
      * загружает прямые голоса
      */
     async reloadGolosa() {
-        let golosaAsPlain = await WAMP.session.call("api:model.Predlozhenie.getGolosa", [], {
+        let golosaAsPlain = await Connection.getInstance().session.call("api:model.Predlozhenie.getGolosa", [], {
             PREDLOZHENIE: this.id
         }, {disclose_me: true});
 

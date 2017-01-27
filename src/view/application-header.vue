@@ -6,6 +6,8 @@
 </template>
 
 <script>
+  let log = require("loglevel").getLogger("application-header.vue")
+
     module.exports = {
         data: function () {
             return {

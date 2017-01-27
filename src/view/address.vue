@@ -7,6 +7,8 @@
 </template>
 
 <script>
+  let log = require("loglevel").getLogger("address.vue")
+
     module.exports = {
         data: function () {
             return {

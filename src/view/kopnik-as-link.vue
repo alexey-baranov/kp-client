@@ -3,6 +3,8 @@
 </template>
 
 <script>
+  const log = require("loglevel").getLogger("kopnik-as-link.vue")
+
     export default  {
         props: ["id", "model"],
         created: function () {

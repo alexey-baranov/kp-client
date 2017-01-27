@@ -2,7 +2,7 @@
     <li class="kopa-as-list-item">
         <template v-if="model.id">
             <div class="question">
-                <router-link :to="{ name: 'kopa', params: { KOPA: model.id }}">{{model.question}}</router-link>
+                <a href="#" @click.prevent="a_click">{{model.question}}</a>
             </div>
         </template>
         <template v-else>
@@ -17,10 +17,19 @@
 </template>
 
 <script>
+
+  import Application from "../Application"
+
     let RemoteModel = require("../model/RemoteModel");
+  const log = require("loglevel").getLogger("kopa-as-list-item.vue")
 
     export default  {
         props: ["id", "model"],
+      methods: {
+        a_click(e){
+            Application.getInstance().setBody(this.model)
+        }
+      },
         created: function () {
             if (this.model.id) {
                 this.model.loaded();

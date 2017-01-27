@@ -15,7 +15,8 @@
 </template>
 
 <script>
-    let models = require("../model");
+    let models = require("../model")
+    const log = require("loglevel").getLogger("zemla.vue")
 
     export default{
         data: function () {

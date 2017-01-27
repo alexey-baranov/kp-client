@@ -30,7 +30,8 @@
 </template>
 
 <script>
-    let models = require("../model");
+    let models = require("../model")
+    const log = require("loglevel").getLogger("predlozhenie-as-list-item.vue")
 
     module.exports = {
         props: ["id", "model"],

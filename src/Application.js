@@ -9,8 +9,10 @@ let model = require("./model");
 
 export default class Application {
   constructor() {
+    this.log= require("loglevel").getLogger(this.constructor.name)
     this.state = undefined
     this.user = null
+    this.body = null
   }
 
   static getInstance() {
@@ -20,35 +22,49 @@ export default class Application {
     return Application.instance
   }
 
+  setBody(value) {
+    this.body = value
+  }
+
   /**
    *
    * @param email
    * @param password
    */
   auth(email, password) {
-    let connection = Connection.getInstance({
-      authid: email,
-      onchallenge: function (session, method, extra) {
-        return password
+    return new Promise((res, rej)=>{
+      let connection = Connection.getInstance({
+        authid: email,
+        onchallenge: function (session, method, extra) {
+          return password
+        }
+      })
+
+      connection.onopen = async(session, details) => {
+        this.log.info("connection opened")
+        /**
+         * success auth
+         */
+        if (!this.user) {
+          session.prefix('api', 'ru.kopa')
+          this.user = await model.Kopnik.getByEmail(email)
+          res(this.user)
+        }
       }
+
+      connection.onclose = async(reason, details) => {
+        this.log.info("connection closed", reason, details)
+        /**
+         * fail auth
+         */
+        if (!this.user){
+          rej(reason)
+        }
+      }
+
+      connection.open()
     })
 
-    connection.onopen = async(session, details) => {
-      console.log.info("connection opened")
-      this.user = await model.Kopnik.getByEmail(email)
-
-      for (let eachDom = this.user.dom; eachDom; eachDom = eachDom.parent) {
-        console.log.debug("loading user dom", eachDom.id)
-        await eachDom.reload()
-        console.log.debug("loaded ", eachDom.name)
-      }
-    }
-
-    connection.onclose = async(reason, details) => {
-      console.log.info("connection closed");
-    }
-
-    connection.open()
   }
 }
 
