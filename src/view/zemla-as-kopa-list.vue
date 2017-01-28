@@ -7,6 +7,7 @@
 <script>
     let models = require("../model");
     const log = require("loglevel").getLogger("zemla-as-kopa-list.vue")
+    import StateManager from "../StateManager"
 
     export default{
         props: ["idd", "model"],

@@ -66,6 +66,24 @@ export default class Application {
     })
 
   }
+
+  getState(){
+    const result= {
+      state: this.state,
+      bodyType: this.body.constructor.name,
+      BODY: this.body.id
+    }
+    this.log.debug(result)
+    return result
+  }
+
+
+  setState(state){
+    console.log(state)
+    this.body= model[state.bodyType].getReference(state.BODY)
+
+    this.state= state.state
+  }
 }
 
 /**

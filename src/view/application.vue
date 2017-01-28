@@ -29,7 +29,7 @@
     computed: {
       bodyType(){
         let result = this.model.body.constructor.name.toLocaleLowerCase()
-        log.debug(123)
+
         return result
       }
     },
@@ -43,7 +43,15 @@
         await this.model.user.dom.loaded()
         this.model.setBody(this.user.dom)
         this.model.state = Application.State.Main
-      }
+
+      },
+      getState(){
+          return "av"
+      },
+      setState(){
+
+      },
+
     },
     created: function () {
     },

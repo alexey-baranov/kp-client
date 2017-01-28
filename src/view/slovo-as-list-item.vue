@@ -16,6 +16,7 @@
 
 <script>
   const log = require("loglevel").getLogger("slovo-as-list-item.vue")
+  import StateManager from "../StateManager"
 
     module.exports = {
         props: ["id", "model"],

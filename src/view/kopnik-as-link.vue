@@ -1,16 +1,27 @@
 <template>
-    <router-link :to="{ name: 'kopnik', params: { KOPNIK: model.id }}" class="kopnik-as-link">{{model.surname}} {{model.name}} {{model.patronymic}}<slot></slot></router-link>
+  <a href="#" @click.prevent="a_click" class="kopnik-as-link">{{model.surname}} {{model.name}} {{model.patronymic}}
+    <slot></slot>
+  </a>
 </template>
 
 <script>
   const log = require("loglevel").getLogger("kopnik-as-link.vue")
 
-    export default  {
-        props: ["id", "model"],
-        created: function () {
-            this.model.loaded();
-        }
+  import Application from '../Application'
+  import StateManager from "../StateManager"
+
+  export default  {
+    props: ["id", "model"],
+    methods: {
+      a_click(e){
+        Application.getInstance().setBody(this.model)
+        StateManager.getInstance().pushState()
+      }
+    },
+    created: function () {
+      this.model.loaded();
     }
+  }
 </script>
 
 <style scoped>

@@ -8,7 +8,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import $ from "jquery"
+import $ from "jquery"; global.$=$;
 import log from "loglevel"
 import Vue from 'vue'
 
@@ -16,6 +16,7 @@ import Application from './Application'
 import applicationView from './view/application.vue'
 let config = require("../cfg/main")[process.env.NODE_ENV]
 let models = global.models = require("./model")
+import StateManager from './StateManager'
 
 // (async()=> {
   /**
@@ -27,7 +28,7 @@ let models = global.models = require("./model")
 
     return function () {
       let originalArguments = arguments
-      let newArguments = [new Date().toLocaleString(), `[${methodName}]`, `${loggerName ? loggerName : "root"} - `,]
+      let newArguments = [/*new Date().toLocaleString(), */`[${methodName}]`, `${loggerName ? loggerName : "root"} - `,]
 
       for (let eachOriginalArgument of originalArguments) {
         newArguments.push(eachOriginalArgument)
@@ -64,4 +65,14 @@ let models = global.models = require("./model")
   applicationView.el = "#application"
 
   global.applicationView = new Vue(applicationView)
+
+
+/**
+ * State management
+ */
+let stateManager= StateManager.getInstance()
+stateManager.application= application
+stateManager.applicationView= global.applicationView
+
+stateManager.listen()
 // })()

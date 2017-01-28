@@ -28,6 +28,7 @@
 </template>
 
 <script>
+  import Application from '../Application'
     const models = require("../model");
 const log = require("loglevel").getLogger("kopnik.vue")
 
@@ -38,7 +39,7 @@ const log = require("loglevel").getLogger("kopnik.vue")
                  * значение druzhina.display= true || false
                  */
                 druzhinaDisplay: false,
-                currentKopnik: models.Kopnik.current,
+                currentKopnik: Application.getInstance().user,
             };
         },
         props: ["id", "model", "short"],
