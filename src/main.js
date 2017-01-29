@@ -39,6 +39,9 @@ import StateManager from './StateManager'
   };
   log.setLevel(log.levels.TRACE); // Be sure to call setLevel method in order to apply plugin
 
+  log.getLogger("StateManager").setLevel("info")
+
+
   /**
    * инициализация application
    */

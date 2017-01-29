@@ -31,6 +31,8 @@
       </nav>
       <div class="container container-under-navbar">
         {{debug(1234)}}
+        <h1 class="title">{{model.body.name}}</h1>
+        <location :model="model.body"></location>
         <component v-bind:is="bodyType" :model="model.body"></component>
       </div>
     </div>
@@ -68,6 +70,7 @@
       "kopa": require('./kopa.vue'),
       "kopnik": require('./kopnik.vue'),
       "zemla-as-link": require('./zemla-as-link.vue'),
+      "location": require('./location.vue'),
     },
     computed: {
       bodyType(){
@@ -108,12 +111,16 @@
 
 <style scoped>
   .navbar-brand {
-    background-color: black;
-    color: white;
+    /*background-color: black;*/
+    /*color: white;*/
   }
 
-  .container-under-navbar{
+  .container-under-navbar {
     margin-top: 3.5rem;
+  }
+
+  .title {
+
   }
 </style>
 

@@ -169,6 +169,14 @@ class Kopnik extends RemoteModel {
     return this.updateLastActiveTime();
   }
 
+  /**
+   * для унификации обхода иерархических структур
+   * у всех иерархий должен быть parent
+   */
+  get parent(){
+    return this.starshina
+  }
+
   toString() {
     return `${this.constructor.name} {${this.id}, "${this.surname} ${this.name}"}`;
   }

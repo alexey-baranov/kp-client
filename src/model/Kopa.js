@@ -148,6 +148,10 @@ class Kopa extends RemoteModel {
         return this.result;
     }
 
+    get name(){
+      return this.question?this.question.substring(0,20):undefined
+    }
+
     toString() {
         return `${this.constructor.name} {${this.id}, "${this.question.substring(0, 10)}"}`;
     }
