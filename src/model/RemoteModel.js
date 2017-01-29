@@ -211,7 +211,7 @@ class RemoteModel extends EventEmitter {
     else {
       this.merge(json);
     }
-    this.log.debug("loaded", this)
+    this.log.debug(`loaded ${this}`, this)
 
     return this;
   }

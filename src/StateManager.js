@@ -2,6 +2,7 @@
  * Created by alexey2baranov on 28.01.17.
  */
 import $ from "jquery"
+import deparam from "deparam"
 
 export default class StateManager {
   constructor(application, applicationView) {
@@ -18,12 +19,8 @@ export default class StateManager {
   }
 
   getState(){
-    let result= {
-      a: this.application.getState(),
-      v: this.applicationView.getState()
-    }
-
-    this.log.debug(result)
+    let result= this.application.getState()
+    result.v= this.applicationView.getState()
 
     return result
   }
@@ -37,26 +34,37 @@ export default class StateManager {
   }
 
   pushState() {
-    history.pushState(null, Application.getInstance().title, this.getUrl(this.getState()))
+    let state= this.getState()
+    this.log.debug("pushState", state)
+    history.pushState(null, Application.getInstance().title, this.getUrl(state))
   }
 
   replaceState() {
     history.replaceState(null, Application.getInstance().title, this.getUrl(this.getState()))
   }
 
+  /**
+   * По урлу или объекту параметров
+   * @param state
+   */
   popState(state) {
-    this.application.setState(state.a)
+    if (typeof state=="string"){
+      state = state ? deparam(state) : {}
+    }
+    this.log.debug("popState", state)
+    this.application.setState(state)
     this.applicationView.setState(state.v)
   }
 
+  /**
+   * Состояние воспроизводится только по query
+   * потому что если передать ссылку по месенджеру,
+   * то никаких state и title не будет
+   */
   listen() {
     window.onpopstate =  (event) =>{
-      let search = location.search.substring(1);
-      let state = search ? JSON.parse('{"' + search.replace(/&/g, '","').replace(/=/g, '":"') + '"}', function (key, value) {
-          return key === "" ? value : decodeURIComponent(value)
-        }) : {}
-      this.log.debug("parsed state", state)
-      this.popState(state)
+      let query = location.search.substring(1)
+      this.popState(query)
     }
   }
 }

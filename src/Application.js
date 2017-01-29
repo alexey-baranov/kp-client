@@ -70,19 +70,27 @@ export default class Application {
   getState(){
     const result= {
       state: this.state,
-      bodyType: this.body.constructor.name,
-      BODY: this.body.id
+      body: `${this.body.constructor.name}:${this.body.id}`
     }
-    this.log.debug(result)
     return result
   }
 
 
   setState(state){
-    console.log(state)
-    this.body= model[state.bodyType].getReference(state.BODY)
+    if (state.body){
+      let [bodyType, BODY]= state.body.split(":")
+      this.body= model[bodyType].getReference(BODY)
+    }
+    else{
+      this.log.debug("state.body missed")
+    }
 
-    this.state= state.state
+    if (state.stete){
+      this.state= state.state
+    }
+    else{
+      this.log.debug("state.state missed")
+    }
   }
 }
 

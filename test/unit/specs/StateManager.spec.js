@@ -44,23 +44,18 @@ describe('StateManager', function () {
     const state = stateManager.getState()
 
     expect(state).a("object", "state")
-    expect(state.a).a("object", "state.a")
-    expect(state.a.state).equal(Application.State.Main, "state.a.state")
-    expect(state.a.bodyType).equal("Kopnik", "state.a.bodyType")
-    expect(state.a.BODY).equal(1, "state.a.BODY")
+    expect(state.state).equal(Application.State.Main, "state.state")
+    expect(state.body).equal("Kopnik:1", "state.body")
   })
 
   it('#setState()', function () {
     stateManager.popState({
-      a:{
-        state: Application.State.Main,
-        bodyType: "Kopnik",
-        BODY: 1
-      },
-      v:"av"
+      state: Application.State.Main,
+      body: "Kopnik:1",
+      v: "av"
     })
 
-    let application= stateManager.application
+    let application = stateManager.application
     expect(application.state).equal(Application.State.Main, "stateManager.application.state")
     expect(application.body).instanceof(models.Kopnik, "stateManager.application.body")
     expect(application.body.id).equal(1, "stateManager.application.body.id")

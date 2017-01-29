@@ -12,6 +12,8 @@
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "test": "npm run unit",
     "test:watch": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js",
+    "test-single-spec:watch": "cross-env BABEL_ENV=test karma start test/unit/karma-single-spec.conf.js",
+
     "test0": "mocha --timeout 5000 --require babel-register --require source-map-support  './test/**/*test.js'",
     "test0:watch:all": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch \"test/**/*.test.js\"",
     "test0:watch": "mocha-webpack --webpack-config webpack.config.test.js --require source-map-support/register --watch",

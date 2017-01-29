@@ -44,26 +44,11 @@ import StateManager from './StateManager'
    */
   let application = global.application = Application.getInstance()
   application.state = Application.State.Auth
-
-  /**
-   * временный автозаход
-   */
-  application.auth(config.unittest2.username, config.unittest2.password)
-    .then(user=> {
-      return user.dom.loaded()
-    })
-    .then(dom=>{
-      application.setBody(dom)
-      application.state= Application.State.Main
-    })
-
-// let applicationView= window.applicationView= new applicationView()
-  applicationView.data = {
+  applicationView.propsData = {
     id: "a",
     model: application
   }
   applicationView.el = "#application"
-
   global.applicationView = new Vue(applicationView)
 
 
@@ -75,4 +60,23 @@ stateManager.application= application
 stateManager.applicationView= global.applicationView
 
 stateManager.listen()
+
+/**
+ * временный автозаход
+ */
+application.auth(config.unittest2.username, config.unittest2.password)
+  .then(user=> {
+    return user.dom.loaded()
+  })
+  .then(dom=>{
+    application.setBody(dom)
+    application.state= Application.State.Main
+  })
+  .then(()=>{
+    /**
+     * попнуть первое состояние
+     * @type {*}
+     */
+    stateManager.popState(location.search.substring(1))
+  })
 // })()

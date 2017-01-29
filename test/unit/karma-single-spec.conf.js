@@ -49,24 +49,21 @@ module.exports = function (config) {
     frameworks: ['mocha', 'sinon-chai'],
     reporters: ['spec'/*, 'coverage'*/],
     files: [
-      {pattern: './**/*.spec.js', watched: false},
-      // './**/*.spec.js'
-      // './index.js'
+      './specs/deparam.spec.js'
     ],
     preprocessors: {
-      './**/*.spec.js': ['webpack', 'sourcemap']
-      // './index.js': ['webpack', 'sourcemap']
+      './specs/deparam.spec.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfig,
     webpackMiddleware: {
       noInfo: true
     },/*
-    coverageReporter: {
-      dir: './coverage',
-      reporters: [
-        { type: 'lcov', subdir: '.' },
-        { type: 'text-summary' }
-      ]
-    }*/
+     coverageReporter: {
+     dir: './coverage',
+     reporters: [
+     { type: 'lcov', subdir: '.' },
+     { type: 'text-summary' }
+     ]
+     }*/
   })
 }
