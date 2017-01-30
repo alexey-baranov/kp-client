@@ -3,8 +3,9 @@
  */
 "use strict";
 
-let assert = require('chai').assert;
 let _ = require("lodash");
+let assert = require('chai').assert;
+let AutobahnConnection = require("autobahn").Connection
 
 import Connection from '../../../src/Connection'
 let config = require("../../../cfg/main")[process.env.NODE_ENV];
@@ -41,5 +42,17 @@ describe('Connection', function () {
     connection.onopen= ()=>done()
 
     connection.open();
+  })
+
+  it.skip('#connect(anonimus)', function (done) {
+    let anonymousConnection= new AutobahnConnection({
+      url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
+      realm: "kopa",
+      authmethods: ['anonymous'],
+    })
+    anonymousConnection.onopen= ()=>done()
+    anonymousConnection.onclose= (reason, data)=>done(data)
+
+    anonymousConnection.open();
   })
 });

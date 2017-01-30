@@ -8,7 +8,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import $ from "jquery"; global.$=$;
+import $ from "jquery"; //global.$=$;
 import log from "loglevel"
 import Vue from 'vue'
 
@@ -64,10 +64,13 @@ stateManager.applicationView= global.applicationView
 
 stateManager.listen()
 
+
+application.state= Application.State.Register
+
 /**
  * временный автозаход
  */
-application.auth(config.unittest2.username, config.unittest2.password)
+/*application.auth(config.unittest2.username, config.unittest2.password)
   .then(user=> {
     return user.dom.loaded()
   })
@@ -76,10 +79,10 @@ application.auth(config.unittest2.username, config.unittest2.password)
     application.state= Application.State.Main
   })
   .then(()=>{
-    /**
+    /!**
      * попнуть первое состояние
      * @type {*}
-     */
+     *!/
     stateManager.popState(location.search.substring(1))
-  })
+  })*/
 // })()

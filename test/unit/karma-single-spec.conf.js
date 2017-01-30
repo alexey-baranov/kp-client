@@ -49,10 +49,10 @@ module.exports = function (config) {
     frameworks: ['mocha', 'sinon-chai'],
     reporters: ['spec'/*, 'coverage'*/],
     files: [
-      './specs/deparam.spec.js'
+      './specs/Registration.spec.js'
     ],
     preprocessors: {
-      './specs/deparam.spec.js': ['webpack', 'sourcemap']
+      './specs/Registration.spec.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfig,
     webpackMiddleware: {

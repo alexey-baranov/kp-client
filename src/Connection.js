@@ -20,6 +20,11 @@ export default class Connection extends AutobahnConnection{
     max_retry_delay: 5
   }
 
+  constructor(options){
+    let mixedOptions= Object.assign({}, Connection.defaultOptions, options)
+    super(mixedOptions)
+  }
+
   /**
    * Обязательные параметры для создания коннекшина
    * {
@@ -33,8 +38,7 @@ export default class Connection extends AutobahnConnection{
    */
   static getInstance(options) {
     if (!Connection._instance) {
-      let mixedOptions= Object.assign(Connection.defaultOptions, options)
-      Connection._instance = new Connection(mixedOptions)
+      Connection._instance = new Connection(options)
     }
     return Connection._instance
   }
