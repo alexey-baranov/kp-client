@@ -6,8 +6,8 @@ let AutobahnConnection = require("autobahn").Connection
 
 let config = require("./../cfg/main")[process.env.NODE_ENV]
 
-export default class Connection extends AutobahnConnection{
-  static defaultOptions={
+export default class Connection extends AutobahnConnection {
+  static defaultOptions = {
     url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
     realm: "kopa",
     authmethods: ['ticket'],
@@ -20,8 +20,8 @@ export default class Connection extends AutobahnConnection{
     max_retry_delay: 5
   }
 
-  constructor(options){
-    let mixedOptions= Object.assign({}, Connection.defaultOptions, options)
+  constructor(options) {
+    let mixedOptions = Object.assign({}, Connection.defaultOptions, options)
     super(mixedOptions)
   }
 
@@ -39,6 +39,22 @@ export default class Connection extends AutobahnConnection{
   static getInstance(options) {
     if (!Connection._instance) {
       Connection._instance = new Connection(options)
+    }
+    return Connection._instance
+  }
+
+  /**
+   * Упрощалка для юнит тестов
+   * @return {Connection}
+   */
+  static getUnitTestInstance() {
+    if (!Connection._instance) {
+      Connection._instance = new Connection({
+        authid: config.unittest2.username,
+        onchallenge: function (session, method, extra) {
+          return config.unittest2.password
+        }
+      })
     }
     return Connection._instance
   }

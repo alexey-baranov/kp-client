@@ -49,13 +49,10 @@ module.exports = function (config) {
     frameworks: ['mocha', 'sinon-chai'],
     reporters: ['spec'/*, 'coverage'*/],
     files: [
-      {pattern: './**/*.spec.js', watched: false},
-      // './**/*.spec.js'
-      // './index.js'
+      './index.js'
     ],
     preprocessors: {
-      './**/*.spec.js': ['webpack', 'sourcemap']
-      // './index.js': ['webpack', 'sourcemap']
+      './index.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfig,
     webpackMiddleware: {

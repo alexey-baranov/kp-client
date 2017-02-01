@@ -65,24 +65,23 @@ stateManager.applicationView= global.applicationView
 stateManager.listen()
 
 
-application.state= Application.State.Register
 
 /**
  * временный автозаход
  */
-/*application.auth(config.unittest2.username, config.unittest2.password)
+application.auth(config.unittest2.username, config.unittest2.password)
   .then(user=> {
     return user.dom.loaded()
   })
   .then(dom=>{
     application.setBody(dom)
-    application.state= Application.State.Main
+    application.state= Application.State.Registration
   })
   .then(()=>{
-    /!**
+    /**
      * попнуть первое состояние
      * @type {*}
-     *!/
+     */
     stateManager.popState(location.search.substring(1))
-  })*/
+  })
 // })()

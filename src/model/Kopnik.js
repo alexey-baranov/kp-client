@@ -16,22 +16,19 @@ class Kopnik extends RemoteModel {
 
     this.onlineTimer = new DisplacingTimer(this, this.onlineTimer_tick, Kopnik.OFFLINE_INTERVAL - 1500, DisplacingTimer.Type.Interval);
 
-    this.email = undefined;
-    this.name = undefined;
-    this.surname = undefined;
-    this.patronymic = undefined;
-    this.birth = undefined;
-    this.isOnline = undefined;
+    this.email = undefined
+    this.name = undefined
+    this.surname = undefined
+    this.patronymic = undefined
+    this.birth = undefined
+    this.isOnline = undefined
 
-    this.dom = undefined;
-    this.starshina = undefined;
-    this.druzhina = undefined;
+    this.dom = undefined
+    this.starshina = undefined
+    this.druzhina = undefined
+    this.registrations = undefined
 
-    this.voiskoSize = undefined;
-
-    this.invited = undefined;
-    this.initiated = undefined;
-    this.sayd = undefined;
+    this.voiskoSize = undefined
   }
 
   getPlain() {
@@ -47,8 +44,8 @@ class Kopnik extends RemoteModel {
       note: this.note,
       druzhina: this.druzhina ? this.druzhina.map(eachDruzhe => eachDruzhe.getPlain()) : undefined,
       attachments: this.attachments ? this.attachments.map(each => each.id) : undefined
-    };
-    return result;
+    }
+    return result
   }
 
   /**
@@ -86,7 +83,7 @@ class Kopnik extends RemoteModel {
       this.dom != prevState.dom ||
       _.difference(this.attachments, prevState.attachments).length) {
 
-      this.emit(Kopnik.event.change, this);
+      this.emit(RemoteModel.event.change, this)
     }
   }
 
@@ -113,6 +110,17 @@ class Kopnik extends RemoteModel {
           break;
       }
       this.emit(Kopnik.event.druzhinaChange, this);
+    }
+    else if (details.topic.match(/\.registrationAdd$/)) {
+      if (!this.registrations) {
+        this.log.debug("список регистраций еще не загружен");
+      }
+      else {
+        let REGISTRATION = args[0];
+        let registration = await Registration.get(REGISTRATION);
+        this.registrations.push(registration);
+        this.emit(Kopnik.event.registrationAdd, this, registration);
+      }
     }
   }
 
@@ -156,6 +164,14 @@ class Kopnik extends RemoteModel {
     return result;
   }
 
+  async verifyRegistration(subject, state) {
+    let result = await Connection.getInstance().session.call("api:model.Kopnik.verifyRegistration", null, {
+      SUBJECT: subject.id,
+      state
+    }, {disclose_me: true})
+    return result
+  }
+
   updateLastActiveTime() {
 
   }
@@ -173,7 +189,7 @@ class Kopnik extends RemoteModel {
    * для унификации обхода иерархических структур
    * у всех иерархий должен быть parent
    */
-  get parent(){
+  get parent() {
     return this.starshina
   }
 
@@ -182,7 +198,7 @@ class Kopnik extends RemoteModel {
   }
 
   static async getByEmail(email) {
-    let RESULT= await Connection.getInstance().session.call("ru.kopa.model.getKOPNIKByEmail", [], {email: email});
+    let RESULT = await Connection.getInstance().session.call("ru.kopa.model.getKOPNIKByEmail", [], {email: email});
     let result = await this.get(RESULT)
 
     return result
@@ -202,10 +218,12 @@ Kopnik.event = {
   starshinaChange: "starshinaChange",
   druzhinaChange: "druzhinaChange",
   druzhinaLoad: "druzhinaLoad",
+  registrationAdd: "registrationAdd"
 };
 
-module.exports = Kopnik;
+module.exports = Kopnik
 
 
 let Zemla = require("./Zemla");
 let File = require("./File");
+let Registration = require("./Registration")

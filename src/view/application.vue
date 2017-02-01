@@ -2,7 +2,7 @@
   <div class="application">
     {{debug(model.state)}}
     <auth v-if="model.state=='auth'" @input="auth_input"></auth>
-    <registration v-if="model.state=='register'"></registration>
+    <registration v-if="model.state=='registration'"></registration>
     <div v-if="model.state=='main'">
       <nav class="navbar fixed-top navbar-toggleable-sm navbar-light bg-faded">
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
@@ -64,8 +64,6 @@
     components: {
       "auth": require('./auth.vue'),
       "registration": require('./registration.vue'),
-      "application-navbar": require('./application-navbar.vue'),
-      "application-side-panel": require('./application-side-panel.vue'),
       "zemla": require('./zemla.vue'),
       "kopa": require('./kopa.vue'),
       "kopnik": require('./kopnik.vue'),

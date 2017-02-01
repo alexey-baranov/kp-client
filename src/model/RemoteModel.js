@@ -42,6 +42,7 @@ class RemoteModel extends EventEmitter {
 
   static cache = new Map([
     ["Zemla", new Map()],
+    ["Registration", new Map()],
     ["Kopnik", new Map()],
     ["Kopa", new Map()],
     ["Predlozhenie", new Map()],
@@ -96,7 +97,7 @@ class RemoteModel extends EventEmitter {
       return this.reload()
         .then(() => {
           this.emit(RemoteModel.event.change, this);
-        });
+        })
     }
     else {
       return Promise.resolve();
@@ -108,29 +109,33 @@ class RemoteModel extends EventEmitter {
   }
 
   async save() {
-    let plain = this.getPlain();
+    let plain = this.getPlain()
     let result = await Connection.getInstance().session.call("api:model.save", [], {
       type: this.constructor.name,
       plain: plain
-    });
-    return result;
+    })
+    return result
   }
 
   static async create(value) {
     if (!value.attachments) {
       value.attachments = [];
     }
+    /**
+     * если сюда передался id, то ниже он перекроет собой настоящий id
+     */
+    delete value.id
     // let plain= this.getPlain(value);
     let plain = this.prototype.getPlain.call(value);
     let id = await Connection.getInstance().session.call("api:model.create", [], {
       type: this.name,
       plain: plain
     });
-    id = parseInt(id);
+    id = parseInt(id)
 
-    let result = this.getReference(id);
-    Object.assign(result, value);
-    result._isLoaded = true;
+    let result = this.getReference(id)
+    Object.assign(result, value)
+    result._isLoaded = true
 
     await result.subscribeToWAMPPublications();
 
@@ -305,4 +310,4 @@ RemoteModel.event = {
 
 module.exports = RemoteModel;
 
-let Kopnik = require("./Kopnik");
+let Kopnik = require("./Kopnik")
