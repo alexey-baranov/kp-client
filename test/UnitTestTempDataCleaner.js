@@ -4,7 +4,7 @@
 "use strict";
 
 let _ = require("lodash");
-let WAMP= require("../src/WAMPFactory").getWAMP();
+import Connection from "../src/Connection"
 
 
 class UnitTestTempDataCleaner{
@@ -13,7 +13,7 @@ class UnitTestTempDataCleaner{
             types= [types];
         }
 
-        return WAMP.session.call("ru.kopa.unitTest.cleanTempData", types);
+        return Connection.session.call("ru.kopa.unitTest.cleanTempData", types);
     }
 }
 

@@ -210,8 +210,8 @@ class RemoteModel extends EventEmitter {
       await this.subscribeToWAMPPublications();
     }
     /**
-     * модель уже загружена и ее зачем-то обновляют
-     * хз зачем вроде она должна само обновиться по входящему ->change
+     * модель уже загружена и ее обновляют
+     * скорее всего это reload() по ->change
      */
     else {
       this.merge(json);

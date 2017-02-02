@@ -21,7 +21,7 @@
         nodes: []
       }
     },
-    props: ["id", "model"],
+    props: ["id", "model", "full"],
     watch: {
       model: async function () {
         await this.fillNodes()
@@ -40,7 +40,7 @@
     },
     methods: {
       fillNodes: async function () {
-        log.debug("filling nodes...")
+        log.debug(`filling nodes for ${this.model}`)
         /**
          * за время пока ноды асинхронно загружаются уже может быть выбран иной body
          * и в таком случае старый цикл нод должен прерваться
@@ -48,6 +48,9 @@
          */
         let localModel= this.model
         this.nodes = []
+        if (this.full=="true" && (this.model instanceof models.Zemla || this.model instanceof models.Kopnik)){
+            this.nodes.push(this.model)
+        }
         await this.model.loaded()
         let initialNode
         switch (this.modelClassName) {

@@ -172,6 +172,25 @@ class Kopnik extends RemoteModel {
     return result
   }
 
+  /**
+   * перегружает регистрации которые ему поручены
+   * @return {Promise.<void>}
+   */
+  async reloadRegistration() {
+    let registrationsAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Kopnik.getRegistrations", [], {}, {disclose_me: true});
+
+    console.log(registrationsAsPlain)
+
+    this.registrations = await Promise.all(registrationsAsPlain.map(async eachRegistrationAsPlain => {
+      let eachRegistration = Registration.getReference(eachRegistrationAsPlain.id)
+      eachRegistration.merge(eachRegistrationAsPlain)
+      await eachRegistration.subscribeToWAMPPublications()
+      return eachRegistration
+    }));
+
+    this.emit(Kopnik.event.registrationsReload, this);
+  }
+
   updateLastActiveTime() {
 
   }
@@ -218,7 +237,8 @@ Kopnik.event = {
   starshinaChange: "starshinaChange",
   druzhinaChange: "druzhinaChange",
   druzhinaLoad: "druzhinaLoad",
-  registrationAdd: "registrationAdd"
+  registrationAdd: "registrationAdd",
+  registrationsReload: "registrationsReload"
 };
 
 module.exports = Kopnik

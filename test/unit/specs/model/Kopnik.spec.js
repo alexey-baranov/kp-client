@@ -339,7 +339,7 @@ describe('Kopnik', function () {
     });
   })
 
-  describe.only("#verifyRegistration()", function () {
+  describe("#verifyRegistration()", function () {
     it('should done', function (done) {
       (async() => {
         try {
@@ -387,6 +387,25 @@ describe('Kopnik', function () {
           done(err);
         }
       })()
+    })
+  })
+
+  describe.only("#reloadRegistration()", async function () {
+    let kopnik2
+
+    it('should not throw error', async function () {
+      kopnik2 = await models.Kopnik.get(2)
+      await kopnik2.reloadRegistration()
+    })
+
+    it('should load array of 1 registrations', async function () {
+      expect(kopnik2.registrations).a("array")
+      expect(kopnik2.registrations).lengthOf(1)
+      expect(kopnik2.registrations[0]).instanceof(models.Registration)
+    })
+
+    it('should load unferified registrations', async function () {
+      expect(kopnik2.registrations[0].state).equals(0);
     })
   })
 })

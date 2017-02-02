@@ -2,7 +2,12 @@
   <div class="application">
     {{debug(model.state)}}
     <auth v-if="model.state=='auth'" @input="auth_input"></auth>
-    <registration v-if="model.state=='registration'"></registration>
+    <div v-if="model.state=='registration'" class="container" >
+      <registration-as-form ></registration-as-form>
+    </div>
+    <div v-if="model.state=='verifier'" class="container">
+      <kopnik-as-verifier :model="model.user"></kopnik-as-verifier>
+    </div>
     <div v-if="model.state=='main'">
       <nav class="navbar fixed-top navbar-toggleable-sm navbar-light bg-faded">
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
@@ -63,12 +68,13 @@
     },
     components: {
       "auth": require('./auth.vue'),
-      "registration": require('./registration.vue'),
+      "registration-as-form": require('./registration-as-form.vue'),
       "zemla": require('./zemla.vue'),
       "kopa": require('./kopa.vue'),
       "kopnik": require('./kopnik.vue'),
       "zemla-as-link": require('./zemla-as-link.vue'),
       "location": require('./location.vue'),
+      "kopnik-as-verifier": require('./kopnik-as-verifier.vue'),
     },
     computed: {
       bodyType(){

@@ -75,7 +75,7 @@ application.auth(config.unittest2.username, config.unittest2.password)
   })
   .then(dom=>{
     application.setBody(dom)
-    application.state= Application.State.Registration
+    application.state= Application.State.Verifier
   })
   .then(()=>{
     /**

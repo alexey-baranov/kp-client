@@ -102,5 +102,6 @@ export default class Application {
 Application.State = {
   Auth: "auth",
   Registration: "registration",
-  Main: "main"
+  Main: "main",
+  Verifier: "verifier"
 }
