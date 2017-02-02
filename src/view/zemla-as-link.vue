@@ -11,7 +11,7 @@
     props: ["id", "model"],
     methods: {
       a_click: function (e) {
-        Application.getInstance().setBody(this.model)
+        Application.getInstance().goTo(this.model)
         StateManager.getInstance().pushState()
       }
     },

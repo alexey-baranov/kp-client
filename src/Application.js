@@ -22,6 +22,11 @@ export default class Application {
     return Application.instance
   }
 
+  goTo(value){
+    this.state=Application.State.Main
+    this.setBody(value)
+  }
+
   setBody(value) {
     this.body = value
   }
@@ -68,9 +73,11 @@ export default class Application {
   }
 
   getState(){
-    const result= {
-      state: this.state,
-      body: `${this.body.constructor.name}:${this.body.id}`
+    const result= {}
+
+    result.state= this.state
+    if (this.body){
+      result.body= `${this.body.constructor.name}:${this.body.id}`
     }
     return result
   }
@@ -81,15 +88,12 @@ export default class Application {
       let [bodyType, BODY]= state.body.split(":")
       this.body= model[bodyType].getReference(BODY)
     }
-    else{
-      this.log.debug("state.body missed")
-    }
 
-    if (state.stete){
+    if (state.state){
       this.state= state.state
     }
     else{
-      this.log.debug("state.state missed")
+      this.state=Application.State.Main
     }
   }
 }
@@ -103,5 +107,5 @@ Application.State = {
   Auth: "auth",
   Registration: "registration",
   Main: "main",
-  Verifier: "verifier"
+  Verification: "verification"
 }

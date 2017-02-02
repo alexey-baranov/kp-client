@@ -1,7 +1,6 @@
 <template>
   <div class="kopnik-as-verifier">
-    kopnik-as-verifier
-    {{model.name}}
+    <h1>Регистрации</h1>
     <ul class="list-group">
       <li v-for="eachRegistration of model.registrations" class="list-group-item"
           :class="{'list-group-item-danger':eachRegistration.state < 0, 'list-group-item-success': eachRegistration.state > 0}">
@@ -12,6 +11,9 @@
         </div>
       </li>
     </ul>
+    <div v-if="!model.registrations || !model.registrations.length" class="alert alert-info">
+      Все регистрации заверены
+    </div>
   </div>
 </template>
 
@@ -22,26 +24,25 @@
 
   export default{
     data: function () {
-      return {
-      };
+      return {};
     },
     props: ["id", "model"],
     components: {
-        "registration": require("./registration.vue")
+      "registration": require("./registration.vue")
     },
-    watch: {
-    },
+    watch: {},
     created: function () {
     },
-    computed: {
-    },
+    computed: {},
     methods: {
-        async verifyRegistration(subject, state){
-          await this.model.verifyRegistration(subject,state)
-        },
+      async verifyRegistration(subject, state){
+        await this.model.verifyRegistration(subject, state)
+      },
     },
     async mounted(){
-        await this.model.reloadRegistration()
+      if (!this.model.registrations) {
+        await this.model.reloadRegistrations()
+      }
     }
   }
 

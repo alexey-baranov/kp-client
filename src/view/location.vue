@@ -11,8 +11,6 @@
 </template>
 
 <script>
-  let log = require("loglevel").getLogger("location.vue")
-
   import models from '../model'
 
   export default{
@@ -34,13 +32,13 @@
     computed: {
       modelClassName(){
         let result = this.model.constructor.name
-        log.debug(result)
+        this.log.debug(result)
         return result
       }
     },
     methods: {
       fillNodes: async function () {
-        log.debug(`filling nodes for ${this.model}`)
+        this.log.debug(`filling nodes for ${this.model}`)
         /**
          * за время пока ноды асинхронно загружаются уже может быть выбран иной body
          * и в таком случае старый цикл нод должен прерваться
@@ -77,6 +75,7 @@
       },
     },
     created: function () {
+      this.log = require("loglevel").getLogger("location.vue")
       this.fillNodes()
     },
     mounted: function () {

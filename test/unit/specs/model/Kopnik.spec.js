@@ -390,12 +390,12 @@ describe('Kopnik', function () {
     })
   })
 
-  describe.only("#reloadRegistration()", async function () {
+  describe.only("#reloadRegistrations()", async function () {
     let kopnik2
 
     it('should not throw error', async function () {
       kopnik2 = await models.Kopnik.get(2)
-      await kopnik2.reloadRegistration()
+      await kopnik2.reloadRegistrations()
     })
 
     it('should load array of 1 registrations', async function () {

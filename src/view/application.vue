@@ -1,41 +1,40 @@
 <template>
   <div class="application">
-    {{debug(model.state)}}
-    <auth v-if="model.state=='auth'" @input="auth_input"></auth>
-    <div v-if="model.state=='registration'" class="container" >
-      <registration-as-form ></registration-as-form>
-    </div>
-    <div v-if="model.state=='verifier'" class="container">
-      <kopnik-as-verifier :model="model.user"></kopnik-as-verifier>
-    </div>
-    <div v-if="model.state=='main'">
-      <nav class="navbar fixed-top navbar-toggleable-sm navbar-light bg-faded">
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
-                data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
-                aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <a class="navbar-brand px-2" href="#">kopnik.ru</a>
-        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-          <ul class="navbar-nav">
-            <li class="nav-item dropdown <!--active-->">
-              <a class="nav-link dropdown-toggle" href="http://example.com" :id="id+'navbarDropdownMenuLink'"
-                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Земли
-              </a>
-              <div class="dropdown-menu" :aria-labelledby="id+'navbarDropdownMenuLink'">
-                <zemla-as-link v-for="eachUserDom of userDoma" class="dropdown-item"
-                               :model="eachUserDom"></zemla-as-link>
-              </div>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Youtube</a>
-            </li>
-          </ul>
-        </div>
-      </nav>
-      <div class="container container-under-navbar">
-        {{debug(1234)}}
+    <nav class="navbar fixed-top navbar-toggleable-sm navbar-light bg-faded">
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+              data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand px-2" href="#">kopnik.ru</a>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+          <li class="nav-item dropdown <!--active-->">
+            <a class="nav-link dropdown-toggle" href="http://example.com" :id="id+'navbarDropdownMenuLink'"
+               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Земли
+            </a>
+            <div class="dropdown-menu" :aria-labelledby="id+'navbarDropdownMenuLink'">
+              <zemla-as-link v-for="eachUserDom of userDoma" class="dropdown-item"
+                             :model="eachUserDom"></zemla-as-link>
+            </div>
+          </li>
+
+          <li v-if="model.user && model.user.registrations && model.user.registrations.length" class="nav-item">
+            <a class="nav-link" href="/?state=verification" @click.prevent="verification_click">Регистрации</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="#">Youtube</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container container-under-navbar">
+      <auth v-if="model.state=='auth'" @input="auth_input"></auth>
+      <registration-as-form v-if="model.state=='registration'"></registration-as-form>
+      <kopnik-as-verifier v-if="model.state=='verification'" :model="model.user"></kopnik-as-verifier>
+      <div v-if="model.state=='main'">
         <h1 class="title">{{model.body.name}}</h1>
         <location :model="model.body"></location>
         <component v-bind:is="bodyType" :model="model.body"></component>
@@ -46,8 +45,7 @@
 
 <script>
   import Application from "../Application"
-
-  let log = require("loglevel").getLogger("application.vue")
+  import StateManager from "../StateManager"
 
   export default{
     data: function () {
@@ -58,12 +56,18 @@
     props: ["id", "model"],
     watch: {
       "model.user": async function () {
-        log.debug("user watcher")
+        this.log.debug("user watcher")
         await this.model.user.loaded()
         for (let eachDom = this.model.user.dom; eachDom; eachDom = eachDom.parent) {
           await eachDom.loaded()
           this.userDoma.unshift(eachDom)
         }
+      },
+      "model.body": async function () {
+        if (!(this.model.body instanceof models.RemoteModel)) {
+          throw new Error("Неверный тип тела")
+        }
+        await this.model.body.loaded()
       }
     },
     components: {
@@ -84,6 +88,10 @@
       }
     },
     methods: {
+      verification_click(){
+        this.model.state = Application.State.Verification
+        StateManager.getInstance().pushState()
+      },
       /**
        *
        * @param cridentials {email, password}
@@ -102,10 +110,11 @@
 
       },
       debug(){
-        log.debug.bind(log).apply(arguments)
+        this.log.debug.bind(log).apply(arguments)
       }
     },
     created: function () {
+      this.log = require("loglevel").getLogger("application.vue")
     },
     mounted: function () {
     },

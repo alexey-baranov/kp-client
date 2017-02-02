@@ -176,7 +176,7 @@ class Kopnik extends RemoteModel {
    * перегружает регистрации которые ему поручены
    * @return {Promise.<void>}
    */
-  async reloadRegistration() {
+  async reloadRegistrations() {
     let registrationsAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Kopnik.getRegistrations", [], {}, {disclose_me: true});
 
     console.log(registrationsAsPlain)
