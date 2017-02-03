@@ -21,6 +21,7 @@ class Kopnik extends RemoteModel {
     this.surname = undefined
     this.patronymic = undefined
     this.birth = undefined
+    this.passport= undefined
     this.isOnline = undefined
 
     this.dom = undefined
@@ -39,6 +40,7 @@ class Kopnik extends RemoteModel {
       surname: this.surname,
       patronymic: this.patronymic,
       birth: this.birth,
+      passport: this.passport,
       dom_id: this.dom ? this.dom.id : null,
       starshina_id: this.starshina ? this.starshina.id : null,
       note: this.note,
@@ -62,6 +64,7 @@ class Kopnik extends RemoteModel {
     this.surname = json.surname;
     this.patronymic = json.patronymic;
     this.birth = json.birth;
+    this.passport = json.passport
     this.isOnline = json.isOnline;
     this.note = json.note;
     this.voiskoSize = json.voiskoSize;
@@ -79,7 +82,7 @@ class Kopnik extends RemoteModel {
      }*/
 
     if (this.email != prevState.email || this.name != prevState.name || this.surname != prevState.surname ||
-      this.patronymic != prevState.patronymic || this.birth != prevState.birth || this.note != prevState.note ||
+      this.patronymic != prevState.patronymic || this.birth != prevState.birth || this.passport != prevState.passport || this.note != prevState.note ||
       this.dom != prevState.dom ||
       _.difference(this.attachments, prevState.attachments).length) {
 
@@ -179,14 +182,12 @@ class Kopnik extends RemoteModel {
   async reloadRegistrations() {
     let registrationsAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Kopnik.getRegistrations", [], {}, {disclose_me: true});
 
-    console.log(registrationsAsPlain)
-
     this.registrations = await Promise.all(registrationsAsPlain.map(async eachRegistrationAsPlain => {
       let eachRegistration = Registration.getReference(eachRegistrationAsPlain.id)
       eachRegistration.merge(eachRegistrationAsPlain)
       await eachRegistration.subscribeToWAMPPublications()
       return eachRegistration
-    }));
+    }))
 
     this.emit(Kopnik.event.registrationsReload, this);
   }

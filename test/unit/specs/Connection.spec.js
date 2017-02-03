@@ -25,24 +25,23 @@ describe('Connection', function () {
   )
 
   it('getInstance()', function () {
-    let
-      authid = config.unittest2.username,
-      onchallenge = ()=>config.unittest2.password
-
-    connection = Connection.getInstance({authid: authid, onchallenge: onchallenge})
+    connection = Connection.getUnitTestInstance()
 
     expect(connection).instanceof(Connection)
     expect(Connection.getInstance()).equal(connection)
-
-    expect(connection._options.authid).equal(authid)
-    expect(connection._options.onchallenge).equal(onchallenge)
   })
 
-  it('#connect()', function (done) {
+  it('#open()', function (done) {
     connection.onopen= ()=>done()
 
     connection.open();
   })
+
+  it('#close()', function (done) {
+    connection.onclose= ()=>done()
+
+    connection.close()
+  });
 
   it.skip('#connect(anonimus)', function (done) {
     let anonymousConnection= new AutobahnConnection({

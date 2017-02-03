@@ -6,48 +6,47 @@ let _ = require("lodash");
 var assert = require('chai').assert;
 
 import Connection from "../../../../src/Connection"
-var models = require("../../../../src/model");
+var models = require("../../../../src/model")
 
-let KOPNIK2 = 2;
+let KOPNIK2 = 2
 let KOPNIK3 = 3;
 let KOPNIK4 = 4;
-let ZEMLA2 = 2;
-let ZEMLA3 = 3;
-let KOPA = 3;
-let connection= Connection.getUnitTestInstance()
+let ZEMLA2 = 2
+let ZEMLA3 = 3
+let KOPA = 3
+let connection = Connection.getUnitTestInstance()
+let Cleaner = require("../../../../src/Cleaner")
 
-
-describe('Kopnik', function () {
+describe.only('Kopnik', function () {
   before(function () {
-    models.RemoteModel.clearCache();
+    models.RemoteModel.clearCache()
     return new Promise(function (res, rej) {
       connection.onopen = function (session, details) {
-        session.prefix('api', 'ru.kopa');
-        res();
-      };
-      connection.open();
+        session.prefix('api', 'ru.kopa')
+        res()
+      }
+      connection.open()
     })
       .then(function () {
-        return connection.session.call("ru.kopa.unitTest.cleanTempData", ['Kopnik']);
-      });
-    // .catch(err=>console.log);
-  });
+        return Cleaner.clean()
+      })
+  })
 
   after(function () {
     return new Promise(function (res, rej) {
       connection.onclose = function (session, details) {
-        res();
+        res()
       };
       connection.close();
     });
-  });
+  })
 
   describe("#get()", function () {
     it('#dom should be instance of Zemla', async function () {
       let kopnik2 = await models.Kopnik.get(KOPNIK2);
       assert.equal(kopnik2.dom instanceof models.Zemla, true);
     });
-  });
+  })
 
   describe("#loadDruzhina()", function () {
     let kopnik2;
@@ -63,7 +62,7 @@ describe('Kopnik', function () {
       assert.equal(kopnik2.druzhina.length, 2, "kopnik2.druzhina.size, 2");
       assert.equal(kopnik2.druzhina[0] instanceof models.Kopnik, true, "kopnik2.druzhina[0] instanceof models.Kopnik");
     });
-  });
+  })
 
   describe("#setStarshina()", function () {
     let someKopnik1,
@@ -74,48 +73,58 @@ describe('Kopnik', function () {
     /**
      * создаю два копника один старшина другому на втором
      */
-    it('should emit voiskoChange twice', async function (done) {
-      try {
-        kopnik2 = await models.Kopnik.get(KOPNIK2);
+    it('should emit voiskoChange twice', function (done) {
+      (async() => {
+        try {
+          kopnik2 = await models.Kopnik.get(KOPNIK2);
 
-        kopnik2.once(models.Kopnik.event.voiskoChange, async() => {
-          try {
-            assert.equal(kopnik2.voiskoSize, 4, "kopnik2.voiskoSize, 4");
-            assert.equal(someKopnik1.starshina, kopnik2, "someKopnik1.starshina, kopnik2");
-            kopnik2.once(models.Kopnik.event.voiskoChange, async() => {
-              try {
-                assert.equal(kopnik2.voiskoSize, 5, "kopnik2.voiskoSize, 5");
-                assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
-                done();
-              } catch (err) {
-                done(err);
-              }
-            });
-          } catch (err) {
-            done(err);
-          }
-        });
-        someKopnik1 = await models.Kopnik.create({
-          name: "temp",
-          surname: "temp",
-          patronymic: "temp",
-          birth: 1900,
-          dom: models.Zemla.getReference(ZEMLA2),
-        });
-        await someKopnik1.setStarshina(kopnik2);
+          //3. поймал событие что присоедился самКопник1
+          kopnik2.once(models.Kopnik.event.voiskoChange, async() => {
+            try {
+              assert.equal(kopnik2.voiskoSize, 4, "kopnik2.voiskoSize, 4");
+              assert.equal(someKopnik1.starshina, kopnik2, "someKopnik1.starshina, kopnik2");
 
-        someKopnik2 = await models.Kopnik.create({
-          name: "temp",
-          surname: "temp",
-          patronymic: "temp",
-          birth: 1900,
-          dom: models.Zemla.getReference(ZEMLA2),
-        });
-        await someKopnik2.setStarshina(someKopnik1);
-      }
-      catch (err) {
-        done(err);
-      }
+              //4. поймал событие что присоедился самКопник2
+              kopnik2.once(models.Kopnik.event.voiskoChange, async() => {
+                try {
+                  assert.equal(kopnik2.voiskoSize, 5, "kopnik2.voiskoSize, 5");
+                  assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
+                  done();
+                } catch (err) {
+                  done(err);
+                }
+              });
+            } catch (err) {
+              done(err);
+            }
+          });
+
+          //1. повесил самКопника1 на старшину Копника2
+          someKopnik1 = await models.Kopnik.create({
+            name: "temp",
+            surname: "temp",
+            patronymic: "temp",
+            birth: 1900,
+            passport: "1234",
+            dom: models.Zemla.getReference(ZEMLA2),
+          });
+          await someKopnik1.setStarshina(kopnik2);
+
+          //2. повесил копника на самКопника1
+          someKopnik2 = await models.Kopnik.create({
+            name: "temp",
+            surname: "temp",
+            patronymic: "temp",
+            birth: 1900,
+            passport: "1234",
+            dom: models.Zemla.getReference(ZEMLA2),
+          });
+          await someKopnik2.setStarshina(someKopnik1);
+        }
+        catch (err) {
+          done(err);
+        }
+      })()
     });
 
     /**
@@ -123,47 +132,50 @@ describe('Kopnik', function () {
      * сначала прилетают события открепления дружины
      * потом прикрепления
      */
-    it('should emit voiskoChange down and up, emit starshina changed', async function (done) {
-      try {
-        kopnik4 = await models.Kopnik.get(KOPNIK4);
+    it('should emit voiskoChange down and up, emit starshina changed', function (done) {
+      (async() => {
 
-        /**сначала прилетает событие сменился старшина от себя к хвосту,
-         * потом открепления дружины
-         * потом прикрепления,
-         */
-        someKopnik2.once(models.Kopnik.event.starshinaChange, async() => {
-          try {
-            assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
-            assert.equal(someKopnik1.starshina, kopnik4, "someKopnik1.starshina, kopnik4");
+        try {
+          kopnik4 = await models.Kopnik.get(KOPNIK4);
 
-            kopnik2.once(models.Kopnik.event.voiskoChange, () => {
-              try {
-                assert.equal(kopnik2.voiskoSize, 3, "kopnik2.voiskoSize, 3");
-                kopnik4.once(models.Kopnik.event.voiskoChange, () => {
-                  try {
-                    assert.equal(kopnik4.voiskoSize, 2, "kopnik4.voiskoSize, 2");
-                    assert.equal(someKopnik1.starshina, kopnik4, "someKopnik1.starshina, kopnik4");
-                    done();
-                  }
-                  catch (err) {
-                    done(err);
-                  }
-                });
-              }
-              catch (err) {
-                done(err);
-              }
-            });
-          } catch (err) {
-            done(err);
-          }
-        });
+          /**сначала прилетает событие сменился старшина от себя к хвосту,
+           * потом открепления дружины
+           * потом прикрепления,
+           */
+          someKopnik2.once(models.Kopnik.event.starshinaChange, async() => {
+            try {
+              assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
+              assert.equal(someKopnik1.starshina, kopnik4, "someKopnik1.starshina, kopnik4");
 
-        someKopnik1.setStarshina(models.Kopnik.getReference(KOPNIK4));
-      }
-      catch (err) {
-        done(err);
-      }
+              kopnik2.once(models.Kopnik.event.voiskoChange, () => {
+                try {
+                  assert.equal(kopnik2.voiskoSize, 3, "kopnik2.voiskoSize, 3");
+                  kopnik4.once(models.Kopnik.event.voiskoChange, () => {
+                    try {
+                      assert.equal(kopnik4.voiskoSize, 2, "kopnik4.voiskoSize, 2");
+                      assert.equal(someKopnik1.starshina, kopnik4, "someKopnik1.starshina, kopnik4");
+                      done();
+                    }
+                    catch (err) {
+                      done(err);
+                    }
+                  });
+                }
+                catch (err) {
+                  done(err);
+                }
+              });
+            } catch (err) {
+              done(err);
+            }
+          });
+
+          await someKopnik1.setStarshina(models.Kopnik.getReference(KOPNIK4));
+        }
+        catch (err) {
+          done(err);
+        }
+      })()
     });
 
     /**
@@ -257,6 +269,7 @@ describe('Kopnik', function () {
             surname: "temp",
             patronymic: "temp",
             birth: 1900,
+            passport: "1234",
             dom: models.Zemla.getReference(ZEMLA2),
           });
           await someKopnik1.setStarshina(kopnik2);
@@ -267,7 +280,7 @@ describe('Kopnik', function () {
         }
       })();
     });
-  });
+  })
 
   describe("#vote()", function () {
     let kopnik2,
@@ -340,16 +353,16 @@ describe('Kopnik', function () {
   })
 
   describe("#verifyRegistration()", function () {
-    it('should done', function (done) {
+    it('should verify', function (done) {
       (async() => {
         try {
           let kopnik2 = await models.Kopnik.get(2);
-          kopnik2.registrations=[]
+          kopnik2.registrations = []
 
           //2. копник поймал что ему пришла регистрация
-          kopnik2.on(models.Kopnik.event.registrationAdd, async(sender, localRegistration) => {
+          kopnik2.once(models.Kopnik.event.registrationAdd, async(sender, localRegistration) => {
             try {
-              let x=3;
+              let x = 3;
               //3. копник заверяет регистрацию
               await kopnik2.verifyRegistration(localRegistration, 1)
               //4. регистрация поймала что ее заверили
@@ -357,7 +370,7 @@ describe('Kopnik', function () {
                 //5. проверям что регистрация правильная
                 try {
                   expect(localRegistration.verifier.id).equal(2, "localRegistration.verifier.id")
-                  expect(localRegistration.state).equal(1,"localRegistration.state")
+                  expect(localRegistration.state).equal(1, "localRegistration.state")
                   expect(localRegistration.result).instanceof(models.Kopnik, "localRegistration.result")
                   done()
                 }
@@ -388,9 +401,57 @@ describe('Kopnik', function () {
         }
       })()
     })
+
+    it('should reject', function (done) {
+      (async() => {
+        try {
+          let kopnik2 = await models.Kopnik.get(2);
+          kopnik2.registrations = []
+
+          //2. копник поймал что ему пришла регистрация
+          kopnik2.once(models.Kopnik.event.registrationAdd, async(sender, localRegistration) => {
+            try {
+              //3. копник заверяет регистрацию
+              await kopnik2.verifyRegistration(localRegistration, -1)
+              //4. регистрация поймала что ее заверили
+              localRegistration.on(models.RemoteModel.event.change, function () {
+                //5. проверям что регистрация правильная
+                try {
+                  expect(localRegistration.verifier.id).equal(2, "localRegistration.verifier.id")
+                  expect(localRegistration.state).equal(-1, "localRegistration.state")
+                  expect(localRegistration.result).null
+                  done()
+                }
+                catch (err) {
+                  done(err)
+                }
+              })
+            }
+            catch (err) {
+              done(err);
+            }
+          })
+
+          //1. создал регистрацию
+          await models.Registration.create({
+            email: "unit@unit.unit",
+            password: "unit",
+            name: "reject",
+            surname: "temp",
+            patronymic: "temp",
+            birth: 1983,
+            passport: Date.now(),
+            dom: models.Zemla.getReference(2),
+          })
+        }
+        catch (err) {
+          done(err);
+        }
+      })()
+    })
   })
 
-  describe.only("#reloadRegistrations()", async function () {
+  describe("#reloadRegistrations()", async function () {
     let kopnik2
 
     it('should not throw error', async function () {
@@ -400,7 +461,7 @@ describe('Kopnik', function () {
 
     it('should load array of 1 registrations', async function () {
       expect(kopnik2.registrations).a("array")
-      expect(kopnik2.registrations).lengthOf(1)
+      expect(kopnik2.registrations).lengthOf(1);
       expect(kopnik2.registrations[0]).instanceof(models.Registration)
     })
 

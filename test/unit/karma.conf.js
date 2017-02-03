@@ -49,6 +49,8 @@ module.exports = function (config) {
     frameworks: ['mocha', 'sinon-chai'],
     reporters: ['spec'/*, 'coverage'*/],
     files: [
+      '../../node_modules/phantomjs-polyfill/bind-polyfill.js',
+      '../../node_modules/phantomjs-polyfill-find/find-polyfill.js',
       './index.js'
     ],
     preprocessors: {

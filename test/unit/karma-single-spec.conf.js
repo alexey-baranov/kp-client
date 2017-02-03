@@ -45,16 +45,20 @@ module.exports = function (config) {
     // 1. install corresponding karma launcher
     //    http://karma-runner.github.io/0.13/config/browsers.html
     // 2. add it to the `browsers` array below.
-    browsers: ['PhantomJS'  /*"Chrome"*/],
+    browsers: ['PhantomJS'/*  "Chrome"*/],
     frameworks: ['mocha', 'sinon-chai'],
     reporters: ['spec'/*, 'coverage'*/],
     files: [
+      '../../node_modules/phantomjs-polyfill/bind-polyfill.js',
+      '../../node_modules/phantomjs-polyfill-find/find-polyfill.js',
       // './specs/Registration.spec.js'
-      './specs/model/Kopnik.spec.js'
+      // './specs/model/Kopnik2.spec.js'
+      './specs/model/Kopnik2.test.js'
     ],
     preprocessors: {
       // './specs/Registration.spec.js': ['webpack', 'sourcemap']
-      './specs/model/Kopnik.spec.js': ['webpack', 'sourcemap']
+      // './specs/model/Kopnik2.spec.js': ['webpack', 'sourcemap']
+       './specs/model/Kopnik2.test.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfig,
     webpackMiddleware: {

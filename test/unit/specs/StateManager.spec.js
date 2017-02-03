@@ -18,7 +18,7 @@ describe('StateManager', function () {
   let stateManager
 
   beforeEach(() => {
-    applicationView.data = {
+    applicationView.propsDdata = {
       id: "a",
       model: new Application()
     }
