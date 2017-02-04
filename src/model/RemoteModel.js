@@ -164,6 +164,12 @@ class RemoteModel extends EventEmitter {
     return this.cache.get(this.name).get(id);
   }
 
+  /**
+   * Дает существующую модель или подгружает ее с сервера
+   *
+   * @param what
+   * @return {Promise.<*>}
+   */
   static async get(what) {
     let result;
 
@@ -176,8 +182,10 @@ class RemoteModel extends EventEmitter {
     }
     else {
       result = this.getReference(what.id);
-      result.merge(what);
-      if (!result._isSubscribedToWAMPPublications) {
+      if (!result._isLoaded){
+        result.merge(what);
+      // }
+      // if (!result._isSubscribedToWAMPPublications) {
         await result.subscribeToWAMPPublications();
       }
       return result;
@@ -206,15 +214,15 @@ class RemoteModel extends EventEmitter {
       // this.log.debug(`${this} loaded in concurent thread. merging skipped. subscription skipped`);
     }
     else if (!isLoadedBefore) {
-      this.merge(json);
-      await this.subscribeToWAMPPublications();
+      this.merge(json)
+      await this.subscribeToWAMPPublications()
     }
     /**
      * модель уже загружена и ее обновляют
      * скорее всего это reload() по ->change
      */
     else {
-      this.merge(json);
+      this.merge(json)
     }
     this.log.debug(`loaded ${this}`, this)
 

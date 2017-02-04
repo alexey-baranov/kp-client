@@ -22,6 +22,13 @@ class Zemla extends RemoteModel {
     this.parent = undefined;
     this.children = undefined;
     this.obshina = undefined;
+
+    /**
+     * Это поле нужно исключительно для нужд zemla.vue
+     * и входящей в нее kopa-as-list-item.vue
+     * @type {Kopa}
+     */
+    this.newKopa= null
   }
 
   /**
@@ -121,9 +128,7 @@ class Zemla extends RemoteModel {
     }, {disclose_me: true});
 
     this.kopi = await Promise.all(kopiAsPlain.map(async eachKopaAsPlain => {
-      let eachKopa = Kopa.getReference(eachKopaAsPlain.id);
-      eachKopa.merge(eachKopaAsPlain);
-      await eachKopa.subscribeToWAMPPublications();
+      let eachKopa = Kopa.get(eachKopaAsPlain)
       return eachKopa;
     }));
 

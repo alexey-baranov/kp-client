@@ -19,6 +19,20 @@ class Kopa extends RemoteModel {
         this.invited = undefined;
         this.dialog = undefined;
         this.result = undefined;
+
+      /**
+       * Это поле нужно исключительно для нужд kopa.vue
+       * и входящей в нее predlozhenie-as-list-item.vue
+       * @type {Kopa}
+       */
+      this.newResult= null
+
+      /**
+       * Это поле нужно исключительно для нужд kopa.vue
+       * и входящей в нее slovo-as-list-item.vue
+       * @type {Kopa}
+       */
+      this.newSlovo= null
     }
 
     getPlain() {
@@ -106,6 +120,7 @@ class Kopa extends RemoteModel {
         }, {disclose_me: true});
 
         let dialog = await Promise.all(dialogAsPlain.map(async eachSlovoAsPlain => {
+
             let eachSlovo = await Slovo.get(eachSlovoAsPlain);
             return eachSlovo;
         }));
@@ -130,20 +145,20 @@ class Kopa extends RemoteModel {
         let resultAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getResult", [], {
             PLACE: this.id,
             BEFORE: BEFORE
-        }, {disclose_me: true});
+        }, {disclose_me: true})
 
         let result = await Promise.all(resultAsPlain.map(async eachResultAsPlain => {
             let eachResult = Predlozhenie.get(eachResultAsPlain);
             return eachResult;
-        }));
+        }))
 
         if (!this.result || !this.result.length) {
             this.result = result;
         }
         else {
-            this.result = result.concat(this.result);
+            this.result = result.concat(this.result)
         }
-        this.emit(Kopa.event.resultLoad, this);
+        this.emit(Kopa.event.resultLoad, this)
 
         return this.result;
     }
@@ -153,7 +168,7 @@ class Kopa extends RemoteModel {
     }
 
     toString() {
-        return `${this.constructor.name} {${this.id}, "${this.question.substring(0, 10)}"}`;
+        return `${this.constructor.name} {${this.id}, "${this.name}"}`;
     }
 }
 

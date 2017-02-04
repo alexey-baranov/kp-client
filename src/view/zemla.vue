@@ -1,125 +1,103 @@
 <template>
-    <div :id="id" class="zemla">
-        <div class="header">
-            <span class="name">{{model2.name}}</span>
-        </div>
-        <div class="bottom">
-        </div>
-        <ul class="kopi">
-            <kopa-as-list-item :model="createdKopa">
-                <button @click="onKopaCreate">Сохранить черновик</button>
-            </kopa-as-list-item>
-            <kopa-as-list-item v-for="eachKopa of model2.kopi" :model="eachKopa"></kopa-as-list-item>
-        </ul>
-    </div>
+  <ul :id="id" class="zemla">
+    <ul class="list-group list-group-flush flex-column-reverse ">
+      <li v-for="eachKopa of model.kopi" class="list-group-item list-group-item-action"
+         :href="`/?body=Kopa:${eachKopa.id}`" @click.prevent="kopa_click(eachKopa)">
+        <kopa-as-list-item class="w-100" :model="eachKopa"></kopa-as-list-item>
+      </li>
+      <li class="list-group-item">
+        <kopa-as-list-item :id="id+'_new'" class="w-100" :model="model.newKopa" mode="editor">
+          <button class="btn btn-block btn-primary mt-2" @click="kopaCreate_click">Созвать новую копу...</button>
+        </kopa-as-list-item>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
-    let models = require("../model")
-    const log = require("loglevel").getLogger("zemla.vue")
+  import Application from "../Application"
+  import StateManager from "../StateManager"
+  let models = require("../model")
 
-    export default{
-        data: function () {
-            return {
-            /*
-             Эта копа передается во вьюшку перед списком коп
-             */
-                createdKopa: null
-            };
-        },
-        props: ["id", "model"],
-        components: {
-            "kopa-as-list-item": require("./kopa-as-list-item.vue"),
-            "kopa": require("./kopa.vue"),
-        },
-        watch: {
-            /**
-             * Переход с одной земли на другую через сайдбар
-             */
-            $route(){
-                this.createdKopa= this.getEmptyKopa();
-                this.reloadModel();
-            }
-        },
-        created: function () {
-            this.createdKopa= this.getEmptyKopa();
-            this.reloadModel();
-        },
-        computed: {
-            /**
-             * Модель из свойства :model или из маршрута :ZEMLA
-             * @return {*}
-             */
-            model2(){
-                if (!this.model && this.$route.params.ZEMLA) {
-                    return models.Zemla.getReference(this.$route.params.ZEMLA)
-                }
-                else {
-                    return this.model;
-                }
-            },
-
-        },
-        methods: {
-            reloadModel: async function () {
-                await this.model2.loaded();
-                if (!this.model2.kopi) {
-                    await this.model2.reloadKopi();
-                }
-            },
-
-            /**
-             * Пустая копа-кандидат для земли model2
-             * Уходит во вьюшку перед списком коп, ее можно заполнить и создать
-             *
-             * @return {{place: *, inviter: *, question: null, note: null, result: *[]}}
-             */
-            getEmptyKopa(){
-                return {
-                    place: this.model2,
-                    inviter: models.Kopnik.current,
-                    question: null,
-                    note: null,
-                    result: [{
-                        author: models.Kopnik.current,
-                        value: null,
-                        note: null
-                    }]
-                };
-            },
-            /**
-             * Создает новую копу
-             */
-            onKopaCreate: async function () {
-                let kopaCandidate= this.createdKopa;
-
-                /**
-                 * this.createdKopa - модель для kopa-as-list-item-view,
-                 * поэтому нужно привязать новую модель к ней и только потом химичить с ее предложениями и др. свойствами
-                 */
-                this.createdKopa = this.getEmptyKopa();
-
-                let resultCandidate=  kopaCandidate.result[0];
-                kopaCandidate.result.length=0; //это нужно потому что пока в cteate() происходит assign() всех свойств
-
-                let kopa = await models.Kopa.create(kopaCandidate);
-                await kopa.invite();
-                console.log("remove immid inviting");
-
-                if (resultCandidate.value) {
-                    resultCandidate.place = kopa;
-                    let result= await models.Predlozhenie.create(resultCandidate);
-//                    kopa.result=[result];
-                }
-            }
+  export default{
+    data: function () {
+      return {
+        newKopi: new Map(),
+      }
+    },
+    props: ["id", "model"],
+    components: {
+      "kopa-as-list-item": require("./kopa-as-list-item.vue"),
+      "kopa": require("./kopa.vue"),
+    },
+    watch: {
+      model(){
+        this.loadModel()
+        if (!this.model.newKopa) {
+          this.model.newKopa = this.getNewKopa()
         }
-    }
+      }
+    },
+    computed: {
+    },
+    methods: {
+      /**
+       * возвращает новую копу для земли model
+       *
+       */
+      getNewKopa(){
+        let result = new models.Kopa()
+        result.place = this.model
+        result.inviter = Application.getInstance().user
+        return result
+      },
+      kopa_click(kopa){
+        Application.getInstance().goTo(kopa)
+        StateManager.getInstance().pushState()
+      },
+
+      loadModel: async function () {
+        await this.model.loaded()
+        if (!this.model.kopi) {
+          await this.model.reloadKopi();
+        }
+      },
+
+
+      /**
+       * Создает новую копу
+       *
+       */
+      kopaCreate_click: async function () {
+        let newKopa = this.model.newKopa
+
+        /**
+         * model.newKopa является моделью для вьюшки новой копы
+         * поэтому надо сначала ее переназначить а потом уже
+         * упражняться с ней
+         */
+        this.model.newKopa= this.getNewKopa()
+
+        newKopa = await models.Kopa.create(newKopa)
+        await newKopa.invite()
+        this.log.warn("remove immid inviting");
+      }
+    },
+    created: function () {
+      this.log = require("loglevel").getLogger("zemla.vue")
+      this.loadModel()
+
+      /**
+       * таким образом новая копа сохраняется за землей между переходами пользователя
+       */
+      if (!this.model.newKopa) {
+        this.model.newKopa = this.getNewKopa()
+      }
+    },
+  }
 </script>
 
 
 <style scoped>
-    .header {
-        background-color: #cccccc;
-        font-size: smaller;
-    }
+
 </style>

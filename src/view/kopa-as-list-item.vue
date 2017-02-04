@@ -1,23 +1,19 @@
 <template>
-  <li class="kopa-as-list-item">
-    <template v-if="model.id">
-      <div class="question">
-        <a href="#" @click.prevent="a_click">{{model.question}}</a>
-      </div>
+  <div :id="id" class="kopa-as-list-item" :class="{'kopa-as-list-item--empty':mode=='editor' && !model.question}">
+    <template v-if="mode=='editor'">
+    <textarea class="form-control" v-model="model.question"
+              placeholder="Вопрос, который нужно обсудить на копе"></textarea>
     </template>
     <template v-else>
-            <textarea class="question" v-model="model.question"
-                      placeholder="Вопрос, который нужно обсудить на копе">            </textarea>
-      <textarea class="note" v-model="model.note" placeholder="Примечание">            </textarea>
-      <textarea class="predlozhenie" v-model="model.result[0].value"
-                placeholder="Предложение, которое будет поставлено на голосование на копе">            </textarea>
-      <slot></slot>
+      <div>{{model.question}}</div>
+      </tempdiv>
     </template>
-  </li>
+    <slot></slot>
+  </div>
 </template>
 
 <script>
-
+  import $ from "jquery"
   import Application from "../Application"
 
   let RemoteModel = require("../model/RemoteModel");
@@ -25,7 +21,7 @@
   import StateManager from "../StateManager"
 
   export default  {
-    props: ["id", "model"],
+    props: ["id", "model", "mode"],
     methods: {
       a_click(e){
         Application.getInstance().goTo(this.model)
@@ -42,19 +38,17 @@
 
 <style scoped>
   .kopa-as-list-item {
-    border: solid black 1px;
   }
 
-  .created {
-    font-size: smaller;
+  .kopa-as-list-item textarea {
+    height: 6em;
   }
 
-  .value {
-
+  .kopa-as-list-item--empty textarea {
+    height: 2.5em;
   }
 
-  .toolbar {
-    background-color: #cccccc;
-    font-size: smaller;
+  .kopa-as-list-item--empty button {
+    display: none;
   }
 </style>
