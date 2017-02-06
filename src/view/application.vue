@@ -138,10 +138,6 @@
 </style>
 
 <style>
-  * {
-    font-size: 25px;
-  }
-
   .material-icons.md-1em {
     font-size: 1em;
   }
