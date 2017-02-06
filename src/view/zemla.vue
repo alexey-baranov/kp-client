@@ -48,7 +48,7 @@
       getNewKopa(){
         let result = new models.Kopa()
         result.place = this.model
-        result.inviter = Application.getInstance().user
+        result.owner = Application.getInstance().user
         return result
       },
       kopa_click(kopa){

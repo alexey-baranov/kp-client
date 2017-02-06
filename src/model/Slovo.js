@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template Golos, choose Tools | Templates
  * and open the template in the editor.
@@ -11,7 +11,7 @@ let _= require("lodash");
 
 class Slovo extends RemoteModel{
     constructor() {
-        super();
+        super()
         this.value= undefined;
 
         this.owner= undefined;

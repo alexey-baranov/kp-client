@@ -107,7 +107,7 @@
         return $
       },
       isEditorAllowed(){
-        return this.model.inviter == Application.getInstance().user
+        return this.model.owner == Application.getInstance().user
       }
     },
     methods: {

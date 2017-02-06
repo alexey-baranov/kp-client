@@ -62,7 +62,7 @@ describe('Zemla', function () {
 
           let kopa = await models.Kopa.create({
             question: "temp",
-            inviter: models.Kopnik.getReference(KOPNIK),
+            owner: models.Kopnik.getReference(KOPNIK),
             place: zemla,
           })
           await kopa.invite()

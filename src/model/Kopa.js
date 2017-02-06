@@ -14,7 +14,7 @@ class Kopa extends RemoteModel {
         super();
 
         this.place = undefined;
-        this.inviter = undefined;
+        this.owner = undefined;
         this.question = undefined;
         this.invited = undefined;
         this.dialog = undefined;
@@ -39,7 +39,7 @@ class Kopa extends RemoteModel {
         let result = {
             id: this.id,
             place_id: this.place ? this.place.id : null,
-            inviter_id: this.inviter ? this.inviter.id : null,
+            owner_id: this.owner ? this.owner.id : null,
             question: this.question,
             invited: this.invited,
             note: this.note,
@@ -69,8 +69,8 @@ class Kopa extends RemoteModel {
         if (json.hasOwnProperty("attachments")) {
             this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
         }
-        if (json.hasOwnProperty("inviter_id")) {
-            this.inviter = Kopnik.getReference(json.inviter_id);
+        if (json.hasOwnProperty("owner_id")) {
+            this.owner = Kopnik.getReference(json.owner_id);
         }
         if (json.hasOwnProperty("place_id")) {
             this.place = Zemla.getReference(json.place_id);

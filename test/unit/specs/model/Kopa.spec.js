@@ -74,11 +74,11 @@ describe('Kopa', function () {
             try {
               //4. проверил что копа правильная
               kopa = await models.Kopa.get(args[0])
-              assert.equal(kopa.inviter.id, KOPNIK, "kopa.inviter.id, KOPNIK2")
+              assert.equal(kopa.owner.id, KOPNIK, "kopa.owner.id, KOPNIK2")
               done()
             }
             catch (err) {
-              done(err)
+              done(err);
             }
           })
 
@@ -86,7 +86,7 @@ describe('Kopa', function () {
           kopa = await models.Kopa.create({
             place: zemla,
             question: kopaQuestion,
-            inviter: kopnik,
+            owner: kopnik,
           })
           //2. созвал копу
           kopa.invite()
