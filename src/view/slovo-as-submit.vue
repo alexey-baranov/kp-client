@@ -1,0 +1,42 @@
+<template>
+  <div :id="id" class="slovo-as-submit card">
+    <div class="card-block">
+            <textarea class="form-control" v-model="model.value"
+                      placeholder="Говорите..."> </textarea>
+      <button class="btn btn-block btn-primary mt-2" :disabled="!model.value" @click="submit_click">Сказать</button>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Application from "../Application"
+  let models = require("../model")
+
+  module.exports = {
+    props: ["id", "model"],
+    methods: {
+        submit_click(){
+            this.$emit("submit", this)
+        }
+    },
+    components: {
+    },
+    created: async function () {
+      this.log = require("loglevel").getLogger("slovo.vue")
+    },
+  }
+</script>
+
+<style scoped>
+  .slovo-as-submit textarea {
+    height: 4em;
+  }
+
+  .slovo-as-submit--empty textarea {
+    height: 2em;
+  }
+
+  .slovo-as-submit--empty button {
+    display: none;
+  }
+</style>

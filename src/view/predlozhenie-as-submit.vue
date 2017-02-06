@@ -1,0 +1,45 @@
+<template>
+  <div :id="id" class="predlozhenie-as-submit card" :class="{'predlozhenie-as-submit--empty': !model.value}">
+    <div class="card-block">
+            <textarea class="form-control" v-model="model.value"
+                      placeholder="Ваше предложение, которое будет поставлено на голосование на этой копе"> </textarea>
+      <button class="btn btn-block btn-primary mt-2" @click="submit_click">Предложить на голосование</button>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Application from "../Application"
+  let models = require("../model")
+
+  module.exports = {
+    props: ["id", "model"],
+    methods: {
+        submit_click(){
+            this.$emit("submit", this)
+        }
+    },
+    components: {
+    },
+    created: async function () {
+      this.log = require("loglevel").getLogger("predlozhenie.vue")
+
+      await this.model.place.loaded();
+      await this.model.place.place.loaded();
+    },
+  }
+</script>
+
+<style scoped>
+  .predlozhenie-as-submit textarea {
+    height: 6em;
+  }
+
+  .predlozhenie-as-submit--empty textarea {
+    height: 2em;
+  }
+
+  .predlozhenie-as-submit--empty button {
+    display: none;
+  }
+</style>

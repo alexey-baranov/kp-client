@@ -138,6 +138,14 @@
 </style>
 
 <style>
+  .kp-small{
+    font-size:0.8rem;
+  }
+
+  .kp-smaller{
+    font-size: 0.8em;
+  }
+
   .material-icons.md-1em {
     font-size: 1em;
   }

@@ -136,7 +136,7 @@
 
       <p>
         <button v-if="!model.id" type="submit" id="submit" @click.prevent="submit_click"
-                class="btn btn-lg btn-block btn-primary">
+                class="btn btn-lg btn-block btn-success">
           Зарегистрироваться
         </button>
       </p>

@@ -1,57 +1,62 @@
 <template>
-  <div :id="id" class="card kopa">
-    <template v-if="(localMode||mode)=='editor'">
-      <div class="card-header text-muted text-small d-flex flex-wrap">
-        <small>{{model.invited}}</small>
-      </div>
-      <div class="card-block">
+  <div :id="id" class="kopa">
+    <div class="card">
+      <template v-if="(localMode||mode)=='editor'">
+        <div class="card-header text-muted text-small d-flex flex-wrap">
+          <small>{{model.invited}}</small>
+        </div>
+        <div class="card-block d-flex flex-column">
         <textarea class="form-control" v-model="model.question"
                   placeholder="Вопрос, который нужно обсудить на копе"></textarea>
-        <div class="d-flex flex-wrap align-self-end mt-4">
-          <button class="btn btn-primary mr-3" @click="save_click">Сохранить</button>
-          <button v-if="model.id" class="btn btn-primary" @click="cancel_click">Отменить</button>
+          <div class="d-flex flex-wrap align-self-end mt-4">
+            <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
+            <button class="btn btn-success" @click="save_click">Сохранить</button>
+          </div>
         </div>
-      </div>
-    </template>
-    <template v-else>
-      <div class="card-header text-muted text-small d-flex flex-wrap">
-        <small>{{model.invited}}</small>
-        <button class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
-          <span class="material-icons md-dark md-1em">edit</span>
-          Править
-        </button>
-      </div>
-      <div class="card-block">
-        <div class="card-text">{{model.question}}</div>
-      </div>
-    </template>
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        <predlozhenie-as-list-item :id="id+'_new_predlozhenie'" class="w-100" :model="model.newResult" mode="editor">
-          <button class="btn btn-block btn-primary mt-2" @click="resultCreate_click">Предложить</button>
-        </predlozhenie-as-list-item>
-      </li>
-      <li v-for="eachResult of model.result" class="list-group-item">
-        <predlozhenie-as-list-item :id="id+'_result_'+eachResult.id" class="w-100"
+      </template>
+      <template v-else>
+        <div class="card-header text-muted text-small d-flex flex-wrap">
+          <small>{{model.invited}}</small>
+          <button class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
+            <span class="material-icons md-dark md-1em">edit</span>
+            Править
+          </button>
+        </div>
+        <div class="card-block">
+          <div class="card-text">{{model.question}}</div>
+        </div>
+      </template>
+      <slot></slot>
+    </div>
+    <ul class="list-group">
+      <li v-for="eachResult of model.result" class="list-group-item  border-0 px-0">
+        <predlozhenie-as-list-item :id="id+'_result_'+eachResult.id"
+                                   :class="{'w-100':!eachResult.state, 'w-50':eachResult.state, 'mr-auto': eachResult.state==1}"
                                    :model="eachResult"></predlozhenie-as-list-item>
       </li>
-    </ul>
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        <slovo-as-list-item :id="id+'_new_slovo'" class="w-100" :model="model.newSlovo" mode="editor">
-          <button class="btn btn-block btn-primary mt-2" @click="slovoCreate_click">Сказать слово</button>
-        </slovo-as-list-item>
-      </li>
-      <li v-for="eachSlovo of model.dialog" class="list-group-item">
-        <slovo-as-list-item :model="eachSlovo"></slovo-as-list-item>
+      <li class="list-group-item border-0 px-0">
+        <predlozhenie-as-submit :id="id+'_new_predlozhenie'" class="w-100" :model="model.newResult"
+                                @submit="predlozhenie_submit">
+        </predlozhenie-as-submit>
       </li>
     </ul>
-    <slot></slot>
+    <ul class="list-group">
+      <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
+        <slovo-as-list-item :id="id+'_slovo'+eachSlovo.id" class="w-100" :model="eachSlovo"></slovo-as-list-item>
+      </li>
+      <li class="list-group-item list-group-item-info border-0 px-0 py-0 fixed-bottom">
+
+        <slovo-as-submit :id="id+'_new_slovo'" class="w-100" :model="model.newSlovo"
+                         @submit="slovo_submit">
+        </slovo-as-submit>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
   import $ from "jquery"
+//  import Rx from 'rxjs/Rx';
 
   import Application from "../Application"
   let log = require("loglevel").getLogger("kopa.vue")
@@ -82,7 +87,9 @@
     props: ["id", "model", "mode", "short"],
     components: {
       "predlozhenie-as-list-item": require("./predlozhenie-as-list-item.vue"),
-      "slovo-as-list-item": require("./slovo-as-list-item.vue")
+      "slovo-as-list-item": require("./slovo-as-list-item.vue"),
+      "predlozhenie-as-submit": require("./predlozhenie-as-submit.vue"),
+      "slovo-as-submit": require("./slovo-as-submit.vue")
     },
     watch: {
       model(){
@@ -95,14 +102,21 @@
         }
       }
     },
-
     computed: {
-      /*        isShort(){
-       debugger
-       return this.short===true && !this.model.question/!* && !this.questionIntention*!/
-       },*/
+      $(){
+        return $
+      },
+      isEditorAllowed(){
+        return this.model.inviter == Application.getInstance().user
+      }
     },
     methods: {
+      holdBottom(){
+        //если пользователь расположен в самом низу (последние 20 пикселей) копных обсуждений
+        if ($(document).scrollTop() + window.innerHeight + 20 >= $(document).height()) {
+          $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing');
+        }
+      },
       /**
        * возвращает новое предложение - модель для predlozhenie-as-list-item.vue
        *
@@ -125,8 +139,9 @@
         return result
       },
 
-      resultCreate_click: async function () {
+      predlozhenie_submit: async function (sender) {
         let newResult = this.model.newResult
+        newResult.created = new Date()
 
         /**
          * model.newResult является моделью для вьюшки нового предложения
@@ -135,11 +150,13 @@
          */
         this.model.newResult = this.getNewResult()
 
-        newResult = await models.Result.create(newResult)
+        newResult = await models.Predlozhenie.create(newResult)
       },
 
-      slovoCreate_click: async function () {
+      slovo_submit: async function () {
         let newSlovo = this.model.newSlovo
+        newSlovo.created = new Date()
+
 
         /**
          * model.newSlovo является моделью для вьюшки нового слова
@@ -187,18 +204,6 @@
         };
       },
       /**
-       * Создает новое предложение
-       */
-      onPredlozhenieCreate: async function () {
-        let result = await
-          models.Predlozhenie.create(this.createdPredlozhenie);
-        console.log("this.createdPredlozhenie", result);
-
-        this.createdPredlozhenie = this.getEmptyPredlozhenie();
-      },
-
-
-      /**
        * Пустое слово-кандидит для копы model2
        * Уходит во вьюшку перед списком слово, его можно заполнить и создать
        *
@@ -211,15 +216,6 @@
           author: models.Kopnik.current,
           note: null,
         };
-      },
-      /**
-       * Создает новое слово
-       */
-      onSlovoCreate: async function () {
-        let result = await models.Slovo.create(this.createdSlovo);
-        console.log("this.createdSlovo", result);
-
-        this.createdSlovo = this.getEmptySlovo();
       },
     },
     created: function () {
@@ -235,11 +231,21 @@
           this.model.newSlovo = this.getNewSlovo()
         }
       }
+
+      /**
+       автоскролинг
+       */
+      this.model.on(models.Kopa.event.slovoAdd, this.holdBottom)
     },
+    destroyed(){
+      this.model.removeListener(models.Kopa.event.slovoAdd, this.holdBottom);
+    }
   }
 </script>
 
 
 <style scoped>
-
+  .kopa {
+    padding-bottom: 10em;
+  }
 </style>

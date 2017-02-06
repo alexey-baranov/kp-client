@@ -6,8 +6,8 @@
           :class="{'list-group-item-danger':eachRegistration.state < 0, 'list-group-item-success': eachRegistration.state > 0}">
         <registration :model="eachRegistration"></registration>
         <div v-if="eachRegistration.state==0" class="d-flex justify-content-between">
-          <button class="btn btn-md btn-primary" @click="verifyRegistration(eachRegistration,+1)">Заверить</button>
-          <button class="btn btn-md btn-primary" @click="verifyRegistration(eachRegistration,-1)">Отклонить</button>
+          <button class="btn btn-md btn-success" @click="verifyRegistration(eachRegistration,+1)">Заверить</button>
+          <button class="btn btn-md btn-danger" @click="verifyRegistration(eachRegistration,-1)">Отклонить</button>
         </div>
       </li>
     </ul>
