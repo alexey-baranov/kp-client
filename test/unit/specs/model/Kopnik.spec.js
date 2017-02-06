@@ -17,7 +17,7 @@ let KOPA = 3
 let connection = Connection.getUnitTestInstance()
 let Cleaner = require("../../../../src/Cleaner")
 
-describe.only('Kopnik', function () {
+describe.skip('Kopnik', function () {
   before(function () {
     models.RemoteModel.clearCache()
     return new Promise(function (res, rej) {
@@ -293,7 +293,7 @@ describe.only('Kopnik', function () {
 
       somePredlozhenie = await models.Predlozhenie.create({
         place: kopa3,
-        author: kopnik2,
+        owner: kopnik2,
         value: "temp " + new Date(),
         golosa: [],
         totalZa: 0,

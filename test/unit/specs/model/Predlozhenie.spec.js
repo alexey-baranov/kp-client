@@ -69,7 +69,7 @@ describe('Predlozhenie', function () {
           await connection.session.subscribe(`api:model.Kopa.id${KOPA}.predlozhenieAdd`, async function (args) {
             try {
               predlozhenie = await models.Predlozhenie.get(args[0]);
-              assert.equal(predlozhenie.author.id, KOPNIK2, "predlozhenie.author.id, KOPNIK2");
+              assert.equal(predlozhenie.owner.id, KOPNIK2, "predlozhenie.owner.id, KOPNIK2");
               done();
             }
             catch (err) {
@@ -80,7 +80,7 @@ describe('Predlozhenie', function () {
           predlozhenie = await models.Predlozhenie.create({
             place: kopa,
             value: predlozhenieValue,
-            author: kopnik,
+            owner: kopnik,
           });
         }
         catch (err) {

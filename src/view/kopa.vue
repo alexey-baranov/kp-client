@@ -124,7 +124,7 @@
       getNewResult(){
         let result = new models.Predlozhenie()
         result.place = this.model
-        result.author = Application.getInstance().user
+        result.owner = Application.getInstance().user
         return result
       },
 
@@ -193,13 +193,13 @@
        * Пустое предложение-кандидит для копы model2
        * Уходит во вьюшку перед списком предложение, его можно заполнить и создать
        *
-       * @return {{place: *, author: *, value: null, note: null}}
+       * @return {{place: *, owner: *, value: null, note: null}}
        */
       getEmptyPredlozhenie(){
         return {
           value: null,
           place: this.model2,
-          author: models.Kopnik.current,
+          owner: models.Kopnik.current,
           note: null,
         };
       },
@@ -207,13 +207,13 @@
        * Пустое слово-кандидит для копы model2
        * Уходит во вьюшку перед списком слово, его можно заполнить и создать
        *
-       * @return {{place: *, author: *, value: null, note: null}}
+       * @return {{place: *, owner: *, value: null, note: null}}
        */
       getEmptySlovo(){
         return {
           value: null,
           place: this.model2,
-          author: models.Kopnik.current,
+          owner: models.Kopnik.current,
           note: null,
         };
       },

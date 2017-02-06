@@ -226,11 +226,11 @@ describe('Kopa', function () {
           let predlozhenie = await models.Predlozhenie.create({
             place: kopa,
             value: value,
-            author: kopnik,
+            owner: kopnik,
           })
         }
         catch (err) {
-          done(err)
+          done(err);
         }
       })()
     })

@@ -15,7 +15,7 @@ class Predlozhenie extends RemoteModel {
 
         this.value = undefined;
         this.place = undefined;
-        this.author = undefined;
+        this.owner = undefined;
         this.state = undefined;
         this.golosa = undefined; //массив ПРЯМЫХ голосов, голоса дружины здесь не числятся потому что этот массив будет раздут до нескольких миллионов элементов
         this.totalZa = undefined;
@@ -28,7 +28,7 @@ class Predlozhenie extends RemoteModel {
             value: this.value,
             state: this.state,
             place_id: this.place ? this.place.id : null,
-            author_id: this.author ? this.author.id : null,
+            owner_id: this.owner ? this.owner.id : null,
             note: this.note,
             attachments: this.attachments ? this.attachments.map(each=>each.id) : []
         };
@@ -56,8 +56,8 @@ class Predlozhenie extends RemoteModel {
         if (json.hasOwnProperty("attachments")) {
             this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
         }
-        if (json.hasOwnProperty("author_id")) {
-            this.author = Kopnik.getReference(json.author_id);
+        if (json.hasOwnProperty("owner_id")) {
+            this.owner = Kopnik.getReference(json.owner_id);
         }
         if (json.hasOwnProperty("place_id")) {
             this.place = Kopa.getReference(json.place_id);
@@ -71,7 +71,7 @@ class Predlozhenie extends RemoteModel {
             json.hasOwnProperty("note") && this.note != prevState.note ||
             this.totalZa != prevState.totalZa ||
             this.totalProtiv != prevState.totalProtiv ||
-            this.author != prevState.author ||
+            this.owner != prevState.owner ||
             json.hasOwnProperty("place_id") && this.place != prevState.place ||
             json.hasOwnProperty("attachments") && _.difference(this.attachments, prevState.attachments).length) {
 

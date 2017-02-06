@@ -2,7 +2,7 @@
   <div :id="id" class="predlozhenie-as-list-item card" :class="{stateZa: model.state==1, stateProtiv: model.state==-1}">
     <template v-if="(localMode||mode)!='editor'">
       <div class="card-header d-flex flex-wrap kp-small">
-        <kopnik-as-link :model="model.author"></kopnik-as-link>
+        <kopnik-as-link :model="model.owner"></kopnik-as-link>
         <div>{{model.created}}</div>
         <button v-if="isEditorAllowed" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
           <span class="material-icons md-dark md-1em">edit</span>
@@ -15,7 +15,7 @@
     </template>
     <template v-else>
       <div class="card-header d-flex kp-small">
-        <kopnik-as-link :model="model.author"></kopnik-as-link>
+        <kopnik-as-link :model="model.owner"></kopnik-as-link>
         <span>{{model.created}}</span>
       </div>
       <div class="card-block d-flex flex-column">
@@ -85,7 +85,7 @@
     },
     computed:{
       isEditorAllowed(){
-          return this.model.author==Application.getInstance().user && this.model.golosa && this.model.golosa.length==0
+          return this.model.owner==Application.getInstance().user && this.model.golosa && this.model.golosa.length==0
       }
     },
     methods: {
