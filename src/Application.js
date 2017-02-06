@@ -58,12 +58,12 @@ export default class Application {
       }
 
       connection.onclose = async(reason, details) => {
-        this.log.info("connection closed", reason, details)
+        this.log.error("connection closed. reason:", reason, "details:", details)
         /**
          * fail auth
          */
         if (!this.user){
-          rej(reason)
+          rej(details)
         }
       }
 

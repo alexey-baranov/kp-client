@@ -1,5 +1,6 @@
 <template>
   <div class="application">
+    <mu-toast v-if="!notifier.empty" :message="notifier.notifications[0].value" @close="toast_close"/>
     <nav class="navbar fixed-top navbar-toggleable-sm navbar-light bg-faded">
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
               data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
@@ -9,8 +10,8 @@
       <a class="navbar-brand px-2" href="#">kopnik.ru</a>
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav">
-          <li class="nav-item dropdown <!--active-->">
-            <a class="nav-link dropdown-toggle" href="http://example.com" :id="id+'navbarDropdownMenuLink'"
+          <li v-if="model.user" class="nav-item dropdown <!--active-->">
+            <a class="nav-link dropdown-toggle" href="http://kopnik.org" :id="id+'navbarDropdownMenuLink'"
                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Земли
             </a>
@@ -45,12 +46,14 @@
 
 <script>
   import Application from "../Application"
+  import Notifier from "../Notifier"
   import StateManager from "../StateManager"
 
   export default{
     data: function () {
       return {
-        userDoma: []
+        userDoma: [],
+        notifier: Notifier.getInstance()
       }
     },
     props: ["id", "model"],
@@ -88,6 +91,9 @@
       }
     },
     methods: {
+      toast_close(){
+
+      },
       verification_click(){
         this.model.state = Application.State.Verification
         StateManager.getInstance().pushState()
@@ -97,11 +103,19 @@
        * @param cridentials {email, password}
        */
       auth_input: async function (credentials) {
-        await this.model.auth(credentials.email, credentials.password)
-        await this.model.user.dom.loaded()
-        this.model.setBody(this.user.dom)
-        this.model.state = Application.State.Main
-
+        try {
+            debugger
+          await this.model.auth(credentials.email, credentials.password)
+          await this.model.user.dom.loaded()
+          this.model.setBody(this.model.user.dom)
+          debugger
+          this.model.state = Application.State.Main
+        }
+        catch (err) {
+          if (err.reason == 'wamp.error.authentication_failed') {
+            this.notifier.pushNotification("Неверное имя пользователя или пароль")
+          }
+        }
       },
       getState(){
         return "av"
@@ -138,11 +152,11 @@
 </style>
 
 <style>
-  .kp-small{
-    font-size:0.8rem;
+  .kp-small {
+    font-size: 0.8rem;
   }
 
-  .kp-smaller{
+  .kp-smaller {
     font-size: 0.8em;
   }
 

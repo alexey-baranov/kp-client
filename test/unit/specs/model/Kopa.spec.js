@@ -78,7 +78,7 @@ describe('Kopa', function () {
               done()
             }
             catch (err) {
-              done(err);
+              done(err)
             }
           })
 

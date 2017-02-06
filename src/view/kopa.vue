@@ -46,7 +46,7 @@
       </li>
       <li class="list-group-item list-group-item-info border-0 px-0 py-0 fixed-bottom">
 
-        <slovo-as-submit :id="id+'_new_slovo'" class="w-100" :model="model.newSlovo"
+        <slovo-as-submit :id="id+'_new_slovo'" class="w-100 <!--bg-info-->" :model="model.newSlovo"
                          @submit="slovo_submit">
         </slovo-as-submit>
       </li>

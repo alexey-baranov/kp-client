@@ -1,17 +1,18 @@
 <template>
   <div :id="id" class="auth">
-    <form>
-      <div>Имя пользователя</div>
-      <div>
-        <input type="text" name="username" required v-model="email">
+    <h1>Вход</h1>
+    <form class="row">
+      <div class="col-10 col-sm-7 col-md-5 col-lg-3 mx-auto my-auto">
+        <div class="form-group w-100">
+          <input type="text" class="form-control" required placeholder="Электронная почта" v-model="email">
+        </div>
+        <div class="form-group w-100">
+          <input type="password" class="form-control" required placeholder="Пароль" v-model="password">
+        </div>
+        <div class="form-group w-100">
+          <input type="submit" class="btn btn-primary btn-block mt-3" value="Войти" @click.prevent="submit_click">
+        </div>
       </div>
-
-      <div>Пароль</div>
-      <div>
-        <input type="password" name="password" required v-model="password">
-      </div>
-
-      <input type="submit" value="Войти" @click="submit_click">
     </form>
   </div>
 </template>
@@ -42,4 +43,8 @@
 </script>
 
 <style scoped>
+  .auth form {
+    min-height: 70vh;
+    /*width: 17rem*/
+  }
 </style>

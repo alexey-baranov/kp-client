@@ -37,12 +37,16 @@ log.getLogger("location.vue").setLevel("info")
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import $ from "jquery"; //global.$=$;
 import Vue from 'vue'
+import MuseUI from 'muse-ui'
+import 'muse-ui/dist/muse-ui.css'
 
 import Application from './Application'
 import applicationView from './view/application.vue'
 let config = require("../cfg/main")[process.env.NODE_ENV]
 let models = global.models = require("./model")
 import StateManager from './StateManager'
+
+Vue.use(MuseUI)
 
   /**
    * инициализация application
@@ -66,20 +70,24 @@ stateManager.applicationView= global.applicationView
 
 stateManager.listen()
 
+if (location.search.substring(1)) {
+  stateManager.popState()
+}
+/*
 
-
-/**
+/!**
  * временный автозаход
- */
+ *!/
 application.auth(config.unittest2.username, config.unittest2.password)
   .then(user=> {
     application.setBody(user.dom)
     application.state= Application.State.Verification
   })
   .then(()=>{
-    /**
+    /!**
      * попнуть первое состояние
      * @type {*}
-     */
+     *!/
     stateManager.popState(location.search.substring(1))
   })
+*/
