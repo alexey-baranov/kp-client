@@ -24,8 +24,8 @@ log.methodFactory = function (methodName, logLevel, loggerName) {
     }
 
     rawMethod.apply(null, newArguments);
-  };
-};
+  }
+}
 log.setLevel(log.levels.TRACE); // Be sure to call setLevel method in order to apply plugin
 
 log.getLogger("StateManager").setLevel("info")
@@ -70,24 +70,20 @@ stateManager.applicationView= global.applicationView
 
 stateManager.listen()
 
-if (location.search.substring(1)) {
-  stateManager.popState()
-}
-/*
+// stateManager.popState(location.search.substring(1))
 
-/!**
+/**
  * временный автозаход
- *!/
+ */
 application.auth(config.unittest2.username, config.unittest2.password)
   .then(user=> {
     application.setBody(user.dom)
     application.state= Application.State.Verification
   })
   .then(()=>{
-    /!**
+    /**
      * попнуть первое состояние
      * @type {*}
-     *!/
+     */
     stateManager.popState(location.search.substring(1))
   })
-*/

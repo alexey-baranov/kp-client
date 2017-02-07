@@ -57,11 +57,14 @@ class Kopa extends RemoteModel {
 
         this._isLoaded = true;
 
+        if (json.created){
+          this.created= new Date(json.created)
+        }
         if (json.hasOwnProperty("question")) {
             this.question = json.question;
         }
         if (json.hasOwnProperty("invited")) {
-            this.invited = json.invited;
+            this.invited = json.invited?new Date(json.invited):null
         }
         if (json.hasOwnProperty("note")) {
             this.note = json.note;

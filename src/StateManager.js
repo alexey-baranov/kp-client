@@ -52,8 +52,12 @@ export default class StateManager {
       state = state ? deparam(state) : {}
     }
     this.log.debug("popState", state)
-    this.application.setState(state)
-    this.applicationView.setState(state.v)
+
+    let stop= this.application.setState(state)
+
+    if (!stop) {
+      this.applicationView.setState(state.v)
+    }
   }
 
   /**

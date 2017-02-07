@@ -54,7 +54,8 @@
           </div>
         </div>
         <div class="form-group row">
-          <label for="passport" class="col-sm-3 col-form-label text-truncate" title="Последние четыре цифры поспорта">Последние четыре цифры поспорта</label>
+          <label for="passport" class="col-sm-3 col-form-label text-truncate" title="Последние четыре цифры поспорта">Последние
+            четыре цифры поспорта</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="passport" v-model="model.passport">
           </div>
@@ -129,14 +130,15 @@
       <div v-if="model.id" class="alert alert-success" role="alert">
         <h4 class="alert-heading">Вы зарегистрировались</h4>
         <p>Ваша регистрация будет обработана в ближайшее время.</p>
-        <p>Согласно правилам сервиса от вас потребуют подтвердить паспортные данные по Skype или Viber или другим способом передачи видео на ваш выбор.</p>
+        <p>Согласно правилам сервиса от вас потребуют подтвердить паспортные данные по Skype или Viber или другим
+          способом передачи видео на ваш выбор.</p>
         <strong>Номер вашей регистрации #{{model.id}}.</strong>
         <p class="mb-0">Копия письма отправлена на указанный адрес {{model.email}}</p>
       </div>
 
       <p>
         <button v-if="!model.id" type="submit" id="submit" @click.prevent="submit_click"
-                class="btn btn-lg btn-block btn-success">
+                class="btn btn-lg btn-block btn-primary">
           Зарегистрироваться
         </button>
       </p>
@@ -145,12 +147,16 @@
 </template>
 
 <script>
-  const log = require("loglevel").getLogger("registration-as-form.vue")
-  import Registration from "../model/Registration"
-  import models from "../model"
   let $ = require("jquery")
 
+  import captcha from "./mixin/captcha"
+  const log = require("loglevel").getLogger("registration-as-form.vue")
+  import models from "../model"
+  import Notifier from "../Notifier"
+  import Registration from "../model/Registration"
+
   export default{
+      mixins:[captcha],
     data: function () {
       return {
         model: new Registration(),
@@ -173,24 +179,29 @@
     props: ["id"],
     components: {},
     methods: {
+      captchaCallback(response){
+        this.model.captchaResponse = response
+      },
+      captchaExpiredCallback(){
+        this.model.captchaResponse = undefined
+      },
       async submit_click(){
         this.submited = true;
-        this.model.captchaResponse = grecaptcha.getResponse()
         /**
          * если все готово отправляю заявку
          * иначе скролю экран вниз где ошибки
          */
         if (this.model.isReady()) {
-            try {
-              $("#submit").attr("disabled", true)
-              debugger
-              this.model = await Registration.create(this.model)
-              $("html, body").animate({scrollTop: $(document).height()}/*, "fast"*/);
-            }
-            catch(err) {
-              $("#submit").attr("disabled", false)
-              throw err
-            }
+          try {
+            $("#submit").attr("disabled", true)
+            debugger
+            this.model = await Registration.create(this.model)
+            $("html, body").animate({scrollTop: $(document).height()}/*, "fast"*/);
+          }
+          catch (err) {
+            $("#submit").attr("disabled", false)
+            throw err
+          }
         }
         else {
           $("html, body").animate({scrollTop: $(document).height()}/*, "fast"*/);
@@ -200,7 +211,7 @@
     beforeCreate(){
     },
     created: function () {
-
+      this.log = require("loglevel").getLogger("registration-as-form.vue")
     },
     async mounted() {
       let this2 = this
@@ -280,23 +291,9 @@
             this2.model.dom = null
           }
         })
-
-      grecaptcha.render(
-        "g-recaptcha",
-        {
-           "sitekey": "6Le-9BMUAAAAAIx-D7vLPKysleUXNU6tzOlcX8Kr", "theme": "light"
-        }
-      )
-
-      setInterval(() => {
-        try {
-          this.model.captchaResponse = grecaptcha.getResponse()
-        }
-        catch (err) {
-          this.model.captchaResponse = undefined
-        }
-      }, 1000)
     },
+    beforeDestroy(){
+    }
   }
 
 </script>

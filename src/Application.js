@@ -42,7 +42,8 @@ export default class Application {
         authid: email,
         onchallenge: function (session, method, extra) {
           return password
-        }
+        },
+        captchaResponse: 12345678
       })
 
       connection.onopen = async(session, details) => {
@@ -58,7 +59,8 @@ export default class Application {
       }
 
       connection.onclose = async(reason, details) => {
-        this.log.error("connection closed. reason:", reason, "details:", details)
+        Object.assign(details, {onclose_reason: reason})
+        this.log.error("connection closed. details:", details)
         /**
          * fail auth
          */
@@ -84,24 +86,36 @@ export default class Application {
 
 
   setState(state){
-    if (state.body){
-      let [bodyType, BODY]= state.body.split(":")
-      this.body= model[bodyType].getReference(BODY)
-    }
-
+    //требуемое состояние
     if (state.state){
       this.state= state.state
     }
     else{
       this.state=Application.State.Main
     }
+
+    /**
+     * если соединения нет, то на страницу Auth
+     */
+    if (this.state!= Application.State.Registration &&  this.state!= Application.State.Auth && !Connection.getInstance().isOpen){
+      this.state= Application.State.Auth
+      this.log.info("redirect to Auth")
+      require("./StateManager").default.getInstance().pushState()
+      return false
+    }
+
+    if (state.body){
+      let [bodyType, BODY]= state.body.split(":")
+      this.body= model[bodyType].getReference(BODY)
+    }
+
   }
 }
 
 /**
  * состояние приложения в текущий момент
  * больше нужно для сохранения состояния
- * @type {{Auth: string, Register: string, Main: string}}
+ * @type {{Auth: string, Registration: string, Main: string}}
  */
 Application.State = {
   Auth: "auth",

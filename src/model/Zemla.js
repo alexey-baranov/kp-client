@@ -24,6 +24,13 @@ class Zemla extends RemoteModel {
     this.obshina = undefined;
 
     /**
+     * Этот флаг выставвляется когда загружена самая первая копа и нет необходимости
+     * запускать подзагрузку предыдущех партий коп
+     * @type {boolean}
+     */
+    this.areAllKopiLoaded= false
+
+    /**
      * Это поле нужно исключительно для нужд zemla.vue
      * и входящей в нее kopa-as-list-item.vue
      * @type {Kopa}
@@ -121,16 +128,40 @@ class Zemla extends RemoteModel {
     this.emit(Zemla.event.parentChange, this);
   }
 
-  async reloadKopi() {
-    let kopiAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Zemla.promiseKopi", [], {
-      PLACE: this.id,
-      BEFORE: null
-    }, {disclose_me: true});
 
-    this.kopi = await Promise.all(kopiAsPlain.map(async eachKopaAsPlain => {
+  async loadKopi(count=25) {
+    let BEFORE
+    if (this.kopi && this.kopi.length){
+      BEFORE= this.kopi[0].invited?this.kopi[0].invited.getTime():Date.getTime()+3600*1000 //запас на неправильное время на телефоне пользователя
+    }
+
+    let loadedKopiAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Zemla.promiseKopi", [], {
+      PLACE: this.id,
+      BEFORE,
+      count
+    }, {disclose_me: true})
+
+    let loadedKopi= await Promise.all(loadedKopiAsPlain.map(async eachKopaAsPlain => {
       let eachKopa = Kopa.get(eachKopaAsPlain)
       return eachKopa;
-    }));
+    }))
+
+    if (!this.kopi){
+      this.kopi= loadedKopi
+    }
+    else{
+      this.kopi = loadedKopi.concat(this.kopi)
+    }
+
+    if (loadedKopi.length<count){
+      this.areAllKopiLoaded=true
+    }
+
+/*    await new Promise((res)=>{
+      setTimeout(res, 2000)
+    })*/
+
+    console.log(this.kopi.map(eachKopa=>eachKopa.id))
 
     this.emit(Zemla.event.kopiReload, this);
   }

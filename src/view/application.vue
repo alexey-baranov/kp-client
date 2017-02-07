@@ -1,6 +1,6 @@
 <template>
   <div class="application">
-    <mu-toast v-if="!notifier.empty" :message="notifier.notifications[0].value" @close="toast_close"/>
+    <mu-toast v-if="notifier.currentNotification" :message="notifier.currentNotification.value" @close="toast_close"/>
     <nav class="navbar fixed-top navbar-toggleable-sm navbar-light bg-faded">
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
               data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
@@ -100,20 +100,25 @@
       },
       /**
        *
-       * @param cridentials {email, password}
+       * @param credentials {email, password}
        */
       auth_input: async function (credentials) {
         try {
-            debugger
           await this.model.auth(credentials.email, credentials.password)
           await this.model.user.dom.loaded()
           this.model.setBody(this.model.user.dom)
-          debugger
           this.model.state = Application.State.Main
         }
         catch (err) {
           if (err.reason == 'wamp.error.authentication_failed') {
             this.notifier.pushNotification("Неверное имя пользователя или пароль")
+          }
+          else if (err.onclose_reason == 'unreachable') {
+            this.notifier.pushNotification("Сервер сообщений недоступен")
+          }
+
+          else{
+            this.notifier.pushNotification(err, 5000)
           }
         }
       },

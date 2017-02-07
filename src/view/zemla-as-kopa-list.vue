@@ -36,7 +36,7 @@
             reloadModel: async function () {
 //                await this.model2.loaded();
                 if (!this.model2.kopi) {
-                    await this.model2.reloadKopi();
+                    await this.model2.loadKopi();
                 }
             }
         }

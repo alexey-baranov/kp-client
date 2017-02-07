@@ -4,9 +4,10 @@
 
 export default class Notification{
   constructor(value, delay= Notification.defaultDelay){
-    this.value= value
+    this.value= (value instanceof Object)?JSON.stringify(value):value
+
     this.delay= delay
   }
 }
 
-Notification.defaultDelay= 2500
+Notification.defaultDelay= 2000

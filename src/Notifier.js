@@ -5,6 +5,7 @@ import Notification from './Notification'
 
 export default class Notifier{
   constructor(){
+    this.currentNotification = null
     this.notifications= []
     this.timeout= undefined
   }
@@ -16,13 +17,11 @@ export default class Notifier{
     return Notifier.instance
   }
 
-  get empty(){
-    return !this.notifications.length
-  }
-
   /**
    *
    * @param {Notification} notification
+   * @param {Number} delay ms
+   *
    */
   pushNotification(notification, delay=Notification.defaultDelay){
     if (!(notification instanceof Notification)){
@@ -31,18 +30,37 @@ export default class Notifier{
 
     this.notifications.push(notification)
     if (!this.timeout){
-      this.shiftAfterTimeout()
+      this.shiftCurrentNotificatonUntilTimeout()
     }
   }
 
-  shiftAfterTimeout(){
+  /**
+   * Установить на время пока не таймаут
+   */
+  shiftCurrentNotificatonUntilTimeout(){
+    this.currentNotification= this.notifications.shift()
     this.timeout= setTimeout(()=>{
-      this.timeout= undefined
-      this.notifications.shift()
-      if (!this.empty) {
-        this.nextAfterTimeout()
-      }
-    }, this.notifications[0].delay)
+      this.currentNotification= null
+      this.shiftCurrentNotificationAfterTimeout()
+    }, this.currentNotification.delay)
+  }
+
+  /**
+   * устанавливает следующий попловок после таймаута
+   */
+  shiftCurrentNotificationAfterTimeout(){
+    //проверка происходит внутри таймаута
+    //потому что за время пока идет таймаут может прилететь следующее уведомление
+    //но оно не должно выстрелить раньше промежуточного интервала
+      this.timeout = setTimeout(() => {
+        if (!this.notifications.length){
+          this.timeout= undefined
+        }
+        else{
+          this.shiftCurrentNotificatonUntilTimeout()
+        }
+      }, Notifier.betweenDelay)
   }
 }
 
+Notifier.betweenDelay= 3000

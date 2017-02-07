@@ -45,7 +45,7 @@ describe('ZemlaAsKopaListView', function () {
 
     it('should $mount view', async function () {
             const zemla2 = await models.Zemla.get(2);
-            await zemla2.reloadKopi();
+            await zemla2.loadKopi();
 
             view = new Vue(Object.assign(require("../../src/view/zemla-as-kopa-list.vue"),
                 {
