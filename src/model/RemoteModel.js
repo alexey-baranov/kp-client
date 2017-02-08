@@ -8,6 +8,7 @@ var DisplacingTimer = require("displacing-timer");
 let Core = require("./../Core");
 import Connection from "../Connection"
 let _ = require("lodash");
+import join from "../decorator/join"
 
 
 /**
@@ -37,7 +38,7 @@ class RemoteModel extends EventEmitter {
     this.note = undefined;
     this.attachments = undefined;
 
-
+    this.joinedLoaded= join(this.loaded)
   }
 
   static cache = new Map([

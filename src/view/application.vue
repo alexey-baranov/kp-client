@@ -60,7 +60,7 @@
     watch: {
       "model.user": async function () {
         this.log.debug("user watcher")
-        await this.model.user.loaded()
+        await this.model.user.joinedLoaded()
         for (let eachDom = this.model.user.dom; eachDom; eachDom = eachDom.parent) {
           await eachDom.loaded()
           this.userDoma.unshift(eachDom)

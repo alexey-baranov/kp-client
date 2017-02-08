@@ -8,6 +8,7 @@
 var RemoteModel = require("./RemoteModel");
 import Connection from "../Connection"
 let _ = require("lodash");
+import join from "../decorator/join"
 
 class Zemla extends RemoteModel {
   constructor() {
@@ -161,7 +162,7 @@ class Zemla extends RemoteModel {
       setTimeout(res, 2000)
     })*/
 
-    console.log(this.kopi.map(eachKopa=>eachKopa.id))
+    // console.log(this.kopi.map(eachKopa=>eachKopa.id))
 
     this.emit(Zemla.event.kopiReload, this);
   }
