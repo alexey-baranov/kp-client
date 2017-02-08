@@ -35,7 +35,7 @@
         },
         methods: {
             loadModel: async function () {
-                await this.model.loaded();
+                await this.model.joinedLoaded();
             },
 
             /**

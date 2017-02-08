@@ -24,7 +24,7 @@
     created: async function () {
       this.log = require("loglevel").getLogger("kopa.vue")
 
-      await this.model.place.loaded();
+      await this.model.place.joinedLoaded();
     },
   }
 </script>

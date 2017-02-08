@@ -49,7 +49,7 @@
         if (this.full=="true" && (this.model instanceof models.Zemla || this.model instanceof models.Kopnik)){
             this.nodes.push(this.model)
         }
-        await this.model.loaded()
+        await this.model.joinedLoaded()
         let initialNode
         switch (this.modelClassName) {
           case "Zemla":
@@ -64,7 +64,7 @@
         }
 
         for (let eachNode = initialNode; eachNode; eachNode = eachNode.parent) {
-          await eachNode.loaded()
+          await eachNode.joinedLoaded()
           if (this.model==localModel) {
             this.nodes.unshift(eachNode)
           }

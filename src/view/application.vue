@@ -62,7 +62,7 @@
         this.log.debug("user watcher")
         await this.model.user.joinedLoaded()
         for (let eachDom = this.model.user.dom; eachDom; eachDom = eachDom.parent) {
-          await eachDom.loaded()
+          await eachDom.joinedLoaded()
           this.userDoma.unshift(eachDom)
         }
       },
@@ -70,7 +70,7 @@
         if (!(this.model.body instanceof models.RemoteModel)) {
           throw new Error("Неверный тип тела")
         }
-        await this.model.body.loaded()
+        await this.model.body.joinedLoaded()
       }
     },
     components: {
@@ -105,7 +105,7 @@
       auth_input: async function (credentials) {
         try {
           await this.model.auth(credentials.email, credentials.password)
-          await this.model.user.dom.loaded()
+          await this.model.user.dom.joinedLoaded()
           this.model.setBody(this.model.user.dom)
           this.model.state = Application.State.Main
         }

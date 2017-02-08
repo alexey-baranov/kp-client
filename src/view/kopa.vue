@@ -180,7 +180,7 @@
         this.localMode = "viewer"
       },
       async loadModel() {
-        await this.model.loaded();
+        await this.model.joinedLoaded();
         if (!this.model.result) {
           await this.model.loadResult();
         }

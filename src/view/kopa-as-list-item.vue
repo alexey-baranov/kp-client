@@ -27,7 +27,7 @@
     },
     created: function () {
       if (this.model.id) {
-        this.model.loaded();
+        this.model.joinedLoaded();
       }
     }
   }

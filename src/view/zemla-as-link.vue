@@ -16,7 +16,7 @@
       }
     },
     created: function () {
-      this.model.loaded();
+      this.model.joinedLoaded();
     },
   }
 </script>

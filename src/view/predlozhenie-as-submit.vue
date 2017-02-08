@@ -24,8 +24,8 @@
     created: async function () {
       this.log = require("loglevel").getLogger("predlozhenie.vue")
 
-      await this.model.place.loaded();
-      await this.model.place.place.loaded();
+      await this.model.place.joinedLoaded();
+      await this.model.place.place.joinedLoaded();
     },
   }
 </script>

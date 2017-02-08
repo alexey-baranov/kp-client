@@ -68,7 +68,7 @@
     created: async function () {
       this.log = require("loglevel").getLogger("slovo-as-list-item.vue")
       if (this.model.id) {
-        await this.model.loaded();
+        await this.model.joinedLoaded();
       }
     },
   }

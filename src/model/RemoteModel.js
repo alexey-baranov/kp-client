@@ -38,7 +38,7 @@ class RemoteModel extends EventEmitter {
     this.note = undefined;
     this.attachments = undefined;
 
-    this.joinedLoaded= join(this.loaded)
+    this.joinedLoaded= join(this.loaded);
   }
 
   static cache = new Map([
@@ -225,7 +225,7 @@ class RemoteModel extends EventEmitter {
     else {
       this.merge(json)
     }
-    this.log.debug(`loaded ${this}`, this)
+    this.log.debug(`reloaded ${this}`, this)
 
     return this;
   }

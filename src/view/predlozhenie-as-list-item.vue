@@ -124,9 +124,9 @@
       this.log = require("loglevel").getLogger("predlozhenie-as-list-item.vue")
 
       if (this.model.id) {
-        await this.model.loaded();
-        await this.model.place.loaded();
-        await this.model.place.place.loaded();
+        await this.model.joinedLoaded();
+        await this.model.place.joinedLoaded();
+        await this.model.place.place.joinedLoaded();
 
         if (!this.model.golosa) {
           await this.model.reloadGolosa();

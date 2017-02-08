@@ -34,7 +34,7 @@
         },
         methods: {
             reloadModel: async function () {
-//                await this.model2.loaded();
+//                await this.model2.joinedLoaded();
                 if (!this.model2.kopi) {
                     await this.model2.loadKopi();
                 }

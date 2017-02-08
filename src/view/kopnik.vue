@@ -72,7 +72,7 @@ const log = require("loglevel").getLogger("kopnik.vue")
         },
         methods: {
             loadModel: async function () {
-                await this.model2.loaded();
+                await this.model2.joinedLoaded();
             },
 
             onDruzhinaToggle: async function () {

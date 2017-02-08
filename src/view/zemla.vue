@@ -65,7 +65,7 @@
       },
 
       loadModel: async function () {
-        await this.model.loaded()
+        await this.model.joinedLoaded()
         if (!this.model.kopi) {
           await this.model.loadKopi();
         }

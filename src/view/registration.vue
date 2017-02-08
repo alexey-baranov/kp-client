@@ -74,7 +74,7 @@
 
     },
     async mounted() {
-      await this.model.loaded()
+      await this.model.joinedLoaded()
     },
   }
 
