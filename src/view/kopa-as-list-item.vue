@@ -16,9 +16,12 @@
 
   let RemoteModel = require("../model/RemoteModel");
   const log = require("loglevel").getLogger("kopa-as-list-item.vue")
+  import logMixin from "./mixin/log"
   import StateManager from "../StateManager"
 
   export default  {
+    mixins:[logMixin],
+    name:"kopa-as-list-item",
     props: ["id", "model"],
     components: {
       "kopnik-as-link": require("./kopnik-as-link.vue")

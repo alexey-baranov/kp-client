@@ -4,10 +4,12 @@
 
 <script>
   import Application from "../Application"
+  import logMixin from "./mixin/log"
   import StateManager from "../StateManager"
-  const log = require("loglevel").getLogger("zemla-as-link.vue")
 
   export default  {
+    mixins:[logMixin],
+    name: "zemla-as-link",
     props: ["id", "model"],
     methods: {
       a_click: function (e) {

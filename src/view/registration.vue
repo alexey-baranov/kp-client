@@ -52,10 +52,12 @@
 </template>
 
 <script>
-  const log = require("loglevel").getLogger("registration.vue")
+  import logMixin from "./mixin/log"
   import models from "../model"
 
   export default{
+    mixins:[logMixin],
+    name:"registration",
     data: function () {
       return {
         modelDoma: []

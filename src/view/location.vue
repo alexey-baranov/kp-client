@@ -11,9 +11,12 @@
 </template>
 
 <script>
+  import logMixin from "./mixin/log"
   import models from '../model'
 
   export default{
+    mixins:[logMixin],
+    name:"location",
     data: function () {
       return {
         nodes: []

@@ -46,10 +46,13 @@
 
 <script>
   import Application from "../Application"
+  import logMixin from "./mixin/log"
   import Notifier from "../Notifier"
   import StateManager from "../StateManager"
 
   export default{
+    name: "application",
+    mixins:[logMixin],
     data: function () {
       return {
         userDoma: [],
@@ -117,7 +120,7 @@
             this.notifier.pushNotification("Сервер сообщений недоступен")
           }
 
-          else{
+          else {
             this.notifier.pushNotification(err, 5000)
           }
         }

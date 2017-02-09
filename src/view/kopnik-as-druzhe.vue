@@ -15,8 +15,10 @@
 <script>
     const models = require("../model");
     const log = require("loglevel").getLogger("kopnik-as-druzhe.vue")
+    import logMixin from "./mixin/log"
 
     export default{
+    mixins:[logMixin],
         name: "kopnik-as-druzhe",
         data: function () {
             return {

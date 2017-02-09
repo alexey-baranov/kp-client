@@ -2,8 +2,8 @@
  * Created by alexey2baranov on 07.02.17.
  */
 
-return {
+export default {
   created(){
-    this.log= require("loglevel").getLogger("how to get file name???")
+    this.log= require("loglevel").getLogger(this.$data.name+".vue")
   }
 }

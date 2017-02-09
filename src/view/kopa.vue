@@ -60,9 +60,12 @@
 
   import Application from "../Application"
   let log = require("loglevel").getLogger("kopa.vue")
+  import logMixin from "./mixin/log"
   const models = require("../model");
 
   export default{
+    mixins:[logMixin],
+    name:"kopa",
     data: function () {
       return {
         /**

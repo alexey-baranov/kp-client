@@ -31,8 +31,11 @@
   import Application from '../Application'
     const models = require("../model");
 const log = require("loglevel").getLogger("kopnik.vue")
+  import logMixin from "./mixin/log"
 
     export default{
+    mixins:[logMixin],
+      name:"kopnik",
         data: function () {
             return {
                 /**

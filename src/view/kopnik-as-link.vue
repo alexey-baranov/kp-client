@@ -5,12 +5,14 @@
 </template>
 
 <script>
-  const log = require("loglevel").getLogger("kopnik-as-link.vue")
-
   import Application from '../Application'
+  import logMixin from "./mixin/log"
   import StateManager from "../StateManager"
 
+
   export default  {
+    mixins:[logMixin],
+    name:"kopnik-as-link",
     props: ["id", "model"],
     methods: {
       a_click(e){

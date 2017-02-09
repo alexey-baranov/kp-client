@@ -32,9 +32,12 @@
 
 <script>
   import Application from "../Application"
+  import logMixin from "./mixin/log"
   let models = require("../model")
 
   module.exports = {
+    mixins:[logMixin],
+    name:"slovo-as-list-item",
     data: function () {
       return {
         /**

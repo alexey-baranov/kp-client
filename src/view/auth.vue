@@ -29,12 +29,13 @@
 
   import Application from "../Application"
   import captcha from './mixin/captcha'
+  import logMixin from "./mixin/log"
   import Notifier from "../Notifier"
   import StateManager from "../StateManager"
 
   export default{
     name:"auth",
-    mixins:[captcha],
+    mixins:[logMixin, captcha],
     data: function () {
       return {
         email: "unittest2@domain.ru",

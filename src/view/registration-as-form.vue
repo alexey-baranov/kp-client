@@ -13,20 +13,16 @@
         <div class="form-group row">
           <label for="password" class="col-sm-3 col-form-label">Пароль</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="password" v-model="model.password">
+            <input type="password" class="form-control" id="password" v-model="model.password">
           </div>
         </div>
         <div class="form-group row">
           <label for="password2" class="col-sm-3 col-form-label text-truncate" title="Пароль еще раз">Пароль еще
             раз</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="password2" v-model="model.password2">
+            <input type="password" class="form-control" id="password2" v-model="model.password2">
           </div>
         </div>
-      </fieldset>
-
-      <fieldset class="form-group">
-        <legend>2. Паспортные данные</legend>
         <div class="form-group row">
           <label for="surname" class="col-sm-3 col-form-label">Фамилия</label>
           <div class="col-sm-9">
@@ -54,47 +50,62 @@
           </div>
         </div>
         <div class="form-group row">
-          <label for="passport" class="col-sm-3 col-form-label text-truncate" title="Последние четыре цифры поспорта">Последние
-            четыре цифры поспорта</label>
+          <label for="passport" class="col-sm-3 col-form-label text-truncate" title="Последние четыре цифры паспорта">Последние
+            четыре цифры паспорта</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="passport" v-model="model.passport">
+            <small class="form-text <!--text-muted-->">Предотвращаем создание нескольких учетных записей одним копником
+              и последующее влияние таким образом на голосование
+            </small>
+            <small class="form-text <!--text-muted--> mt-2">Не показывается другим участникам</small>
           </div>
         </div>
       </fieldset>
 
       <fieldset class="form-group">
-        <legend>3. Адрес</legend>
+        <legend>3. Ваши копы по месту проживания</legend>
         <div class="form-group row">
           <label for="country" class="col-sm-3 col-form-label">Страна</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="country" autocomplete="off">
+            <div v-if="address.country" class="form-text ml-4">Всего копников зарегистрировано:
+              {{address.country.obshinaSize}}
+            </div>
+            <!--address.country:{{address.country}}-->
           </div>
         </div>
-        address.country:{{address.country}}
 
         <div class="form-group row">
           <label for="town" class="col-sm-3 col-form-label">Город</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="town" autocomplete="off">
+            <div v-if="address.town" class="form-text ml-4">Всего копников зарегистрировано в вашем городе:
+              {{address.town.obshinaSize}}
+            </div>
           </div>
         </div>
-        address.town:{{address.town}}
 
         <div class="form-group row">
           <label for="street" class="col-sm-3 col-form-label">Улица</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="street" autocomplete="off">
+            <div v-if="address.street" class="form-text ml-4">Всего копников зарегистрировано на вашей улице:
+              {{address.street.obshinaSize}}
+            </div>
+            <!--address.street:{{address.street}}-->
           </div>
         </div>
-        address.street:{{address.street}}
 
         <div class="form-group row">
           <label for="dom" class="col-sm-3 col-form-label">Дом</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="dom" autocomplete="off">
+            <div v-if="model.dom" class="form-text ml-4">Всего копников зарегистрировано в вашем доме:
+              {{model.dom.obshinaSize}}
+              <!--model.dom:{{model.dom}}-->
+            </div>
           </div>
         </div>
-        model.dom:{{model.dom}}
       </fieldset>
 
       <!--антибот -->
@@ -150,13 +161,15 @@
   let $ = require("jquery")
 
   import captcha from "./mixin/captcha"
-  const log = require("loglevel").getLogger("registration-as-form.vue")
+  import logMixin from "./mixin/log"
   import models from "../model"
   import Notifier from "../Notifier"
   import Registration from "../model/Registration"
 
   export default{
-      mixins:[captcha],
+    mixins:[logMixin],
+    name: "registration-as-form",
+    mixins: [logMixin, captcha],
     data: function () {
       return {
         model: new Registration(),
@@ -194,7 +207,6 @@
         if (this.model.isReady()) {
           try {
             $("#submit").attr("disabled", true)
-            debugger
             this.model = await Registration.create(this.model)
             $("html, body").animate({scrollTop: $(document).height()}/*, "fast"*/);
           }
@@ -211,9 +223,9 @@
     beforeCreate(){
     },
     created: function () {
-      this.log = require("loglevel").getLogger("registration-as-form.vue")
     },
     async mounted() {
+      global.registration = this.registration
       let this2 = this
 
       $("country").attr("disabled", false)
@@ -286,6 +298,7 @@
           var active = global.$(this).typeahead("getActive")
           if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
             this2.model.dom = models.Zemla.getReference(active.id)
+            this2.model.dom.obshinaSize = active.obshinaSize
           }
           else {
             this2.model.dom = null

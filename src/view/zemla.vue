@@ -17,10 +17,13 @@
 
 <script>
   import Application from "../Application"
+  import logMixin from "./mixin/log"
   import StateManager from "../StateManager"
   let models = require("../model")
 
   export default{
+    mixins:[logMixin],
+    name: "zemla",
     data: function () {
       return {
         areKopiLoaded: false

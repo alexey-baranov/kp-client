@@ -10,9 +10,12 @@
 
 <script>
   import Application from "../Application"
+  import logMixin from "./mixin/log"
   let models = require("../model")
 
   module.exports = {
+    mixins:[logMixin],
+    name:"kopa-as-submit",
     props: ["id", "model"],
     methods: {
         submit_click(){
