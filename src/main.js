@@ -53,40 +53,54 @@ Grumbler.getInstance().addEventHandler()
  * инициализация application
  */
 let application = global.application = Application.getInstance()
-application.state = Application.State.Registration
-applicationView.propsData = {
-  id: "a",
-  model: application
-}
-applicationView.el = "#application"
-global.applicationView = new Vue(applicationView)
 
+/*
+ пробуем авторизироваться прям с ходу куками
+ */
+application.auth()
+  .then(() => {
+    log.getLogger("main.js").info("cookie auth")
+  },()=>{
+    log.getLogger("main.js").info("cookie auth fails")
+  })
+  .then(() => {
+    applicationView.propsData = {
+      id: "a",
+      model: application
+    }
+    applicationView.el = "#application"
+    global.applicationView = new Vue(applicationView)
 
-if (0) {
-  /**
-   * State management
-   */
-  let stateManager = StateManager.getInstance()
-  stateManager.application = application
-  stateManager.applicationView = global.applicationView
+    /**
+     * State management
+     */
+    let stateManager = StateManager.getInstance()
+    stateManager.application = application
+    stateManager.applicationView = global.applicationView
 
-  stateManager.listen()
+    stateManager.listen()
 
-// stateManager.popState(location.search.substring(1))
-
-  /**
-   * временный автозаход
-   */
-  application.auth(config.unittest2.username, config.unittest2.password)
-    .then(user => {
-      application.setBody(user.dom)
-      application.state = Application.State.Verification
-    })
-    .then(() => {
-      /**
-       * попнуть первое состояние
-       * @type {*}
-       */
+    if (application.user) {
       stateManager.popState(location.search.substring(1))
-    })
-}
+    } else {
+      application.state = Application.State.Auth
+    }
+
+    if (0) {
+      /**
+       * временный автозаход
+       */
+      application.auth(config.unittest2.username, config.unittest2.password)
+        .then(user => {
+          application.setBody(user.dom)
+          application.state = Application.State.Verification
+        })
+        .then(() => {
+          /**
+           * попнуть первое состояние
+           * @type {*}
+           */
+          stateManager.popState(location.search.substring(1))
+        })
+    }
+  })

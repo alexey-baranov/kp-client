@@ -10,7 +10,7 @@ let AutobahnConnection = require("autobahn").Connection
 import Connection from '../../../src/Connection'
 let config = require("../../../cfg/main")[process.env.NODE_ENV];
 
-describe('Connection', function () {
+describe.only('Connection', function () {
   let connection
 
   after(function () {
@@ -32,26 +32,74 @@ describe('Connection', function () {
   })
 
   it('#open()', function (done) {
-    connection.onopen= ()=>done()
+    connection.onopen = (session, details) => {
+      if (details.authrole == "kopnik") {
+        done()
+      }
+      else {
+        done("role=" + details.authrole)
+      }
+    }
 
-    connection.open();
+    connection.open()
   })
 
   it('#close()', function (done) {
-    connection.onclose= ()=>done()
+    connection.onclose = () => done()
 
     connection.close()
   });
 
-  it.skip('#connect(anonimus)', function (done) {
-    let anonymousConnection= new AutobahnConnection({
-      url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
-      realm: "kopa",
-      authmethods: ['anonymous'],
-    })
-    anonymousConnection.onopen= ()=>done()
-    anonymousConnection.onclose= (reason, data)=>done(data)
+  it('#connect(anonimus)', function (done) {
+    let anonymousConnection = Connection.getAnonymousInstance()
+    anonymousConnection.onopen = (session, details) => {
+      if (details.authrole == "anonymous") {
+        anonymousConnection.onclose = null
+        anonymousConnection.close()
+        done()
+      }
+      else {
+        done("role=" + details.authrole)
+      }
+    }
+    anonymousConnection.onclose = (reason, data) => done(reason)
 
-    anonymousConnection.open();
+    anonymousConnection.open()
+  })
+
+  it.only('#connect() + #connect(coockie)', function (done) {
+    connection = Connection.getUnitTestInstance()
+    connection.onopen = (session, details) => {
+      if (details.authrole == "kopnik") {
+        connection.onclose = () => {
+          let cookieConnection = new Connection({
+            authid: "123",
+            onchallenge: function (session, method, extra) {
+              return "123"
+            }
+          })
+          cookieConnection.onopen = (session, details) => {
+            if (details.authrole == "kopnik" && details.authid== config.unittest2.username) {
+              done();
+            }
+            else {
+              done("role=" + details.authrole)
+            }
+          }
+          cookieConnection.onclose = (reason, details) => {
+              done("cookie connection close with "+reason+JSON.stringify(details));
+          }
+          //3. reopen()
+          cookieConnection.open();
+        }
+        //2. close()
+        connection.close()
+      }
+      else {
+        done("role=" + details.authrole)
+      }
+    }
+    //1. open()
+    connection.open()
   })
 });

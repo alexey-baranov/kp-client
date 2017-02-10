@@ -13,6 +13,12 @@ export default class Application {
     this.state = undefined
     this.user = null
     this.body = null
+
+    /**
+     * Начальное состояние приложения
+     * @type {undefined}
+     */
+    this.startState= undefined
   }
 
   static getInstance() {
@@ -37,6 +43,16 @@ export default class Application {
    * @param password
    */
   auth(email, password) {
+    /**
+     * перед авторизацией сбрасываем предыдущие конекшены, которые могут быть с пустыми логинами от куки-заходов
+     */
+    if (Connection._instance && Connection._instance.isOpen){
+      throw new Error("Повторная авторизация")
+    }
+    else{
+      Connection._instance=null
+    }
+
     return new Promise((res, rej)=>{
       let connection = Connection.getInstance({
         authid: email,
@@ -53,7 +69,8 @@ export default class Application {
          */
         if (!this.user) {
           session.prefix('api', 'ru.kopa')
-          this.user = await model.Kopnik.getByEmail(email)
+          this.user = await model.Kopnik.getByEmail(details.authid)
+          this.log.info("user", this.user)
           res(this.user)
         }
       }
@@ -86,7 +103,6 @@ export default class Application {
 
 
   setState(state){
-    //требуемое состояние
     if (state.state){
       this.state= state.state
     }
@@ -108,7 +124,9 @@ export default class Application {
       let [bodyType, BODY]= state.body.split(":")
       this.body= model[bodyType].getReference(BODY)
     }
-
+    else if (this.state== Application.State.Main){
+      this.body= this.user.dom
+    }
   }
 }
 

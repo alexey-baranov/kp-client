@@ -33,14 +33,16 @@
       </div>
     </nav>
     <div class="container container-under-navbar">
-      <auth v-if="model.state=='auth'" @input="auth_input"></auth>
-      <registration-as-form v-if="model.state=='registration'"></registration-as-form>
-      <kopnik-as-verifier v-if="model.state=='verification'" :model="model.user"></kopnik-as-verifier>
-      <div v-if="model.state=='main'">
-        <h1 class="title">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
-        <location :model="model.body"></location>
-        <component v-bind:is="bodyType" :model="model.body"></component>
-      </div>
+      <auth v-if="!model.user" @input="auth_input"></auth>
+      <template v-else>
+        <registration-as-form v-if="model.state=='registration'"></registration-as-form>
+        <kopnik-as-verifier v-if="model.state=='verification'" :model="model.user"></kopnik-as-verifier>
+        <div v-if="model.state=='main'">
+          <h1 class="title">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
+          <location :model="model.body"></location>
+          <component v-bind:is="bodyType" :model="model.body"></component>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -114,7 +116,8 @@
           await this.model.auth(credentials.email, credentials.password)
           await this.model.user.dom.joinedLoaded()
           this.model.setBody(this.model.user.dom)
-          this.model.state = Application.State.Main
+//          this.model.state = Application.State.Main
+          StateManager.getInstance().popState(location.search.substring(1))
         }
         catch (err) {
           if (err.reason == 'wamp.error.authentication_failed') {
@@ -140,7 +143,7 @@
       }
     },
     created() {
-      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
     },
     mounted() {
     },

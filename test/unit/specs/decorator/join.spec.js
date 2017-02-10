@@ -1,6 +1,6 @@
 import join from '../../../../src/decorator/join'
 
-describe.only('join()', () => {
+describe('join()', () => {
   it('should return correct result', (done) => {
     let func = (a, b) => Promise.resolve(7)
     let joined = join(func)

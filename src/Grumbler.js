@@ -69,6 +69,7 @@ export default class Grumbler {
    *
    */
   pushError(error) {
+    this.log.error(error)
     if (_.isString(error)) {
       error = new Error(error)
     }
@@ -96,7 +97,6 @@ export default class Grumbler {
      */
     window.addEventListener("unhandledrejection", (event)=> {
       event.preventDefault()
-      this.log.error(event, event.reason)
       this.pushError(event.reason)
     })
   }
