@@ -1,5 +1,6 @@
 <template>
   <div class="application">
+    <grumbler :model="grumbler"></grumbler>
     <mu-toast v-if="notifier.currentNotification" :message="notifier.currentNotification.value" @close="toast_close"/>
     <nav class="navbar fixed-top navbar-toggleable-sm navbar-light bg-faded">
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
@@ -36,7 +37,7 @@
       <registration-as-form v-if="model.state=='registration'"></registration-as-form>
       <kopnik-as-verifier v-if="model.state=='verification'" :model="model.user"></kopnik-as-verifier>
       <div v-if="model.state=='main'">
-        <h1 class="title">{{model.body.name}}</h1>
+        <h1 class="title">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
         <location :model="model.body"></location>
         <component v-bind:is="bodyType" :model="model.body"></component>
       </div>
@@ -48,15 +49,17 @@
   import Application from "../Application"
   import logMixin from "./mixin/log"
   import Notifier from "../Notifier"
+  import Grumbler from "../Grumbler"
   import StateManager from "../StateManager"
 
   export default{
     name: "application",
-    mixins:[logMixin],
-    data: function () {
+//    mixins:[logMixin], выдает ошибку
+    data(){
       return {
         userDoma: [],
-        notifier: Notifier.getInstance()
+        notifier: Notifier.getInstance(),
+        grumbler: Grumbler.getInstance(),
       }
     },
     props: ["id", "model"],
@@ -78,6 +81,7 @@
     },
     components: {
       "auth": require('./auth.vue'),
+      "grumbler": require('./grumbler.vue'),
       "registration-as-form": require('./registration-as-form.vue'),
       "zemla": require('./zemla.vue'),
       "kopa": require('./kopa.vue'),
@@ -114,14 +118,14 @@
         }
         catch (err) {
           if (err.reason == 'wamp.error.authentication_failed') {
-            this.notifier.pushNotification("Неверное имя пользователя или пароль")
+            this.grumbler.pushError("Неверное имя пользователя или пароль")
           }
           else if (err.onclose_reason == 'unreachable') {
-            this.notifier.pushNotification("Сервер сообщений недоступен")
+            this.grumbler.pushError("Сервер сообщений недоступен")
           }
 
           else {
-            this.notifier.pushNotification(err, 5000)
+            this.grumbler.pushError(err)
           }
         }
       },
@@ -135,10 +139,10 @@
         this.log.debug.bind(log).apply(arguments)
       }
     },
-    created: function () {
-      this.log = require("loglevel").getLogger("application.vue")
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
     },
-    mounted: function () {
+    mounted() {
     },
   }
 

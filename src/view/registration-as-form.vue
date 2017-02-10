@@ -54,8 +54,7 @@
             четыре цифры паспорта</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="passport" v-model="model.passport">
-            <small class="form-text <!--text-muted-->">Предотвращаем создание нескольких учетных записей одним копником
-              и последующее влияние таким образом на голосование
+            <small class="form-text <!--text-muted-->">Предотвращаем голосоване одним реальным человеком от имени нескольких учетных записей
             </small>
             <small class="form-text <!--text-muted--> mt-2">Не показывается другим участникам</small>
           </div>
@@ -161,16 +160,18 @@
   let $ = require("jquery")
 
   import captcha from "./mixin/captcha"
+  let config = require("../../cfg/main")[process.env.NODE_ENV]
+  import Connection from "../Connection"
   import logMixin from "./mixin/log"
   import models from "../model"
   import Notifier from "../Notifier"
   import Registration from "../model/Registration"
 
   export default{
-    mixins:[logMixin],
     name: "registration-as-form",
-    mixins: [logMixin, captcha],
-    data: function () {
+//    mixins: [logMixin, captcha],
+    mixins: [captcha],
+    data() {
       return {
         model: new Registration(),
         /**
@@ -222,17 +223,41 @@
     },
     beforeCreate(){
     },
-    created: function () {
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+      if (!Connection.getInstance({
+          authid: config.registrator.username,
+          onchallenge: function (session, method, extra) {
+            return config.registrator.password
+          }
+        }).isOpen
+      ) {
+        return new Promise((res, rej) => {
+          Connection.getInstance().onopen = async(session, details) => {
+            this.log.debug("session opened")
+            session.prefix('api', 'ru.kopa')
+            res()
+          }
+
+          Connection.getInstance().onclose = async(reason, details) => {
+            this.log.debug("session clsed")
+            if (reason=="closed" || reason=="unreachable" || reason=="unsupported")
+            rej(new Error(reason+" "+details.reason+" "+details.message))
+          }
+
+          this.connection = Connection.getInstance().open()
+        })
+      }
     },
     async mounted() {
-      global.registration = this.registration
       let this2 = this
 
       $("country").attr("disabled", false)
       global.$('#country').typeahead({
         autoSelect: false,
         delay: 500,
-        source: async(term, process) => {
+        source: async(term, process)
+          => {
           let items = await this2.model.getCountries(term)
           process(items)
         }
@@ -251,7 +276,8 @@
       global.$('#town').typeahead({
         autoSelect: false,
         delay: 500,
-        source: async(term, process) => {
+        source: async(term, process)
+          => {
           let items = await this2.model.getTowns(term, this2.address.country.id)
           process(items)
         }
@@ -270,7 +296,8 @@
       global.$('#street').typeahead({
         autoSelect: false,
         delay: 500,
-        source: async(term, process) => {
+        source: async(term, process)
+          => {
           let items = await this2.model.getStreets(term, this2.address.town.id)
           process(items)
         }
@@ -289,7 +316,8 @@
       global.$('#dom').typeahead({
         autoSelect: false,
         delay: 2000,
-        source: async(term, process) => {
+        source: async(term, process)
+          => {
           let items = await this2.model.getHouses(term, this2.address.street.id)
           process(items)
         }
@@ -306,6 +334,15 @@
         })
     },
     beforeDestroy(){
+      if (this.connection) {
+        return new Promise((res, rej) => {
+          Connection.getInstance().onclose = async(session, details) => {
+            this.log.debug("session closed")
+            res()
+          }
+          this.connection.close()
+        })
+      }
     }
   }
 

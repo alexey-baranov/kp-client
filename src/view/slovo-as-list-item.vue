@@ -2,8 +2,8 @@
   <div :id="id" class="slovo-as-list-item card" >
     <template v-if="(localMode||mode)!='editor'">
       <div class="card-header d-flex flex-wrap kp-small">
-        <kopnik-as-link :model="model.owner"></kopnik-as-link>
-        <div>{{model.created}}</div>
+        <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
+        <div>{{model.created|humanize}}</div>
         <button v-if="isEditorAllowed" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
           <span class="material-icons md-dark md-1em">edit</span>
           Править
@@ -15,8 +15,8 @@
     </template>
     <template v-else>
       <div class="card-header d-flex kp-small">
-        <kopnik-as-link :model="model.owner"></kopnik-as-link>
-        <span>{{model.created}}</span>
+        <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
+        <span>{{model.created|humanize}}</span>
       </div>
       <div class="card-block d-flex flex-column">
       <textarea class="form-control" v-model="model.value"
@@ -36,9 +36,9 @@
   let models = require("../model")
 
   module.exports = {
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name:"slovo-as-list-item",
-    data: function () {
+    data() {
       return {
         /**
          * установленный пользователем режим поверх props.mode
@@ -47,6 +47,7 @@
       }
     },
     props: ["id", "model", "mode"],
+    mixins:[require("./mixin/humanize")],
     components: {
       "kopnik-as-link": require("./kopnik-as-link.vue")
     },
@@ -69,7 +70,7 @@
       },
     },
     created: async function () {
-      this.log = require("loglevel").getLogger("slovo-as-list-item.vue")
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
       if (this.model.id) {
         await this.model.joinedLoaded();
       }

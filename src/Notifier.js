@@ -6,7 +6,7 @@ import Notification from './Notification'
 export default class Notifier{
   constructor(){
     this.currentNotification = null
-    this.notifications= []
+    this.error= []
     this.timeout= undefined
   }
 
@@ -28,7 +28,7 @@ export default class Notifier{
       notification= new Notification(notification, delay)
     }
 
-    this.notifications.push(notification)
+    this.error.push(notification)
     if (!this.timeout){
       this.shiftCurrentNotificatonUntilTimeout()
     }
@@ -38,7 +38,7 @@ export default class Notifier{
    * Установить на время пока не таймаут
    */
   shiftCurrentNotificatonUntilTimeout(){
-    this.currentNotification= this.notifications.shift()
+    this.currentNotification= this.error.shift()
     this.timeout= setTimeout(()=>{
       this.currentNotification= null
       this.shiftCurrentNotificationAfterTimeout()
@@ -53,7 +53,7 @@ export default class Notifier{
     //потому что за время пока идет таймаут может прилететь следующее уведомление
     //но оно не должно выстрелить раньше промежуточного интервала
       this.timeout = setTimeout(() => {
-        if (!this.notifications.length){
+        if (!this.error.length){
           this.timeout= undefined
         }
         else{

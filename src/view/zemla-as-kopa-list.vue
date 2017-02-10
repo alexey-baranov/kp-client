@@ -10,7 +10,7 @@
   import StateManager from "../StateManager"
 
   export default{
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name: "zemla-as-kopa-list",
     props: ["id", "model"],
     components: {
@@ -21,7 +21,8 @@
         this.reloadModel();
       }
     },
-    created: function () {
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
       this.reloadModel();
     },
     computed: {

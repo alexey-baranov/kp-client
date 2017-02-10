@@ -2,7 +2,7 @@
   <div :id="id" class="predlozhenie-as-submit card" :class="{'predlozhenie-as-submit--empty': !model.value}">
     <div class="card-block">
             <textarea class="form-control" v-model="model.value"
-                      placeholder="Ваше предложение, которое будет поставлено на голосование на этой копе"> </textarea>
+                      placeholder="Ваше предложение, которое будет поставлено на голосование на этой копе"  @keyup.ctrl.enter="submit_click"> </textarea>
       <button class="btn btn-block btn-primary mt-2" @click="submit_click">Предложить на голосование</button>
     </div>
   </div>
@@ -14,7 +14,7 @@
   let models = require("../model")
 
   module.exports = {
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name:"predlozhenie-as-submit",
     props: ["id", "model"],
     methods: {
@@ -25,7 +25,7 @@
     components: {
     },
     created: async function () {
-      this.log = require("loglevel").getLogger("predlozhenie.vue")
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
 
       await this.model.place.joinedLoaded();
       await this.model.place.place.joinedLoaded();

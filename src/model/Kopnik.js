@@ -213,6 +213,10 @@ class Kopnik extends RemoteModel {
     return this.starshina
   }
 
+  get fullName(){
+    return `${this.surname} ${this.name} ${this.patronymic}`
+  }
+
   toString() {
     return `${this.constructor.name} {${this.id}, "${this.surname} ${this.name}"}`;
   }

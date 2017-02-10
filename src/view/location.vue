@@ -15,9 +15,9 @@
   import models from '../model'
 
   export default{
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name:"location",
-    data: function () {
+    data() {
       return {
         nodes: []
       }
@@ -77,11 +77,11 @@
         }
       },
     },
-    created: function () {
-      this.log = require("loglevel").getLogger("location.vue")
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
       this.fillNodes()
     },
-    mounted: function () {
+    mounted() {
     },
   }
 

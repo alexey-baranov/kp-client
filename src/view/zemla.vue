@@ -22,9 +22,9 @@
   let models = require("../model")
 
   export default{
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name: "zemla",
-    data: function () {
+    data() {
       return {
         areKopiLoaded: false
       }
@@ -94,8 +94,8 @@
         this.log.warn("remove immid inviting");
       }
     },
-    created: function () {
-      this.log = require("loglevel").getLogger("zemla.vue")
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
       this.loadModel()
 
       /**

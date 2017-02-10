@@ -1,112 +1,111 @@
 <template>
-    <div class="kopnik">
-        <div class="fio">
-            ФИО: {{model2.surname}} {{model2.name}} {{model2.patronymic}}
-            <template v-if="currentKopnik!= model2">
-                <button @click="setStarshina_click">
-                    {{currentKopnik.starshina != model2?"Выбрать копника своим старшиной":"Выйти из дружины копника"}}
-                </button>
-            </template>
-        </div>
-        <div v-if="model2.dom" class="dom">
-            Дом:
-            <zemla-as-link :model="model2.dom"></zemla-as-link>
-        </div>
-        <div v-if="model2.starshina" class="starshina">
-            Старшина:
-            <kopnik-as-link :model="model2.starshina"></kopnik-as-link>
-        </div>
-        <div class="druzhina">
-            <div style="cursor:pointer" @click="onDruzhinaToggle()">
-                <span class="material-icons md-dark md-1em">{{druzhinaDisplay?'keyboard_arrow_down':'keyboard_arrow_right'}}</span> Дружина ({{model2.voiskoSize}}):
-            </div>
-            <ul v-show="druzhinaDisplay">
-                <kopnik-as-druzhe v-for="eachDruzhe of model2.druzhina" :model="eachDruzhe"></kopnik-as-druzhe>
-            </ul>
-        </div>
+  <div class="kopnik">
+    <div v-if="model.dom" class="dom">
+      Дом: <zemla-as-link target="_blank" :model="model.dom"></zemla-as-link>
     </div>
+    <div v-if="model.starshina" class="starshina mt-3">
+      Старшина: <kopnik-as-link target="_blank" :model="model.starshina"></kopnik-as-link>
+    </div>
+    <div class="druzhina mt-3">
+      <div style="cursor:pointer" @click="onDruzhinaToggle()">
+        <span
+          class="material-icons md-dark md-1em">{{druzhinaDisplay?'keyboard_arrow_down':'keyboard_arrow_right'}}</span>
+        Дружина ({{model.voiskoSize}}):
+      </div>
+      <ul class="list-group mt-2" v-show="druzhinaDisplay">
+        <li class="list-group-item border-0 py-0" v-for="eachDruzhe of model.druzhina" >
+          <kopnik-as-druzhe class="w-100" :model="eachDruzhe"></kopnik-as-druzhe>
+        </li>
+      </ul>
+    </div>
+      <template v-if="user!= model">
+        <button class="btn btn-block btn-primary mt-5" @click="starshina_click">
+          {{user.starshina != model?"Выбрать копника старшиной":"Выйти из дружины копника"}}
+        </button>
+      </template>
+    </div>
+  </div>
 </template>
 
 <script>
   import Application from '../Application'
-    const models = require("../model");
-const log = require("loglevel").getLogger("kopnik.vue")
+  import Grumbler from "../Grumbler"
+  const models = require("../model")
+  const log = require("loglevel").getLogger("kopnik.vue")
   import logMixin from "./mixin/log"
 
-    export default{
-    mixins:[logMixin],
-      name:"kopnik",
-        data: function () {
-            return {
-                /**
-                 * значение druzhina.display= true || false
-                 */
-                druzhinaDisplay: false,
-                currentKopnik: Application.getInstance().user,
-            };
-        },
-        props: ["id", "model", "short"],
-        components: {
-            "zemla-as-link": require("./zemla-as-link.vue"),
-            "kopnik-as-link": require("./kopnik-as-link.vue"),
-            "kopnik-as-druzhe": require("./kopnik-as-druzhe.vue"),
-        },
-        watch: {
-            /**
-             * Переход с одного копника на другого
-             */
-            $route(){
+  export default{
+//    mixins:[logMixin],
+    name: "kopnik",
+    data() {
+      return {
+        /**
+         * значение druzhina.display= true || false
+         */
+        druzhinaDisplay: false,
+        user: Application.getInstance().user,
+      };
+    },
+    props: ["id", "model", "short"],
+    components: {
+      "zemla-as-link": require("./zemla-as-link.vue"),
+      "kopnik-as-link": require("./kopnik-as-link.vue"),
+      "kopnik-as-druzhe": require("./kopnik-as-druzhe.vue"),
+    },
+    watch: {
+      /**
+       * Переход с одного копника на другого
+       */
+      $route(){
 //                this.druzhinaDisplay = false;
-                this.loadModel();
-            }
-        },
-        created: function () {
-            this.loadModel();
-        },
-        computed: {
-            model2(){
-                if (!this.model && this.$route.params.KOPNIK) {
-                    return models.Kopnik.getReference(this.$route.params.KOPNIK);
-                }
-                else {
-                    return this.model;
-                }
-            },
-        },
-        methods: {
-            loadModel: async function () {
-                await this.model2.joinedLoaded();
-            },
+        this.loadModel();
+      }
+    },
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+      this.loadModel();
+    },
+    computed: {
 
-            onDruzhinaToggle: async function () {
-                this.druzhinaDisplay=!this.druzhinaDisplay;
-                if (this.druzhinaDisplay && !this.model2.druzhina) {
-                    this.model2.loadDruzhina();
-                }
-            },
+    },
+    methods: {
+      loadModel: async function () {
+        await this.model.joinedLoaded();
+      },
 
-            setStarshina_click: async function(){
-                if (models.Kopnik.current.starshina== this.model2){
-                    await models.Kopnik.current.setStarshina(null);
-                }
-                else{
-                    await models.Kopnik.current.setStarshina(this.model2);
-                }
-            }
+      onDruzhinaToggle: async function () {
+        this.druzhinaDisplay = !this.druzhinaDisplay;
+        if (this.druzhinaDisplay && !this.model.druzhina) {
+          this.model.loadDruzhina();
         }
+      },
+
+      starshina_click: async function () {
+        if (Application.getInstance().user.starshina == this.model) {
+          await Application.getInstance().user.setStarshina(null);
+        }
+        else {
+          await Application.getInstance().user.setStarshina(this.model)
+//            .catch(err=>Grumbler.getInstance().pushError(err))
+        }
+      }
     }
+  }
 
 </script>
 
 
 <style scoped>
-    .header {
-        background-color: #cccccc;
-        font-size: smaller;
-    }
+  .header {
+    background-color: #cccccc;
+    font-size: smaller;
+  }
 
-    .druzhina-toggler{
-        cursor: pointer;
-    }
+  .druzhina-toggler {
+    cursor: pointer;
+  }
 
+  li{
+    cursor: pointer;;
+  }
 </style>

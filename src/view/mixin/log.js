@@ -4,6 +4,6 @@
 
 export default {
   created(){
-    this.log= require("loglevel").getLogger(this.$data.name+".vue")
+    this.log= require("loglevel").getLogger(this.$options.name+".vue")
   }
 }

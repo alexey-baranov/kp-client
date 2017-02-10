@@ -2,7 +2,7 @@
   <div :id="id" class="kopa-as-submit card" :class="{'kopa-as-submit--empty': !model.question}">
     <div class="card-block">
             <textarea class="form-control" v-model="model.question"
-                      placeholder="Вопрос, по которому вы хотите созвать копу"> </textarea>
+                      placeholder="Вопрос, по которому вы хотите созвать копу" @keyup.ctrl.enter="submit_click"> </textarea>
       <button class="btn btn-block btn-primary mt-2" @click="submit_click">Созвать копу...</button>
     </div>
   </div>
@@ -14,7 +14,7 @@
   let models = require("../model")
 
   module.exports = {
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name:"kopa-as-submit",
     props: ["id", "model"],
     methods: {
@@ -25,7 +25,7 @@
     components: {
     },
     created: async function () {
-      this.log = require("loglevel").getLogger("kopa.vue")
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
 
       await this.model.place.joinedLoaded();
     },

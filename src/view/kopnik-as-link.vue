@@ -1,5 +1,7 @@
 <template>
-  <a href="#" @click.prevent="a_click" class="kopnik-as-link">{{model.surname}} {{model.name}} {{model.patronymic}}
+  <a :href="'/?body=Kopnik:'+model.id" class="kopnik-as-link" :target="target" @click="a_click">{{model.surname}}
+    {{model.name}} {{model.patronymic}}
+    <small v-if="model.voiskoSize">(+{{model.voiskoSize}})</small>
     <slot></slot>
   </a>
 </template>
@@ -9,18 +11,23 @@
   import logMixin from "./mixin/log"
   import StateManager from "../StateManager"
 
-
   export default  {
-    mixins:[logMixin],
-    name:"kopnik-as-link",
-    props: ["id", "model"],
+//    mixins: [logMixin],
+    name: "kopnik-as-link",
+    props: ["id", "model", "target"],
     methods: {
       a_click(e){
-        Application.getInstance().goTo(this.model)
-        StateManager.getInstance().pushState()
+//        debugger
+        e.stopPropagation()
+        if (this.target != '_blank') {
+          Application.getInstance().goTo(this.model)
+          StateManager.getInstance().pushState()
+          e.preventDefault()
+        }
       }
     },
-    created: function () {
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
       this.model.joinedLoaded();
     }
   }

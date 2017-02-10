@@ -32,7 +32,6 @@ log.getLogger("StateManager").setLevel("info")
 log.getLogger("location.vue").setLevel("info")
 
 
-
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import $ from "jquery"; //global.$=$;
@@ -45,45 +44,49 @@ import applicationView from './view/application.vue'
 let config = require("../cfg/main")[process.env.NODE_ENV]
 let models = global.models = require("./model")
 import StateManager from './StateManager'
+import Grumbler from './Grumbler'
 
 Vue.use(MuseUI)
-
-  /**
-   * инициализация application
-   */
-  let application = global.application = Application.getInstance()
-  application.state = Application.State.Auth
-  applicationView.propsData = {
-    id: "a",
-    model: application
-  }
-  applicationView.el = "#application"
-  global.applicationView = new Vue(applicationView)
-
+Grumbler.getInstance().addEventHandler()
 
 /**
- * State management
+ * инициализация application
  */
-let stateManager= StateManager.getInstance()
-stateManager.application= application
-stateManager.applicationView= global.applicationView
+let application = global.application = Application.getInstance()
+application.state = Application.State.Registration
+applicationView.propsData = {
+  id: "a",
+  model: application
+}
+applicationView.el = "#application"
+global.applicationView = new Vue(applicationView)
 
-stateManager.listen()
+
+if (0) {
+  /**
+   * State management
+   */
+  let stateManager = StateManager.getInstance()
+  stateManager.application = application
+  stateManager.applicationView = global.applicationView
+
+  stateManager.listen()
 
 // stateManager.popState(location.search.substring(1))
 
-/**
- * временный автозаход
- */
-application.auth(config.unittest2.username, config.unittest2.password)
-  .then(user=> {
-    application.setBody(user.dom)
-    application.state= Application.State.Verification
-  })
-  .then(()=>{
-    /**
-     * попнуть первое состояние
-     * @type {*}
-     */
-    stateManager.popState(location.search.substring(1))
-  })
+  /**
+   * временный автозаход
+   */
+  application.auth(config.unittest2.username, config.unittest2.password)
+    .then(user => {
+      application.setBody(user.dom)
+      application.state = Application.State.Verification
+    })
+    .then(() => {
+      /**
+       * попнуть первое состояние
+       * @type {*}
+       */
+      stateManager.popState(location.search.substring(1))
+    })
+}

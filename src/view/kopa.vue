@@ -2,8 +2,9 @@
   <div :id="id" class="kopa">
     <div class="card">
       <template v-if="(localMode||mode)=='editor'">
-        <div class="card-header text-muted text-small d-flex flex-wrap">
-          <small>{{model.invited}}</small>
+        <div class="card-header text-muted text-small d-flex kp-small">
+          <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
+          <div>{{model.invited}}</div>
         </div>
         <div class="card-block d-flex flex-column">
         <textarea class="form-control" v-model="model.question"
@@ -15,8 +16,9 @@
         </div>
       </template>
       <template v-else>
-        <div class="card-header text-muted text-small d-flex flex-wrap">
-          <small>{{model.invited}}</small>
+        <div class="card-header text-muted text-small d-flex flex-wrap kp-small">
+          <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
+          <div>{{model.invited}}</div>
           <button class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
             <span class="material-icons md-dark md-1em">edit</span>
             Править
@@ -64,9 +66,9 @@
   const models = require("../model");
 
   export default{
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name:"kopa",
-    data: function () {
+    data() {
       return {
         /**
          * установленный пользователем режим поверх props.mode
@@ -92,7 +94,8 @@
       "predlozhenie-as-list-item": require("./predlozhenie-as-list-item.vue"),
       "slovo-as-list-item": require("./slovo-as-list-item.vue"),
       "predlozhenie-as-submit": require("./predlozhenie-as-submit.vue"),
-      "slovo-as-submit": require("./slovo-as-submit.vue")
+      "slovo-as-submit": require("./slovo-as-submit.vue"),
+      "kopnik-as-link": require("./kopnik-as-link.vue")
     },
     watch: {
       model(){
@@ -221,8 +224,8 @@
         };
       },
     },
-    created: function () {
-      this.log = require("loglevel").getLogger("kopa.vue")
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
 
       if (this.model.id) {
         this.loadModel();

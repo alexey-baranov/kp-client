@@ -2,8 +2,8 @@
   <div :id="id" class="predlozhenie-as-list-item card" :class="{stateZa: model.state==1, stateProtiv: model.state==-1}">
     <template v-if="(localMode||mode)!='editor'">
       <div class="card-header d-flex flex-wrap kp-small">
-        <kopnik-as-link :model="model.owner"></kopnik-as-link>
-        <div>{{model.created}}</div>
+        <kopnik-as-link v-if="model.owner" class="mr-1"  target="_blank" :model="model.owner"></kopnik-as-link>
+        <div>{{model.created|humanize}}</div>
         <button v-if="isEditorAllowed" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
           <span class="material-icons md-dark md-1em">edit</span>
           Править
@@ -15,8 +15,8 @@
     </template>
     <template v-else>
       <div class="card-header d-flex kp-small">
-        <kopnik-as-link :model="model.owner"></kopnik-as-link>
-        <span>{{model.created}}</span>
+        <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
+        <span>{{model.created|humanize}}</span>
       </div>
       <div class="card-block d-flex flex-column">
       <textarea class="form-control" v-model="model.value"
@@ -40,8 +40,8 @@
       </div>
       <div class="collapse" :id="`${id}_voted_za`">
         <div class="card card-block">
-          <kopnik-as-link v-for="eachZa of model.za" :model="eachZa.owner">
-            (+{{eachZa.owner.voiskoSize}})
+          <kopnik-as-link v-if="eachZa.owner" v-for="eachZa of model.za" target="_blank" :model="eachZa.owner">
+            <!--(+{{eachZa.owner.voiskoSize}})-->
           </kopnik-as-link>
         </div>
       </div>
@@ -57,8 +57,8 @@
       </div>
       <div class="collapse" :id="`${id}_voted_protiv`">
         <div class="card card-block">
-          <kopnik-as-link v-for="eachProtiv of model.protiv" :model="eachProtiv.owner">
-            (+{{eachProtiv.owner.voiskoSize}})
+          <kopnik-as-link v-if="eachProtiv.owner" v-for="eachProtiv of model.protiv" target="_blank" :model="eachProtiv.owner">
+            <!--(+{{eachProtiv.owner.voiskoSize}})-->
           </kopnik-as-link>
         </div>
       </div>
@@ -72,9 +72,10 @@
   let models = require("../model")
 
   module.exports = {
-    mixins:[logMixin],
+//    mixins:[logMixin],
+    mixins:[require("./mixin/humanize")],
     name:"predlozhenie-as-list-item",
-    data: function () {
+    data() {
       return {
         /**
          * установленный пользователем режим поверх props.mode
@@ -124,7 +125,7 @@
       }
     },
     created: async function () {
-      this.log = require("loglevel").getLogger("predlozhenie-as-list-item.vue")
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
 
       if (this.model.id) {
         await this.model.joinedLoaded();

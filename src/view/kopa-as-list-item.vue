@@ -1,8 +1,8 @@
 <template>
   <div :id="id" class="kopa-as-list-item card" >
       <div class="card-header d-flex flex-wrap kp-small">
-        <kopnik-as-link :model="model.owner"></kopnik-as-link>
-        <div>{{model.invited || null}}</div>
+        <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
+        <div>{{(model.invited || null) | humanize}}</div>
       </div>
       <div class="card-block">
         <div class="card-text">{{model.question}}</div>
@@ -20,7 +20,7 @@
   import StateManager from "../StateManager"
 
   export default  {
-    mixins:[logMixin],
+    mixins:[/*logMixin, */require("./mixin/humanize")],
     name:"kopa-as-list-item",
     props: ["id", "model"],
     components: {
@@ -28,7 +28,8 @@
     },
     methods: {
     },
-    created: function () {
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
       if (this.model.id) {
         this.model.joinedLoaded();
       }

@@ -35,8 +35,9 @@
 
   export default{
     name:"auth",
-    mixins:[logMixin, captcha],
-    data: function () {
+//    mixins:[logMixin, captcha],
+    mixins:[captcha],
+    data() {
       return {
         email: "unittest2@domain.ru",
         password: "qwerty",
@@ -57,12 +58,12 @@
         StateManager.getInstance().pushState()
         event.preventDefault()
       },
-      submit_click: function () {
+      submit_click() {
         this.$emit("input", this.$data)
       }
     },
-    created: function () {
-      this.log = require("loglevel").getLogger("auth.vue")
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
       this.log.debug(this.name)
     },
     mounted() {

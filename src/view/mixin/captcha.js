@@ -18,7 +18,7 @@ export default {
               "sitekey": "6Le-9BMUAAAAAIx-D7vLPKysleUXNU6tzOlcX8Kr", "theme": "light",
               "size": $(window).width() < 500 ? "compact" : "normal",
               callback: (response) => {
-                this.log.debug(captchthis.response)
+                this.log.debug(response)
                 this.captchaCallback(response)
               },
               "expired-callback": () => {

@@ -23,9 +23,9 @@
   import logMixin from "./mixin/log"
 
   export default{
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name:"kopnik-as-verifier",
-    data: function () {
+    data() {
       return {};
     },
     props: ["id", "model"],
@@ -33,7 +33,8 @@
       "registration": require("./registration.vue")
     },
     watch: {},
-    created: function () {
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
     },
     computed: {},
     methods: {

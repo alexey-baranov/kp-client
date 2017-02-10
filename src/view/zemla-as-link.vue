@@ -1,5 +1,5 @@
 <template>
-  <a :href="'/zemla/'+model.id" class="zemla-as-link" @click.prevent="a_click">{{model.name}}</a>
+  <a :href="'body=zemla:'+model.id" class="zemla-as-link" :target="target" @click="a_click">{{model.name}}</a>
 </template>
 
 <script>
@@ -8,16 +8,21 @@
   import StateManager from "../StateManager"
 
   export default  {
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name: "zemla-as-link",
-    props: ["id", "model"],
+    props: ["id", "model", "target"],
     methods: {
-      a_click: function (e) {
-        Application.getInstance().goTo(this.model)
-        StateManager.getInstance().pushState()
+      a_click(e) {
+        e.stopPropagation()
+        if (this.target != '_blank') {
+          Application.getInstance().goTo(this.model)
+          StateManager.getInstance().pushState()
+          e.preventDefault()
+        }
       }
     },
-    created: function () {
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
       this.model.joinedLoaded();
     },
   }

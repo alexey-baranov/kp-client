@@ -56,9 +56,9 @@
   import models from "../model"
 
   export default{
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name:"registration",
-    data: function () {
+    data() {
       return {
         modelDoma: []
       }
@@ -72,7 +72,8 @@
     },
     beforeCreate(){
     },
-    created: function () {
+    created() {
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
 
     },
     async mounted() {

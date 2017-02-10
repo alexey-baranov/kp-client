@@ -2,8 +2,8 @@
   <div :id="id" class="slovo-as-submit card">
     <div class="card-block">
             <textarea class="form-control" v-model="model.value"
-                      placeholder="Говорите..."> </textarea>
-      <button class="btn btn-block btn-primary mt-2" :disabled="!model.value" @click="submit_click">Сказать</button>
+                      placeholder="Говорите..." @keyup.ctrl.enter="submit_click"> </textarea>
+      <button class="btn btn-block btn-primary mt-2" :disabled="!model.value" @click="submit_click">Сказать (Ctrl+Enter)</button>
     </div>
   </div>
 </template>
@@ -14,7 +14,7 @@
   let models = require("../model")
 
   module.exports = {
-    mixins:[logMixin],
+//    mixins:[logMixin],
     name:"slovo-as-submit",
     props: ["id", "model"],
     methods: {
@@ -25,7 +25,7 @@
     components: {
     },
     created: async function () {
-      this.log = require("loglevel").getLogger("slovo.vue")
+      this.log = require("loglevel").getLogger(this.$options.name+".vue")
     },
   }
 </script>
