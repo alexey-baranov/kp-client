@@ -129,6 +129,19 @@ class Zemla extends RemoteModel {
     this.emit(Zemla.event.parentChange, this);
   }
 
+  /**
+   * всех предков начиная от родителя
+   * @return {Promise.<void>}
+   */
+  async getParents(){
+    let result= []
+    for (let eachParent = this.parent; eachParent; eachParent = eachParent.parent) {
+      result.push(eachParent)
+      await eachParent.joinedLoaded()
+    }
+
+    return result
+  }
 
   async loadKopi(count=25) {
     let BEFORE

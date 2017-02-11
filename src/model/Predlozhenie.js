@@ -82,7 +82,8 @@ class Predlozhenie extends RemoteModel {
     async onPublication(args, kwargs, details) {
         await super.onPublication(args, kwargs, details);
         if (details.topic.match(/\.rebalance$/)) {
-            if (this.golosa) {
+          this.state= kwargs.state
+          if (this.golosa) {
                 this.totalZa = kwargs.totalZa;
                 this.totalProtiv = kwargs.totalProtiv;
                 let golos;

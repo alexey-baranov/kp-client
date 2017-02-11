@@ -6,6 +6,11 @@
       </div>
       <div class="card-block">
         <div class="card-text">{{model.question}}</div>
+        <ul class="list-group">
+          <li v-for="eachResult in model.result" v-if="eachResult.state>0" class="list-group-item border-0 mx-0 my-0 pb-0">
+            <predlozhenie-as-internal-list-item :model="eachResult"></predlozhenie-as-internal-list-item>
+          </li>
+        </ul>
       </div>
   </div>
 </template>
@@ -24,15 +29,15 @@
     name:"kopa-as-list-item",
     props: ["id", "model"],
     components: {
-      "kopnik-as-link": require("./kopnik-as-link.vue")
+      "kopnik-as-link": require("./kopnik-as-link.vue"),
+      "predlozhenie-as-internal-list-item": require("./predlozhenie-as-internal-list-item.vue")
     },
     methods: {
     },
     created() {
       this.log = require("loglevel").getLogger(this.$options.name+".vue")
-      if (this.model.id) {
-        this.model.joinedLoaded();
-      }
+      this.model.joinedLoaded()
+      if (!this.model.result) this.model.loadResult()
     }
   }
 </script>

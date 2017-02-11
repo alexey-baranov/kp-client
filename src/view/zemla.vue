@@ -1,10 +1,10 @@
 <template>
   <div :id="id" class="zemla">
     <ul class="list-group flex-column-reverse ">
-      <li v-for="eachKopa of model.kopi" class="list-group-item border-0 px-0"
+      <a v-for="eachKopa of model.kopi" class="list-group-item no-color border-0 px-0 py-0 my-3"
           :href="`/?body=Kopa:${eachKopa.id}`" @click.prevent="kopa_click(eachKopa)">
         <kopa-as-list-item class="w-100" :model="eachKopa"></kopa-as-list-item>
-      </li>
+      </a>
 
       <!--новая копа-->
       <li class="list-group-item border-0 px-0">
@@ -124,5 +124,7 @@
 
 
 <style scoped>
-
+a.no-color{
+  color: inherit;
+}
 </style>

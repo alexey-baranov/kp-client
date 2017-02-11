@@ -4,7 +4,7 @@
       <template v-if="(localMode||mode)=='editor'">
         <div class="card-header text-muted text-small d-flex kp-small">
           <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
-          <div>{{model.invited | humanize}}</div>
+          <div class="ml-1">{{model.invited | humanize}}</div>
         </div>
         <div class="card-block d-flex flex-column">
           <textarea class="form-control" v-model="model.question"
@@ -18,7 +18,7 @@
       <template v-else>
         <div class="card-header text-muted text-small d-flex flex-wrap kp-small">
           <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
-          <div>{{model.invited | humanize}}</div>
+          <div class="ml-1">{{model.invited | humanize}}</div>
           <button class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
             <span class="material-icons md-dark md-1em">edit</span>
             Править

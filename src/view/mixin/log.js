@@ -2,7 +2,7 @@
  * Created by alexey2baranov on 07.02.17.
  */
 
-export default {
+module.exports = {
   created(){
     this.log= require("loglevel").getLogger(this.$options.name+".vue")
   }

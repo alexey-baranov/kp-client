@@ -69,10 +69,7 @@
       "model.user": async function () {
         this.log.debug("user watcher")
         await this.model.user.joinedLoaded()
-        for (let eachDom = this.model.user.dom; eachDom; eachDom = eachDom.parent) {
-          await eachDom.joinedLoaded()
-          this.userDoma.unshift(eachDom)
-        }
+        this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
       },
       "model.body": async function () {
         if (!(this.model.body instanceof models.RemoteModel)) {
@@ -142,8 +139,12 @@
         this.log.debug.bind(log).apply(arguments)
       }
     },
-    created() {
+    async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
+
+      if (this.model.user) {
+        this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
+      }
     },
     mounted() {
     },
