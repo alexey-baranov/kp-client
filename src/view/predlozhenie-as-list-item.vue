@@ -31,7 +31,7 @@
     <div class="card-block">
       <!--za-->
       <div class="btn-group w-100" role="group">
-        <button class="btn btn-success d-flex justify-content-between w-100" @click.prevent="za_click">
+        <button class="btn btn-success d-flex justify-content-between w-100" :disabled="model.state>0" @click.prevent="za_click">
           <span>{{model.totalZa}}</span><span>За</span><span v-if="zemlaLoaded">({{model.totalZa/model.place.place.obshinaSize*100}}%)</span>
         </button>
         <button class="btn btn-success" data-toggle="collapse" :href="`#${id}_voted_za`">
@@ -48,7 +48,7 @@
 
       <!--protiv-->
       <div class="btn-group w-100" role="group">
-        <button class="btn btn-danger d-flex justify-content-between w-100" @click.prevent="protiv_click">
+        <button class="btn btn-danger d-flex justify-content-between w-100" :disabled="model.state>0" @click.prevent="protiv_click">
           <span>{{model.totalProtiv}}</span><span>Против</span><span v-if="zemlaLoaded">({{model.totalProtiv/model.place.place.obshinaSize*100}}%)</span>
         </button>
         <button class="btn btn-danger" data-toggle="collapse" :href="`#${id}_voted_protiv`">
