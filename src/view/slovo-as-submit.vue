@@ -3,7 +3,7 @@
     <div class="card-block">
             <textarea class="form-control" v-model="model.value"
                       placeholder="Говорите..." @keyup.ctrl.enter="submit_click"> </textarea>
-      <button class="btn btn-block btn-primary mt-2" :disabled="!model.value" @click="submit_click">Сказать (Ctrl+Enter)</button>
+      <button class="btn btn-block btn-primary mt-2" :disabled="!model.value" @click="submit_click">Сказать (Ctrl+Ввод)</button>
     </div>
   </div>
 </template>

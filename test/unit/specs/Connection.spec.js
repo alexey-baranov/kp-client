@@ -10,7 +10,7 @@ let AutobahnConnection = require("autobahn").Connection
 import Connection from '../../../src/Connection'
 let config = require("../../../cfg/main")[process.env.NODE_ENV];
 
-describe.only('Connection', function () {
+describe('Connection', function () {
   let connection
 
   after(function () {
@@ -67,7 +67,7 @@ describe.only('Connection', function () {
     anonymousConnection.open()
   })
 
-  it.only('#connect() + #connect(coockie)', function (done) {
+  it.skip('#connect() + #connect(coockie)', function (done) {
     connection = Connection.getUnitTestInstance()
     connection.onopen = (session, details) => {
       if (details.authrole == "kopnik") {

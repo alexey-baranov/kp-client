@@ -8,7 +8,7 @@
 
       <!--новая копа-->
       <li class="list-group-item border-0 px-0">
-        <kopa-as-submit :id="id+'_new'" class="w-100" :model="model.newKopa" @submit="kopa_submit"></kopa-as-submit>
+        <kopa-as-submit :id="id+'_new'" class="w-100" :model="model.newKopa" @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
       </li>
     </ul>
     <mu-infinite-scroll :loading="areKopiLoaded" loadingText="Подождите..." @load="scroll_load"/>
@@ -67,19 +67,18 @@
         StateManager.getInstance().pushState()
       },
 
-      loadModel: async function () {
+      async loadModel () {
         await this.model.joinedLoaded()
         if (!this.model.kopi) {
           await this.model.loadKopi();
         }
       },
 
-
       /**
-       * Создает новую копу
+       * Созыает новую копу
        *
        */
-      kopa_submit: async function () {
+       async kopa_submit () {
         let newKopa = this.model.newKopa
 
         /**
@@ -91,7 +90,22 @@
 
         newKopa = await models.Kopa.create(newKopa)
         await newKopa.invite()
-        this.log.warn("remove immid inviting");
+      },
+      /**
+       * Создает черновик копы
+       *
+       */
+      async kopa_draft() {
+        let newKopa = this.model.newKopa
+
+        /**
+         * model.newKopa является моделью для вьюшки новой копы
+         * поэтому надо сначала ее переназначить а потом уже
+         * упражняться с ней
+         */
+        this.model.newKopa = this.getNewKopa()
+
+        newKopa = await models.Kopa.create(newKopa)
       }
     },
     created() {

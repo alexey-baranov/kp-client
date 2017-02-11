@@ -47,24 +47,44 @@ describe('Zemla', function () {
   })
 
   describe('events', function () {
-    let zemla;
+    let zemla;;;;;;;;;;;;;;;;;;;;;;;
 
-    it('Kopa#invite() should emit Zemla.event.kopaAdd', function (done) {
+    it.only('Kopa#invite() should emit Zemla.event.kopaAdd, then RemoteModel.event.change', function (done) {
       (async() => {
         try {
           zemla = await models.Zemla.get(ZEMLA)
 
+          //2. земля унала что создали копу
           zemla.once(models.Zemla.event.kopaAdd, (sender, kopa) => {
-            assert.equal(kopa instanceof models.Kopa, true);
-            done();
-          });
-          zemla.kopi = []
+            try {
+              assert.equal(kopa instanceof models.Kopa, true, "kopa instanceof models.Kopa, true");
+              assert.equal(kopa.invited, null, "kopa.invited, null");
 
+              //4. копа изменилась
+              kopa.once(models.RemoteModel.event.change, () => {
+                try {
+                  assert.equal(kopa instanceof models.Kopa, true, "kopa instanceof models.Kopa, true")
+                  assert.equal(zemla.kopi.length, 1, "zemla.kopi.length, 1")
+                  done()
+                }
+                catch (err) {
+                  done(err)
+                }
+              })
+            }
+            catch (err) {
+              done(err)
+            }
+          })
+          zemla.kopi = [];
+
+          //1. создал
           let kopa = await models.Kopa.create({
             question: "temp",
             owner: models.Kopnik.getReference(KOPNIK),
             place: zemla,
           })
+          //3. созвал
           await kopa.invite()
         }
         catch (err) {

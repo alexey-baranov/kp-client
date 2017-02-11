@@ -3,7 +3,8 @@
     <div class="card-block">
             <textarea class="form-control" v-model="model.question"
                       placeholder="Вопрос, по которому вы хотите созвать копу" @keyup.ctrl.enter="submit_click"> </textarea>
-      <button class="btn btn-block btn-primary mt-2" @click="submit_click">Созвать копу...</button>
+      <button class="btn btn-block btn-secondary mt-2" @click="draft_click">Сохранить черновик</button>
+      <button class="btn btn-block btn-primary mt-2" @click="submit_click">Созвать копу (Ctrl+Ввод)</button>
     </div>
   </div>
 </template>
@@ -20,7 +21,10 @@
     methods: {
         submit_click(){
             this.$emit("submit", this)
-        }
+        },
+        draft_click(){
+            this.$emit("draft", this)
+        },
     },
     components: {
     },

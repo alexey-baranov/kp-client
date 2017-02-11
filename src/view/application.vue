@@ -33,9 +33,9 @@
       </div>
     </nav>
     <div class="container container-under-navbar">
-      <auth v-if="!model.user" @input="auth_input"></auth>
+      <auth v-if="!model.user && model.state!='registration'" @input="auth_input"></auth>
+      <registration-as-form v-if="model.state=='registration'"></registration-as-form>
       <template v-else>
-        <registration-as-form v-if="model.state=='registration'"></registration-as-form>
         <kopnik-as-verifier v-if="model.state=='verification'" :model="model.user"></kopnik-as-verifier>
         <div v-if="model.state=='main'">
           <h1 class="title">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
