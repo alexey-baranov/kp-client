@@ -29,15 +29,19 @@
           <li class="nav-item">
             <a class="nav-link" href="#">Youtube</a>
           </li>
+
+          <li v-if="model.user" class="nav-item">
+            <a class="nav-link" href="#" @click.prevent="close_click">Выход</a>
+          </li>
         </ul>
       </div>
     </nav>
     <div class="container container-under-navbar">
       <auth v-if="!model.user && model.state!='registration'" @input="auth_input"></auth>
       <registration-as-form v-if="model.state=='registration'"></registration-as-form>
-      <template v-else>
+      <template v-if="model.user">
         <kopnik-as-verifier v-if="model.state=='verification'" :model="model.user"></kopnik-as-verifier>
-        <div v-if="model.state=='main'">
+        <div v-if="model.state=='main' && model.body">
           <h1 class="title">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
           <location :model="model.body"></location>
           <component v-bind:is="bodyType" :model="model.body"></component>
@@ -68,14 +72,21 @@
     watch: {
       "model.user": async function () {
         this.log.debug("user watcher")
-        await this.model.user.joinedLoaded()
-        this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
+        if (this.model.user) {
+          await this.model.user.joinedLoaded()
+          this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
+        }
+        else {
+          this.userDoma = null
+        }
       },
       "model.body": async function () {
-        if (!(this.model.body instanceof models.RemoteModel)) {
-          throw new Error("Неверный тип тела")
+        if (this.model.body) {
+          if (!(this.model.body instanceof models.RemoteModel)) {
+            throw new Error("Неверный тип тела")
+          }
+          await this.model.body.joinedLoaded()
         }
-        await this.model.body.joinedLoaded()
       }
     },
     components: {
@@ -97,6 +108,9 @@
       }
     },
     methods: {
+      close_click(){
+        this.model.logout()
+      },
       toast_close(){
 
       },

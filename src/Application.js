@@ -6,6 +6,7 @@
 import Connection from './Connection'
 let config = require("./../cfg/main")[process.env.NODE_ENV];
 let model = require("./model");
+import Cookies from "js-cookie"
 
 export default class Application {
   constructor() {
@@ -76,14 +77,17 @@ export default class Application {
       }
 
       connection.onclose = async(reason, details) => {
-        Object.assign(details, {onclose_reason: reason})
-        this.log.error("connection closed. details:", details)
+        this.log.info("connection closed. details:", reason, details)
         /**
          * fail auth
          */
         if (!this.user){
           rej(details)
         }
+
+        this.user= null
+        this.body= null
+        models.RemoteModel.clearCache()
       }
 
       connection.open()
@@ -91,6 +95,10 @@ export default class Application {
 
   }
 
+  logout(){
+    Connection.getInstance().close()
+    Cookies.remove("cbtid");
+  }
   getState(){
     const result= {}
 
