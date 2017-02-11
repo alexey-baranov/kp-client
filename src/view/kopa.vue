@@ -4,11 +4,11 @@
       <template v-if="(localMode||mode)=='editor'">
         <div class="card-header text-muted text-small d-flex kp-small">
           <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
-          <div>{{model.invited}}</div>
+          <div>{{model.invited | humanize}}</div>
         </div>
         <div class="card-block d-flex flex-column">
-        <textarea class="form-control" v-model="model.question"
-                  placeholder="Вопрос, который нужно обсудить на копе"></textarea>
+          <textarea class="form-control" v-model="model.question"
+                    placeholder="Вопрос, который нужно обсудить на копе"></textarea>
           <div class="d-flex flex-wrap align-self-end mt-4">
             <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
             <button class="btn btn-success" @click="save_click">Сохранить</button>
@@ -18,7 +18,7 @@
       <template v-else>
         <div class="card-header text-muted text-small d-flex flex-wrap kp-small">
           <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
-          <div>{{model.invited}}</div>
+          <div>{{model.invited | humanize}}</div>
           <button class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
             <span class="material-icons md-dark md-1em">edit</span>
             Править
@@ -26,6 +26,8 @@
         </div>
         <div class="card-block">
           <div class="card-text">{{model.question}}</div>
+          <button v-if="!model.invited" class="btn btn-block btn-primary mt-2" @click="invite_click">Созвать копу
+          </button>
         </div>
       </template>
       <slot></slot>
@@ -42,7 +44,7 @@
         </predlozhenie-as-submit>
       </li>
     </ul>
-    <ul class="list-group">
+    <ul v-if="model.invited" class="list-group">
       <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
         <slovo-as-list-item :id="id+'_slovo'+eachSlovo.id" class="w-100" :model="eachSlovo"></slovo-as-list-item>
       </li>
@@ -58,7 +60,7 @@
 
 <script>
   import $ from "jquery"
-//  import Rx from 'rxjs/Rx';
+  //  import Rx from 'rxjs/Rx';
 
   import Application from "../Application"
   let log = require("loglevel").getLogger("kopa.vue")
@@ -67,7 +69,8 @@
 
   export default{
 //    mixins:[logMixin],
-    name:"kopa",
+    mixins:[require("./mixin/humanize")],
+    name: "kopa",
     data() {
       return {
         /**
@@ -117,6 +120,9 @@
       }
     },
     methods: {
+      async invite_click(){
+          await this.model.invite()
+      },
       holdBottom(){
         //если пользователь расположен в самом низу (последние 20 пикселей) копных обсуждений
         if ($(document).scrollTop() + window.innerHeight + 20 >= $(document).height()) {
@@ -225,7 +231,7 @@
       },
     },
     created() {
-      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
 
       if (this.model.id) {
         this.loadModel();

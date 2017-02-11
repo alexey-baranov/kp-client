@@ -47,9 +47,9 @@ describe('Zemla', function () {
   })
 
   describe('events', function () {
-    let zemla;;;;;;;;;;;;;;;;;;;;;;;
+    let zemla
 
-    it.only('Kopa#invite() should emit Zemla.event.kopaAdd, then RemoteModel.event.change', function (done) {
+    it('Kopa#invite() should emit Zemla.event.kopaAdd, then RemoteModel.event.change', function (done) {
       (async() => {
         try {
           zemla = await models.Zemla.get(ZEMLA)
