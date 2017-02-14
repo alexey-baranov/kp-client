@@ -147,7 +147,11 @@
             }
           }
           else if (err.onclose_reason == 'unreachable') {
+<<<<<<< HEAD
             this.grumbler.pushError("Cервер сообщений недоступен. Попробуйте зайти позже.")
+=======
+            this.grumbler.pushError("WAMP-cервер сообщений недоступен")
+>>>>>>> d256ac7e70d35ded689ede2dcdc1c896025414bb
           }
           else {
             this.grumbler.pushError(err)
