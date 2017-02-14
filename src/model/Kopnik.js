@@ -8,7 +8,7 @@
 var DisplacingTimer = require("displacing-timer");
 var RemoteModel = require("./RemoteModel");
 let _ = require("lodash");
-import Connection from "../Connection"
+let Connection =require("../Connection").default
 
 class Kopnik extends RemoteModel {
   constructor() {

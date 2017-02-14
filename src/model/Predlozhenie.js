@@ -7,7 +7,7 @@
 
 var RemoteModel = require("./RemoteModel");
 let _ = require("lodash");
-import Connection from "../Connection"
+let Connection =require("../Connection").default
 
 class Predlozhenie extends RemoteModel {
     constructor() {

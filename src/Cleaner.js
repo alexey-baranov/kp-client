@@ -3,7 +3,7 @@
  */
 "use strict";
 let _ = require("lodash");
-import Connection from "../src/Connection"
+let Connection = require("../src/Connection").default
 
 
 class Cleaner{

@@ -64,12 +64,22 @@ application.auth()
     log.getLogger("main.js").info("cookie auth fails")
   })
   .then(() => {
-    applicationView.propsData = {
+/*    applicationView.propsData = {
       id: "a",
       model: application
     }
     applicationView.el = "#application"
-    global.applicationView = new Vue(applicationView)
+    global.applicationView = new Vue(applicationView)*/
+
+    new Vue({
+      el: '#application',
+      template:"<application :model='application'></application>",
+      data:{
+        application
+      },
+      components: {application: applicationView}
+    })
+
 
     /**
      * State management

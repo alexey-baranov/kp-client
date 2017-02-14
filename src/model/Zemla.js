@@ -6,9 +6,9 @@
 "use strict";
 
 var RemoteModel = require("./RemoteModel");
-import Connection from "../Connection"
+let Connection =require("../Connection").default
 let _ = require("lodash");
-import join from "../decorator/join"
+let join = require("../decorator/join").default
 
 class Zemla extends RemoteModel {
   constructor() {

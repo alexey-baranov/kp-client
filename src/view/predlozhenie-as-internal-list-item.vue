@@ -16,7 +16,7 @@
   import logMixin from "./mixin/log"
   let models = require("../model")
 
-  module.exports = {
+  export default {
 //    mixins:[logMixin],
     mixins: [require("./mixin/humanize"), /*require("./mixin/log")*/],
     name: "predlozhenie-as-list-item",

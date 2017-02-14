@@ -7,7 +7,7 @@ import _ from "lodash"
 
 export default class Grumbler {
   constructor() {
-    this.log= require("loglevel").getLogger(this.constructor.name)
+    this.log = require("loglevel").getLogger(this.constructor.name)
     this.errors = []
   }
 
@@ -18,7 +18,7 @@ export default class Grumbler {
     return Grumbler.instance
   }
 
-  static getErrorMessage(error){
+  static getErrorMessage(error) {
     let result
     if (error.message) {
       result = error.message
@@ -29,7 +29,7 @@ export default class Grumbler {
     return result
   }
 
-  static getErrorStack(error){
+  static getErrorStack(error) {
     let result
     if (error.message) {
       result = error.stack
@@ -40,7 +40,7 @@ export default class Grumbler {
     return result
   }
 
-  static getErrorType(error){
+  static getErrorType(error) {
     let result
     if (error.message) {
       result = error.constructor.name
@@ -51,21 +51,21 @@ export default class Grumbler {
     return result
   }
 
-  get currentErrorMessage(){
+  get currentErrorMessage() {
     return Grumbler.getErrorMessage(this.errors[0])
   }
 
-  get currentErrorStack(){
+  get currentErrorStack() {
     return Grumbler.getErrorStack(this.errors[0])
   }
 
-  get currentErrorType(){
+  get currentErrorType() {
     return Grumbler.getErrorType(this.errors[0])
   }
 
   /**
    * добавляет ошибку в стек ошибок
-   * @param {Error} error
+   * @param {Error | string} error
    *
    */
   pushError(error) {
@@ -84,20 +84,22 @@ export default class Grumbler {
   }
 
   addEventHandler() {
-    let gOldOnError = window.onerror;
+    let gOldOnError = window.onerror
     window.onerror = (errorMsg, url, lineNumber, error) => {
+      this.log.debug("window.onerror() errorMsg", errorMsg, "url", url, "lineNumber", lineNumber, "error", error)
       if (gOldOnError) {
         gOldOnError(errorMsg, url, lineNumber, error)
       }
-      this.pushError(error?error:new Error(errorMsg))
+      this.pushError((error && error instanceof Error) ? error : new Error(errorMsg))
+      return false
     }
 
     /**
      * асинхронные ошибки
      */
-    window.addEventListener("unhandledrejection", (event)=> {
-      event.preventDefault()
+    window.addEventListener("unhandledrejection", (event) => {
       this.pushError(event.reason)
+      // event.preventDefault()
     })
   }
 }

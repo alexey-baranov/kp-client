@@ -13,7 +13,7 @@
           <div id="g-recaptcha"></div>
         </div>
         <div class="form-group w-100">
-          <input type="submit" class="btn btn-primary btn-block mt-3" value="Войти" :disabledx="!captchaResponse"
+          <input type="submit" class="btn btn-primary btn-block mt-3" value="Войти" :disabled="!captchaResponse"
                  @click.prevent="submit_click">
         </div>
         <div>
@@ -60,11 +60,11 @@
       },
       submit_click() {
         this.$emit("input", this.$data)
+        global.grecaptcha.reset()
       }
     },
     created() {
       this.log = require("loglevel").getLogger(this.$options.name+".vue")
-      this.log.debug(this.name)
     },
     mounted() {
     },

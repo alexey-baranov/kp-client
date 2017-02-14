@@ -3,10 +3,12 @@
  */
 "use strict";
 
-import Connection from './Connection'
-let config = require("./../cfg/main")[process.env.NODE_ENV];
-let model = require("./model");
 import Cookies from "js-cookie"
+import configs from "./../cfg/main"
+import Connection from './Connection'
+import models from "./model"
+
+let config= configs[process.env.NODE_ENV];
 
 export default class Application {
   constructor() {
@@ -39,11 +41,11 @@ export default class Application {
   }
 
   /**
-   *
    * @param email
    * @param password
+   * @param captchaResponse
    */
-  auth(email, password) {
+  auth(email, password, captchaResponse) {
     /**
      * перед авторизацией сбрасываем предыдущие конекшены, которые могут быть с пустыми логинами от куки-заходов
      */
@@ -58,7 +60,7 @@ export default class Application {
       let connection = Connection.getInstance({
         authid: email,
         onchallenge: function (session, method, extra) {
-          return password
+          return JSON.stringify({password: password, captchaResponse: captchaResponse})
         },
         captchaResponse: 12345678
       })
@@ -70,19 +72,19 @@ export default class Application {
          */
         if (!this.user) {
           session.prefix('api', 'ru.kopa')
-          this.user = await model.Kopnik.getByEmail(details.authid)
+          this.user = await models.Kopnik.getByEmail(details.authid)
           this.log.info("user", this.user)
           res(this.user)
         }
       }
 
       connection.onclose = async(reason, details) => {
-        this.log.info("connection closed. details:", reason, details)
+        this.log.info("connection closed. reason:", reason, ", details: ", details)
         /**
          * fail auth
          */
         if (!this.user){
-          rej(details)
+          rej(Object.assign({}, {onclose_reason: reason}, details))
         }
 
         this.user= null
@@ -130,7 +132,7 @@ export default class Application {
 
     if (state.body){
       let [bodyType, BODY]= state.body.split(":")
-      this.body= model[bodyType].getReference(BODY)
+      this.body= models[bodyType].getReference(BODY)
     }
     else if (this.state== Application.State.Main){
       this.body= this.user.dom
@@ -149,3 +151,5 @@ Application.State = {
   Main: "main",
   Verification: "verification"
 }
+
+Application.SEP="..."

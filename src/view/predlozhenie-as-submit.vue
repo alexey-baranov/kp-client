@@ -13,7 +13,7 @@
   import logMixin from "./mixin/log"
   let models = require("../model")
 
-  module.exports = {
+  export default  {
 //    mixins:[logMixin],
     name:"predlozhenie-as-submit",
     props: ["id", "model"],

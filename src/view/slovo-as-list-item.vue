@@ -35,7 +35,7 @@
   import logMixin from "./mixin/log"
   let models = require("../model")
 
-  module.exports = {
+  export default  {
 //    mixins:[logMixin],
     name:"slovo-as-list-item",
     data() {
