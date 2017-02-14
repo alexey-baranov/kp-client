@@ -1,5 +1,6 @@
 <template>
   <div class="registration-as-form">
+    <h1>Регистрация</h1>
     <form>
       <fieldset class="form-group">
         <legend>1. Учетная запись</legend>
@@ -54,7 +55,7 @@
             четыре цифры паспорта</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="passport" v-model="model.passport">
-            <small class="form-text <!--text-muted-->">Предотвращаем голосоване одним реальным человеком от имени нескольких учетных записей
+            <small class="form-text <!--text-muted-->">Защита от того что пользователь зарегистрирует несколько учетных записей и будет голосовать несколькими голосами
             </small>
             <small class="form-text <!--text-muted--> mt-2">Не показывается другим участникам</small>
           </div>
@@ -62,7 +63,7 @@
       </fieldset>
 
       <fieldset class="form-group">
-        <legend>3. Ваши копы по месту проживания</legend>
+        <legend>2. Ваши копы по месту проживания</legend>
         <div class="form-group row">
           <label for="country" class="col-sm-3 col-form-label">Страна</label>
           <div class="col-sm-9">
@@ -165,7 +166,6 @@
   import logMixin from "./mixin/log"
   import models from "../model"
   import Notifier from "../Notifier"
-  import Registration from "../model/Registration"
 
   export default{
     name: "registration-as-form",
@@ -173,7 +173,7 @@
     mixins: [captcha],
     data() {
       return {
-        model: new Registration(),
+        model: new models.Registration(),
         /**
          * промежуточные элементы адреса, которые не нужны при регистрации
          */
@@ -208,7 +208,7 @@
         if (this.model.isReady()) {
           try {
             $("#submit").attr("disabled", true)
-            this.model = await Registration.create(this.model)
+            this.model = await models.Registration.create(this.model)
             $("html, body").animate({scrollTop: $(document).height()}/*, "fast"*/);
           }
           catch (err) {
@@ -225,27 +225,22 @@
     },
     created() {
       this.log = require("loglevel").getLogger(this.$options.name+".vue")
-      if (!Connection.getInstance({
-          authid: config.registrator.username,
-          onchallenge: function (session, method, extra) {
-            return config.registrator.password
-          }
-        }).isOpen
-      ) {
+      if (!Connection.getAnonymousInstance().isOpen) {
+        this.connection = Connection.getAnonymousInstance()
+
         return new Promise((res, rej) => {
-          Connection.getInstance().onopen = async(session, details) => {
-            this.log.debug("session opened")
+          Connection.getAnonymousInstance().onopen = async(session, details) => {
+            this.log.debug("anonymous session opened")
             session.prefix('api', 'ru.kopa')
             res()
           }
 
-          Connection.getInstance().onclose = async(reason, details) => {
-            this.log.debug("session clsed")
+          Connection.getAnonymousInstance().onclose = async(reason, details) => {
+            this.log.error("anonymous session open fails", reason, details)
             if (reason=="closed" || reason=="unreachable" || reason=="unsupported")
             rej(new Error(reason+" "+details.reason+" "+details.message))
           }
-
-          this.connection = Connection.getInstance().open()
+          Connection.getAnonymousInstance().open()
         })
       }
     },
@@ -256,8 +251,7 @@
       global.$('#country').typeahead({
         autoSelect: false,
         delay: 500,
-        source: async(term, process)
-          => {
+        source: async(term, process) => {
           let items = await this2.model.getCountries(term)
           process(items)
         }
@@ -336,11 +330,11 @@
     beforeDestroy(){
       if (this.connection) {
         return new Promise((res, rej) => {
-          Connection.getInstance().onclose = async(session, details) => {
-            this.log.debug("session closed")
+          Connection.getAnonymousInstance().onclose = async(session, details) => {
+            this.log.debug("anonymous session closed")
             res()
           }
-          this.connection.close()
+          Connection.getAnonymousInstance().close()
         })
       }
     }

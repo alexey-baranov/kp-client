@@ -2,8 +2,12 @@
  * Created by alexey2baranov on 30.01.17.
  */
 
-import Connection from '../Connection'
-var RemoteModel = require("./RemoteModel")
+let Connection =require("../Connection").default
+let RemoteModel = require("./RemoteModel")
+
+
+// console.log("RemoteModel", RemoteModel)
+
 let _ = require("lodash")
 
 class Registration extends RemoteModel {

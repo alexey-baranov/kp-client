@@ -52,7 +52,7 @@ export default class Connection extends AutobahnConnection {
       Connection._instance = new Connection({
         authid: config.unittest2.username,
         onchallenge: function (session, method, extra) {
-          return config.unittest2.password
+          return JSON.stringify({password:config.unittest2.password})
         }
       })
     }

@@ -14,7 +14,7 @@
   import logMixin from "./mixin/log"
   let models = require("../model")
 
-  module.exports = {
+  export default {
 //    mixins:[logMixin],
     name:"kopa-as-submit",
     props: ["id", "model"],

@@ -6,9 +6,9 @@ let EventEmitter = require("events").EventEmitter;
 
 var DisplacingTimer = require("displacing-timer");
 let Core = require("./../Core");
-import Connection from "../Connection"
+let Connection =require("../Connection").default
 let _ = require("lodash");
-import join from "../decorator/join"
+let join = require("../decorator/join").default
 
 
 /**

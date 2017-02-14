@@ -120,11 +120,11 @@
       },
       /**
        *
-       * @param credentials {email, password}
+       * @param credentials {email, password, captchaResponse}
        */
       auth_input: async function (credentials) {
         try {
-          await this.model.auth(credentials.email, credentials.password)
+          await this.model.auth(credentials.email, credentials.password, credentials.captchaResponse)
           await this.model.user.dom.joinedLoaded()
           this.model.setBody(this.model.user.dom)
 //          this.model.state = Application.State.Main
@@ -132,12 +132,22 @@
         }
         catch (err) {
           if (err.reason == 'wamp.error.authentication_failed') {
-            this.grumbler.pushError("Неверное имя пользователя или пароль")
+            if (err.message.indexOf("org.kopnik.invalid_captcha_status_code")!=-1) {
+              Grumbler.getInstance().pushError("Вы не прошли Антибот-проверку - проверка временно невозможна")
+            }
+            else if (err.message.indexOf("org.kopnik.invalid_captcha")!=-1) {
+              Grumbler.getInstance().pushError("Вы не прошли Антибот-проверку")
+            }
+            else if (err.message.indexOf("incorrect_username_or_password")!=-1){
+              this.grumbler.pushError("Неверное имя пользователя или пароль")
+            }
+            else{
+              this.grumbler.pushError(err)
+            }
           }
           else if (err.onclose_reason == 'unreachable') {
-            this.grumbler.pushError("Сервер сообщений недоступен")
+            this.grumbler.pushError("WAMP-cервер сообщений недоступен")
           }
-
           else {
             this.grumbler.pushError(err)
           }

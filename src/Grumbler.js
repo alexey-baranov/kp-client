@@ -65,7 +65,7 @@ export default class Grumbler {
 
   /**
    * добавляет ошибку в стек ошибок
-   * @param {Error} error
+   * @param {Error | string} error
    *
    */
   pushError(error) {
