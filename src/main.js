@@ -71,7 +71,7 @@ application.auth()
     applicationView.el = "#application"
     global.applicationView = new Vue(applicationView)*/
 
-    new Vue({
+    global.view= new Vue({
       el: '#application',
       template:"<application :model='application'></application>",
       data:{
@@ -86,7 +86,7 @@ application.auth()
      */
     let stateManager = StateManager.getInstance()
     stateManager.application = application
-    stateManager.applicationView = global.applicationView
+    stateManager.applicationView = global.view.$children[0]
 
     stateManager.listen()
 

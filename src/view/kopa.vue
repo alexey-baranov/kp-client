@@ -19,10 +19,16 @@
         <div class="card-header text-muted text-small d-flex flex-wrap kp-small">
           <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
           <div class="ml-1">{{model.invited | humanize}}</div>
-          <button class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
-            <span class="material-icons md-dark md-1em">edit</span>
-            Править
-          </button>
+          <div class="ml-auto">
+            <button v-if="canEdit" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
+              <span class="material-icons md-dark md-1em">edit</span>
+              Править
+            </button>
+            <button v-if="canDestroy" class="btn btn-sm btn-danger" @click.prevent="destroy_click">
+              <span class="material-icons md-dark md-1em">delete</span>
+              Распустить
+            </button>
+          </div>
         </div>
         <div class="card-block">
           <div class="card-text">{{model.question}}</div>
@@ -66,10 +72,11 @@
   let log = require("loglevel").getLogger("kopa.vue")
   import logMixin from "./mixin/log"
   const models = require("../model");
+  import StateManager from "../StateManager"
 
   export default{
 //    mixins:[logMixin],
-    mixins:[require("./mixin/humanize")],
+    mixins: [require("./mixin/humanize")],
     name: "kopa",
     data() {
       return {
@@ -115,13 +122,20 @@
       $(){
         return $
       },
-      isEditorAllowed(){
+      canEdit(){
         return this.model.owner == Application.getInstance().user
+      },
+      /**
+       * только копы у которых нет принятых предложений
+       */
+      canDestroy(){
+        return this.model.owner == Application.getInstance().user && this.model.result && !this.model.result.find(e => e.status)
       }
     },
     methods: {
+
       async invite_click(){
-          await this.model.invite()
+        await this.model.invite()
       },
       holdBottom(){
         //если пользователь расположен в самом низу (последние 20 пикселей) копных обсуждений
@@ -186,6 +200,11 @@
       async save_click(){
         await this.model.save()
         this.localMode = "viewer"
+      },
+      async destroy_click(){
+        Application.getInstance().goTo(this.model.place)
+        StateManager.getInstance().replaceState()
+        await this.model.destroy()
       },
       async cancel_click(){
         await this.model.reload()

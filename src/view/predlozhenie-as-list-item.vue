@@ -4,10 +4,16 @@
       <div class="card-header d-flex flex-wrap kp-small">
         <kopnik-as-link v-if="model.owner" class="mr-1"  target="_blank" :model="model.owner"></kopnik-as-link>
         <div>{{model.created|humanize}}</div>
-        <button v-if="isEditorAllowed" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
-          <span class="material-icons md-dark md-1em">edit</span>
-          Править
-        </button>
+        <div class="ml-auto">
+          <button v-if="canEdit" class="btn btn-sm btn-secondary" @click.prevent="edit_click">
+            <span class="material-icons md-dark md-1em">edit</span>
+            Править
+          </button>
+          <button v-if="canDestroy" class="btn btn-sm btn-danger" @click.prevent="destroy_click">
+            <span class="material-icons md-dark md-1em">delete</span>
+            Снять с голосования
+          </button>
+        </div>
       </div>
       <div class="card-block">
         <div class="card-text">{{model.value}}</div>
@@ -88,11 +94,17 @@
       "kopnik-as-link": require("./kopnik-as-link.vue")
     },
     computed:{
-      isEditorAllowed(){
+      canEdit(){
           return this.model.owner==Application.getInstance().user && this.model.golosa && this.model.golosa.length==0
+      },
+      canDestroy(){
+          return this.model.owner==Application.getInstance().user && ! this.model.state
       }
     },
     methods: {
+      async destroy_click(){
+        await this.model.destroy()
+      },
       async save_click(){
         await this.model.save()
         this.localMode = "viewer"

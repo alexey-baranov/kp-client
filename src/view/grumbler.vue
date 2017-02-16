@@ -4,7 +4,7 @@
                :title="model.currentErrorType"
                @close="close_click">
       <strong class="lead2">{{model.currentErrorMessage}}</strong>
-      <pre><small>{{model.currentErrorStack}}</small></pre>
+      <!--<pre><small>{{model.currentErrorStack}}</small></pre>-->
       <button class="btn btn-primary" slot="actions" @click="close_click">Закрыть</button>
     </mu-dialog>
   </div>

@@ -4,7 +4,7 @@
       <div class="card-header d-flex flex-wrap kp-small">
         <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
         <div>{{model.created|humanize}}</div>
-        <button v-if="isEditorAllowed" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
+        <button v-if="canEdit" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
           <span class="material-icons md-dark md-1em">edit</span>
           Править
         </button>
@@ -52,7 +52,7 @@
       "kopnik-as-link": require("./kopnik-as-link.vue")
     },
     computed:{
-      isEditorAllowed(){
+      canEdit(){
           return this.model.owner==Application.getInstance().user
       }
     },

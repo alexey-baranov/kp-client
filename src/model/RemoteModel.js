@@ -36,7 +36,7 @@ class RemoteModel extends EventEmitter {
     this._isSubscribedToWAMPPublications = false;
     this.id = undefined;
     this.note = undefined;
-    this.attachments = undefined;
+    this.attachments = []
 
     this.joinedLoaded= join(this.loaded);
   }
@@ -142,6 +142,18 @@ class RemoteModel extends EventEmitter {
 
     return result;
   }
+
+  async destroy() {
+    await Connection.getInstance().session.call("api:model.destroy", [], {
+      type: this.constructor.name,
+      id: this.id
+    })
+
+    //todo: отписка
+    // await result.unsubscribeToWAMPPublications();
+  }
+
+
 
   static getReference(id) {
     if (!id) {

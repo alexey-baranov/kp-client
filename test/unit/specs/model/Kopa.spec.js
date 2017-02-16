@@ -170,7 +170,7 @@ describe('Kopa', function () {
 
   describe('events', async function () {
     let kopnik,
-      kopa
+      kopa;
 
     it('Slovo.create() -> Kopa.emit(addSlovo)', function (done) {
       (async() => {
@@ -204,7 +204,7 @@ describe('Kopa', function () {
 
     })
 
-    it('Predlozhenie.create() z-> Kopa.emit(addPredlozhenie)', function (done) {
+    it('Predlozhenie.create() -> Kopa.emit(addPredlozhenie)', function (done) {
       (async() => {
         try {
           kopnik = await models.Kopnik.get(KOPNIK)
@@ -228,6 +228,39 @@ describe('Kopa', function () {
             value: value,
             owner: kopnik,
           })
+        }
+        catch (err) {
+          done(err);
+        }
+      })()
+    })
+
+    it.only('Predlozhenie.destroy() -> Kopa.emit(predlozhenieDestroy)', function (done) {
+      (async() => {
+        let predlozhenie
+        try {
+          kopnik = await models.Kopnik.get(KOPNIK)
+          kopa = await models.Kopa.get(KOPA)
+
+          kopa.result = []
+          kopa.on(models.Kopa.event.predlozhenieDestroy, (sender, destroyed) => {
+            try {
+              assert.equal(destroyed, predlozhenie, "destroyed, predlozhenie")
+              assert.equal(kopa.result.length, 0, "kopa.result.length, 0")
+
+              done()
+            }
+            catch (err) {
+              done(err)
+            }
+          })
+          let predlozhenie = await models.Predlozhenie.create({
+            place: kopa,
+            value: "destroy unit test",
+            owner: kopnik,
+          })
+
+          await predlozhenie.destroy();
         }
         catch (err) {
           done(err);
