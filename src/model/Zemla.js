@@ -104,7 +104,7 @@ class Zemla extends RemoteModel {
   /**
    *  вливает новое состояние в объект и вызывает события
    */
-  merge(json) {
+  async merge(json) {
     var prevState = {};
     Object.assign(prevState, this);
 
@@ -201,4 +201,5 @@ Zemla.event = {
 
 module.exports = Zemla;
 
-let Kopa = require("./Kopa");
+let File= require("./File")
+let Kopa = require("./Kopa")

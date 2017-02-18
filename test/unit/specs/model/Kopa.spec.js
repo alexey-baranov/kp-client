@@ -137,7 +137,7 @@ describe('Kopa', function () {
     let result,
       kopa
 
-    it("should return array of Predlozheniex", async function () {
+    it("should return array of Predlozhenie", async function () {
       kopa = await models.Kopa.get(KOPA)
       result = await kopa.loadResult()
 
@@ -145,24 +145,13 @@ describe('Kopa', function () {
       for (var eachResult of result) {
         assert.equal(eachResult instanceof models.Predlozhenie, true)
       }
-    })
+    });
 
     it('size should be 3', function () {
       assert.equal(result.length, 3, "result.length, 3")
     })
 
     it('should be ordered by created', function () {
-      assert.equal(result[0].created < result[1].created, true)
-      assert.equal(result[1].created < result[2].created, true)
-    })
-
-    it("should prepend +1 Predlozhenie", async function () {
-      kopa.result.shift()
-      result = await kopa.loadResult()
-      assert.equal(result.length, 3, "result.length, 3")
-    })
-
-    it('should prepend to begining', function () {
       assert.equal(result[0].created < result[1].created, true)
       assert.equal(result[1].created < result[2].created, true)
     })
@@ -235,7 +224,7 @@ describe('Kopa', function () {
       })()
     })
 
-    it.only('Predlozhenie.destroy() -> Kopa.emit(predlozhenieDestroy)', function (done) {
+    it('Predlozhenie.destroy() -> Kopa.emit(predlozhenieDestroy)', function (done) {
       (async() => {
         let predlozhenie
         try {

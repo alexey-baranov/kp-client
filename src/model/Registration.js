@@ -54,6 +54,7 @@ class Registration extends RemoteModel {
       dom_id: this.dom ? this.dom.id : null,
       verifier_id: this.verifier ? this.verifier.id : null,
       result_id: this.result ? this.result.id : null,
+      attachments:this.attachments?this.attachments.map(each=>each.id):[],
     }
     return result
   }
@@ -61,7 +62,7 @@ class Registration extends RemoteModel {
   /**
    *  вливает новое состояние в объект и вызывает события
    */
-  merge(json) {
+  async merge(json) {
     var prevState = {}
     Object.assign(prevState, this)
 
@@ -136,5 +137,6 @@ Registration.event = {}
 
 module.exports = Registration
 
+let File= require("./File")
 let Kopnik = require("./Kopnik");
 let Zemla = require("./Zemla")

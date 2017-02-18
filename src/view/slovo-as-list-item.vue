@@ -11,6 +11,7 @@
       </div>
       <div class="card-block">
         <div class="card-text">{{model.value}}</div>
+        <files :model="model.attachments"></files>
       </div>
     </template>
     <template v-else>
@@ -21,6 +22,7 @@
       <div class="card-block d-flex flex-column">
       <textarea class="form-control" v-model="model.value"
                 placeholder="Ваше предложение, которое будет поставлено на голосование на копе"> </textarea>
+        <files mode="editor" :model="model.attachments"></files>
         <div class="d-flex flex-wrap align-self-end mt-4">
           <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
           <button class="btn btn-success" @click="save_click">Сохранить</button>
@@ -49,7 +51,8 @@
     props: ["id", "model", "mode"],
     mixins:[require("./mixin/humanize")],
     components: {
-      "kopnik-as-link": require("./kopnik-as-link.vue")
+      "kopnik-as-link": require("./kopnik-as-link.vue"),
+      "files": require("./files.vue")
     },
     computed:{
       canEdit(){

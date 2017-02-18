@@ -9,6 +9,7 @@
         <div class="card-block d-flex flex-column">
           <textarea class="form-control" v-model="model.question"
                     placeholder="Вопрос, который нужно обсудить на копе"></textarea>
+          <files :id="id+'_files' " mode="editor" :model="model.attachments"></files>
           <div class="d-flex flex-wrap align-self-end mt-4">
             <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
             <button class="btn btn-success" @click="save_click">Сохранить</button>
@@ -32,6 +33,7 @@
         </div>
         <div class="card-block">
           <div class="card-text">{{model.question}}</div>
+          <files :id="id+'_files' " :model="model.attachments"></files>
           <button v-if="!model.invited" class="btn btn-block btn-primary mt-2" @click="invite_click">Созвать копу
           </button>
         </div>
@@ -101,11 +103,12 @@
      */
     props: ["id", "model", "mode", "short"],
     components: {
+      "kopnik-as-link": require("./kopnik-as-link.vue"),
       "predlozhenie-as-list-item": require("./predlozhenie-as-list-item.vue"),
-      "slovo-as-list-item": require("./slovo-as-list-item.vue"),
       "predlozhenie-as-submit": require("./predlozhenie-as-submit.vue"),
+      "slovo-as-list-item": require("./slovo-as-list-item.vue"),
       "slovo-as-submit": require("./slovo-as-submit.vue"),
-      "kopnik-as-link": require("./kopnik-as-link.vue")
+      "files": require("./files.vue"),
     },
     watch: {
       model(){
@@ -218,6 +221,10 @@
         if (!this.model.dialog) {
           await this.model.loadDialog();
         }
+
+        for(let each of this.model.attachments){
+            await each.joinedLoaded()
+        }
       },
 
       /**
@@ -249,18 +256,18 @@
         };
       },
     },
-    created() {
+    async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
 
       if (this.model.id) {
-        this.loadModel();
-
         if (!this.model.newResult) {
           this.model.newResult = this.getNewResult()
         }
         if (!this.model.newSlovo) {
           this.model.newSlovo = this.getNewSlovo()
         }
+        await this.loadModel();
+
       }
 
       /**

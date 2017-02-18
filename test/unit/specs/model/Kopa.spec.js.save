@@ -137,7 +137,7 @@ describe('Kopa', function () {
     let result,
       kopa
 
-    it("should return array of Predlozheniex", async function () {
+    it("should return array of Predlozhenie", async function () {
       kopa = await models.Kopa.get(KOPA)
       result = await kopa.loadResult()
 
@@ -147,7 +147,7 @@ describe('Kopa', function () {
       }
     })
 
-    it('size should be 3', function () {
+    it.only('size should be 3', function () {
       assert.equal(result.length, 3, "result.length, 3")
     })
 

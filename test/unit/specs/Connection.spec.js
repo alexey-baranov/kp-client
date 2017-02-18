@@ -6,6 +6,7 @@
 let _ = require("lodash");
 let assert = require('chai').assert;
 let AutobahnConnection = require("autobahn").Connection
+let Cookies= require("js-cookie")
 
 import Connection from '../../../src/Connection'
 let config = require("../../../cfg/main")[process.env.NODE_ENV];
@@ -14,13 +15,30 @@ describe('Connection', function () {
   let connection
 
   after(function () {
-      return;
       return new Promise((res) => {
-        Connection.getConnection().onclose = function () {
+        if (Connection.getInstance().isOpen) {
+          Connection.getInstance().onclose = function () {
+            res()
+          }
+          Connection.getInstance().close();
+        }
+        else {
           res()
         }
-        Connection.getConnection().close();
       })
+        .then(() => {
+          return new Promise((res) => {
+            if (Connection.getAnonymousInstance().isOpen) {
+              Connection.getAnonymousInstance().onclose = function () {
+                res()
+              }
+              Connection.getAnonymousInstance().close();
+            }
+            else {
+              res()
+            }
+          })
+        })
     }
   )
 
@@ -31,13 +49,13 @@ describe('Connection', function () {
     expect(Connection.getInstance()).equal(connection)
   })
 
-  it('#open()', function (done) {
+  it('#open(kopnik)', function (done) {
     connection.onopen = (session, details) => {
       if (details.authrole == "kopnik") {
         done()
       }
       else {
-        done("role=" + details.authrole)
+        done(details.authrole + " != kopnik ")
       }
     }
 
@@ -50,24 +68,37 @@ describe('Connection', function () {
     connection.close()
   });
 
-  it('#connect(anonimus)', function (done) {
+  it('#open(anonymous)', function (done) {
     let anonymousConnection = Connection.getAnonymousInstance()
     anonymousConnection.onopen = (session, details) => {
-      if (details.authrole == "anonymous") {
-        anonymousConnection.onclose = null
-        anonymousConnection.close()
-        done()
+      try {
+        /**
+         * 2.1 проверил
+         * удалил куки ананимуса чтобы последующие заходы не считались сервером анонимусами
+         */
+        if (details.authrole == "anonymous") {
+          Cookies.remove("cbtid")
+          anonymousConnection.onclose = null
+          // 3. закрыл
+          anonymousConnection.close();;
+          done()
+        }
+        // 2.2 открылось хуй пойми что
+        else {
+          done(details.authrole + " != anonymous");
+        }
       }
-      else {
-        done("role=" + details.authrole)
+      catch(err){
+        done(err)
       }
     }
+    //2.1 соединение не открылось
     anonymousConnection.onclose = (reason, data) => done(reason)
-
+    //1. открыл
     anonymousConnection.open()
   })
 
-  it.skip('#connect() + #connect(coockie)', function (done) {
+  it('#connect() + #connect(coockie)', function (done) {
     connection = Connection.getUnitTestInstance()
     connection.onopen = (session, details) => {
       if (details.authrole == "kopnik") {
@@ -79,18 +110,18 @@ describe('Connection', function () {
             }
           })
           cookieConnection.onopen = (session, details) => {
-            if (details.authrole == "kopnik" && details.authid== config.unittest2.username) {
+            if (details.authrole == "kopnik" && details.authid == config.unittest2.username) {
               done();
             }
             else {
-              done("role=" + details.authrole)
+              done(details.authrole+" != role")
             }
           }
           cookieConnection.onclose = (reason, details) => {
-              done("cookie connection close with "+reason+JSON.stringify(details));
+            done("cookie connection close with " + reason + JSON.stringify(details));
           }
           //3. reopen()
-          cookieConnection.open();
+          cookieConnection.open();;
         }
         //2. close()
         connection.close()

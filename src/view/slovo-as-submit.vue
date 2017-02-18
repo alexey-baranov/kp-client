@@ -3,7 +3,7 @@
     <div class="card-block">
             <textarea class="form-control" v-model="model.value"
                       placeholder="Говорите..." @keyup.ctrl.enter="submit_click"> </textarea>
-      <upload-as-submit :id="id+'upload'" :model="model.attachments"></upload-as-submit>
+      <files :id="id+'_upload'" mode="editor" :model="model.attachments"></files>
       <button class="btn btn-block btn-primary mt-2" :disabled="!model.value" @click="submit_click">Сказать (Ctrl+Ввод)</button>
     </div>
   </div>
@@ -24,7 +24,7 @@
         }
     },
     components: {
-        "upload-as-submit": require("./upload-as-submit.vue")
+        "files": require("./files.vue")
     },
     created: async function () {
       this.log = require("loglevel").getLogger(this.$options.name+".vue")

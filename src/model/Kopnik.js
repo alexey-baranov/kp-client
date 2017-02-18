@@ -53,7 +53,7 @@ class Kopnik extends RemoteModel {
   /**
    *  вливает новое состояние в объект и вызывает события
    */
-  merge(json) {
+  async merge(json) {
     var prevState = {};
     Object.assign(prevState, this);
 
@@ -146,12 +146,7 @@ class Kopnik extends RemoteModel {
         KOPNIK: this.id,
       }, {disclose_me: true});
 
-      let result = await Promise.all(resultAsPlain.map(async eachResultAsPlain => {
-        let eachResult = Kopnik.getReference(eachResultAsPlain.id);
-        eachResult.merge(eachResultAsPlain);
-        await eachResult.subscribeToWAMPPublications();
-        return eachResult;
-      }));
+      let result = await Promise.all(resultAsPlain.map(async eachResultAsPlain => await Kopnik.get(eachResultAsPlain)))
 
       this.druzhina = result;
       this.emit(Kopnik.event.druzhinaLoad, this);
@@ -182,12 +177,7 @@ class Kopnik extends RemoteModel {
   async reloadRegistrations() {
     let registrationsAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Kopnik.getRegistrations", [], {}, {disclose_me: true});
 
-    this.registrations = await Promise.all(registrationsAsPlain.map(async eachRegistrationAsPlain => {
-      let eachRegistration = Registration.getReference(eachRegistrationAsPlain.id)
-      eachRegistration.merge(eachRegistrationAsPlain)
-      await eachRegistration.subscribeToWAMPPublications()
-      return eachRegistration
-    }))
+    this.registrations = await Promise.all(registrationsAsPlain.map(async eachRegistrationAsPlain => await Registration.get(eachRegistrationAsPlain)))
 
     this.emit(Kopnik.event.registrationsReload, this);
   }
@@ -249,6 +239,6 @@ Kopnik.event = {
 module.exports = Kopnik
 
 
-let Zemla = require("./Zemla");
-let File = require("./File");
+let File= require("./File")
 let Registration = require("./Registration")
+let Zemla = require("./Zemla");

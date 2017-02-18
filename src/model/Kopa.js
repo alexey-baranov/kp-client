@@ -51,7 +51,7 @@ class Kopa extends RemoteModel {
   /**
    *  вливает новое состояние в объект и вызывает события
    */
-  merge(json) {
+  async merge(json) {
     var prevState = {};
     Object.assign(prevState, this);
 
@@ -70,10 +70,14 @@ class Kopa extends RemoteModel {
       this.note = json.note;
     }
     if (json.hasOwnProperty("attachments")) {
-      this.attachments = json.attachments.map(EACH_ATTACHMENT => File.getReference(EACH_ATTACHMENT));
+      this.attachments = json.attachments.map(each => {
+        each = File.getReference(each.id)
+        each.merge(each);
+        return each
+      })
     }
     if (json.hasOwnProperty("owner_id")) {
-      this.owner = Kopnik.getReference(json.owner_id);
+      this.owner = Kopnik.getReference(json.owner_id)
     }
     if (json.hasOwnProperty("place_id")) {
       this.place = Zemla.getReference(json.place_id);
@@ -110,7 +114,7 @@ class Kopa extends RemoteModel {
         let destroyed = this.result.find(eachResult => eachResult.id == args[0])
 
         let index = this.result.indexOf(destroyed)
-        if (index!= -1) {
+        if (index != -1) {
           this.result.splice(index, 1)
         }
 
@@ -122,7 +126,7 @@ class Kopa extends RemoteModel {
         let destroyed = this.dialog.find(e => e.id == args[0])
 
         let index = this.dialog.indexOf(destroyed)
-        if (index!= -1) {
+        if (index != -1) {
           this.dialog.splice(index, 1)
         }
 
@@ -168,25 +172,11 @@ class Kopa extends RemoteModel {
    * или предыдущую порцию, если он уже начат загружаться
    */
   async loadResult() {
-    let BEFORE = this.result && this.result.length ? this.result[0].created.getTime() : null;
-    let resultAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getResult", [], {
-      PLACE: this.id,
-      BEFORE: BEFORE
-    }, {disclose_me: true})
+    let resultAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getResult", [this.id], null, {disclose_me: true})
 
-    let result = await Promise.all(resultAsPlain.map(async eachResultAsPlain => {
-      let eachResult = Predlozhenie.get(eachResultAsPlain);
-      return eachResult;
-    }))
-
-    if (!this.result || !this.result.length) {
-      this.result = result;
-    }
-    else {
-      this.result = result.concat(this.result)
-    }
+    let result = await Promise.all(resultAsPlain.map(async eachResultAsPlain => Predlozhenie.get(eachResultAsPlain)))
+    this.result = result
     this.emit(Kopa.event.resultLoad, this)
-
     return this.result;
   }
 
@@ -210,8 +200,8 @@ Kopa.event = {
 
 module.exports = Kopa;
 
-let Kopnik = require("./Kopnik");
-let Slovo = require("./Slovo");
-let Zemla = require("./Zemla");
-let Predlozhenie = require("./Predlozhenie");
-let x = 1;
+let File = require("./File")
+let Kopnik = require("./Kopnik")
+let Slovo = require("./Slovo")
+let Zemla = require("./Zemla")
+let Predlozhenie = require("./Predlozhenie")

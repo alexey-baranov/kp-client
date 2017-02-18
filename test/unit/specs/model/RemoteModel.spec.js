@@ -74,6 +74,12 @@ describe('RemoteModel', function () {
       let localKopnik = await models.Kopnik.get(KOPNIK2)
       assert.equal(localKopnik, models.Kopnik.getReference(KOPNIK2))
     })
+
+    it("should return kopa with attachments", async function () {
+      let kopa = await models.Kopa.get(3)
+      assert.equal(_.isArray(kopa.attachments), true, "_.isArray(kopa.attachments)")
+      assert.equal(kopa.attachments[0] instanceof models.File, true, "kopa.attachments[0] instanceof models.File")
+    })
   })
 
   describe('#getPlain()', function () {
@@ -114,6 +120,7 @@ describe('RemoteModel', function () {
       assert.equal(slovo instanceof models.Slovo, true, "instanceof")
       assert.equal(_.isNumber(slovo.id), true, "slovo.id")
       assert.equal(slovo._isLoaded, true, "slovo._isLoaded")
+      assert.equal(slovo.created instanceof Date, true, "slovo.created is Date")
     })
 
     it('should be saved into database', async function () {

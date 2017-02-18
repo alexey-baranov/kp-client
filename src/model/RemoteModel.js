@@ -39,6 +39,12 @@ class RemoteModel extends EventEmitter {
     this.attachments = []
 
     this.joinedLoaded= join(this.loaded);
+    /**
+     * у новвой предсозданой на клиенте модели его нет
+     * потому что он еще не созан на сервере
+     * точно так же как нет и id
+     */
+    this.created = undefined;
   }
 
   static cache = new Map([
@@ -126,16 +132,19 @@ class RemoteModel extends EventEmitter {
      * если сюда передался id, то ниже он перекроет собой настоящий id
      */
     delete value.id
+    delete value.created
     // let plain= this.getPlain(value);
     let plain = this.prototype.getPlain.call(value);
-    let id = await Connection.getInstance().session.call("api:model.create", [], {
+    let {id, created} = await Connection.getInstance().session.call("api:model.create", [], {
       type: this.name,
       plain: plain
     });
     id = parseInt(id)
+    created= new Date(created)
 
     let result = this.getReference(id)
     Object.assign(result, value)
+    result.created= created
     result._isLoaded = true
 
     await result.subscribeToWAMPPublications();
@@ -196,7 +205,7 @@ class RemoteModel extends EventEmitter {
     else {
       result = this.getReference(what.id);
       if (!result._isLoaded){
-        result.merge(what);
+        await result.merge(what);
       // }
       // if (!result._isSubscribedToWAMPPublications) {
         await result.subscribeToWAMPPublications();
@@ -227,7 +236,7 @@ class RemoteModel extends EventEmitter {
       // this.log.debug(`${this} loaded in concurent thread. merging skipped. subscription skipped`);
     }
     else if (!isLoadedBefore) {
-      this.merge(json)
+      await this.merge(json)
       await this.subscribeToWAMPPublications()
     }
     /**
@@ -235,7 +244,7 @@ class RemoteModel extends EventEmitter {
      * скорее всего это reload() по ->change
      */
     else {
-      this.merge(json)
+      await this.merge(json)
     }
     this.log.debug(`reloaded ${this}`, this)
 
@@ -274,7 +283,7 @@ class RemoteModel extends EventEmitter {
    * потому что в таком случае пропадет возможность анализировать события
    * noteChanged, attachmentsChanged, firstTimeLoadedChanged внутри моделей
    */
-  merge() {
+  async merge() {
 
   }
 

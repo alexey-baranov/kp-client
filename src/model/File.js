@@ -5,44 +5,46 @@
  */
 "use strict";
 
-var RemoteModel= require("./RemoteModel");
-let _= require("lodash");
+var RemoteModel = require("./RemoteModel");
+let _ = require("lodash");
 
 
-class File extends RemoteModel{
-    constructor() {
-        super();
+class File extends RemoteModel {
+  constructor() {
+    super();
 
-        this.name = undefined;
-        this.size = undefined;
-        this.mimeType = undefined;
-    }
+    this.name = undefined;
+    this.size = undefined;
+    this.mimeType = undefined;
+  }
 
-    getPlain(){
-        let result=  {
-            id: this.id,
-            name: this.name,
-            size: this.size,
-            mimeType: this.mimeType,
-            note: this.note,
-            attachments:this.attachments?this.attachments.map(each=>each.id):[]
-        };
-        return result;
-    }
+  getPlain() {
+    let result = {
+      id: this.id,
+      name: this.name,
+      path: this.path,
+      size: this.size,
+      mimeType: this.mimeType,
+      note: this.note,
+      attachments: this.attachments ? this.attachments.map(each => each.id) : []
+    };
+    return result;
+  }
 
-    /**
-     *  вливает новое состояние в объект и вызывает события
-     */
-    merge(json){
-        var prevState= {};
-        Object.assign(prevState, this);
+  /**
+   *  вливает новое состояние в объект и вызывает события
+   */
+  async merge(json) {
+    var prevState = {};
+    Object.assign(prevState, this);
 
-        this._isLoaded= true;
+    this._isLoaded = true;
 
-        this.name= json.name;
-        this.size= +json.size;
-        this.mimeType= json.mimeType;
-    }
+    this.name = json.name;
+    this.path = json.path
+    this.size = +json.size;
+    this.mimeType = json.mimeType;
+  }
 }
 
-module.exports= File;
+module.exports = File;

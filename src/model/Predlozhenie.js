@@ -38,7 +38,7 @@ class Predlozhenie extends RemoteModel {
     /**
      *  вливает новое состояние в объект и вызывает события
      */
-    merge(json) {
+    async merge(json) {
         var prevState = {};
         Object.assign(prevState, this);
 
@@ -115,12 +115,7 @@ class Predlozhenie extends RemoteModel {
             PREDLOZHENIE: this.id
         }, {disclose_me: true});
 
-        let golosa = await Promise.all(golosaAsPlain.map(async eachGolosAsPlain => {
-            let eachGolos = Golos.getReference(eachGolosAsPlain.id);
-            eachGolos.merge(eachGolosAsPlain);
-            await eachGolos.subscribeToWAMPPublications();
-            return eachGolos;
-        }));
+        let golosa = await Promise.all(golosaAsPlain.map(async eachGolosAsPlain => await Golos.get(eachGolosAsPlain)));
 
         this.golosa = golosa;
         this.emit(Predlozhenie.event.golosaReload, this);
@@ -169,6 +164,7 @@ Predlozhenie.event = {
 
 module.exports = Predlozhenie;
 
-let Kopnik = require("./Kopnik");
-let Kopa = require("./Kopa");
+let File= require("./File")
 let Golos = require("./Golos");
+let Kopa = require("./Kopa");
+let Kopnik = require("./Kopnik");

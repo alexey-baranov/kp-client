@@ -27,7 +27,7 @@ class Slovo extends RemoteModel{
             value: this.value,
             note: this.note,
             attachments:this.attachments?this.attachments.map(each=>each.id):[],
-            created: this.created.toISOString()
+            created: this.created?this.created.toISOString():undefined
         };
         return result;
     }
@@ -35,7 +35,7 @@ class Slovo extends RemoteModel{
     /**
      *  вливает новое состояние в объект и вызывает события
      */
-    merge(json){
+    async merge(json){
         var prevState= {};
         Object.assign(prevState, this);
 
@@ -74,5 +74,6 @@ class Slovo extends RemoteModel{
 
 module.exports= Slovo;
 
-let Kopnik= require("./Kopnik");
+let File= require("./File")
 let Kopa= require("./Kopa");
+let Kopnik= require("./Kopnik");
