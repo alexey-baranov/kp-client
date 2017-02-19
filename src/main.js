@@ -38,6 +38,8 @@ import $ from "jquery"; //global.$=$;
 import Vue from 'vue'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
+require('vue-strap/dist/vue-strap-lang.js')
+require('vue-strap/dist/isMobileBrowser.js')
 
 import Application from './Application'
 import applicationView from './view/application.vue'

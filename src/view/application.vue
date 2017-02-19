@@ -2,7 +2,7 @@
   <div class="application">
     <grumbler :model="grumbler"></grumbler>
     <mu-toast v-if="notifier.currentNotification" :message="notifier.currentNotification.value" @close="toast_close"/>
-    <nav class="navbar fixed-top navbar-toggleable-sm navbar-light bg-faded">
+    <nav class="navbar fixed-top navbar-toggleable navbar-light bg-faded"><!---->
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
               data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
               aria-label="Toggle navigation">
@@ -28,7 +28,7 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" target="_blank" href="http://youtube.com/kopnik">Youtube</a>
+            <a class="nav-link" target="_blank" href="https://www.youtube.com/channel/UCJRtg8s94PTFXEfZ6sEnlGw">Youtube</a>
           </li>
 
           <li v-if="model.user" class="nav-item">
@@ -93,7 +93,7 @@
            */
           if (this.model.state == Application.State.Main) {
 //          Vue.nextTick(()=>{})
-            this.log.debug(this.model.body.toString(), this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id))
+//            this.log.debug(this.model.body.toString(), this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id))
             $.scrollTop(this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id)||0)
           }
         }

@@ -8,7 +8,7 @@
         </div>
         <div class="card-block d-flex flex-column">
           <textarea class="form-control" v-model="model.question"
-                      placeholder="Вопрос, который нужно обсудить на копе"></textarea>
+                    placeholder="Вопрос, который нужно обсудить на копе"></textarea>
           <files :id="id+'_files' " mode="editor" :model="model.attachments"
                  :drop="id+'_file_drop'"></files>
           <div class="d-flex flex-wrap align-self-end mt-4">
@@ -21,16 +21,37 @@
         <div class="card-header text-muted text-small d-flex flex-wrap kp-small">
           <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
           <div class="ml-1">{{model.invited | humanize}}</div>
-          <div class="ml-auto">
-            <button v-if="canEdit" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
-              <span class="material-icons md-dark md-1em">edit</span>
-              Править
-            </button>
-            <button v-if="canDestroy" class="btn btn-sm btn-danger" @click.prevent="destroy_click">
-              <span class="material-icons md-dark md-1em">delete</span>
-              Распустить
-            </button>
+
+          <div v-if="canManage" class="dropdown ml-auto">
+            <a :id="id+'_actions'" class="btn btn-secondary btn-sm dropdown-toggle" href="#" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false">
+              ...
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right" :aria-labelledby="id+'_actions'">
+              <a href="#" class="dropdown-item" :class="{disabled: !canEdit}" @click.prevent="edit_click">
+                <span class="material-icons md-dark md-1em">edit</span>
+                Править
+              </a>
+              <!--<div class="dropdown-divider"></div>-->
+              <a href="#" class="dropdown-item" :class="{disabled: !canDestroy}" @click.prevent="destroy_click">
+                <span class="material-icons md-dark md-1em">close</span>
+                Распустить
+              </a>
+            </div>
           </div>
+          <!--
+                    <div class="ml-auto">
+                      <button v-if="canEdit" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
+                        <span class="material-icons md-dark md-1em">edit</span>
+                        Править
+                      </button>
+                      <button v-if="canDestroy" class="btn btn-sm btn-danger" @click.prevent="destroy_click">
+                        <span class="material-icons md-dark md-1em">delete</span>
+                        Распустить
+                      </button>
+                    </div>
+                    -->
         </div>
         <div :id="id+'_card_block'" class="card-block">
           <div class="card-text">{{model.question}}</div>
@@ -126,14 +147,20 @@
       $(){
         return $
       },
-      canEdit(){
+      canManage(){
         return this.model.owner == Application.getInstance().user
       },
       /**
        * только копы у которых нет принятых предложений
        */
+      canEdit(){
+        return this.model.owner == Application.getInstance().user && this.model.result && !this.model.result.find(e => e.state)
+      },
+      /**
+       * только копы у которых нет принятых предложений
+       */
       canDestroy(){
-        return this.model.owner == Application.getInstance().user && this.model.result && !this.model.result.find(e => e.status)
+        return this.model.owner == Application.getInstance().user && this.model.result && !this.model.result.find(e => e.state)
       }
     },
     methods: {
@@ -199,16 +226,20 @@
       },
 
       edit_click(){
-        this.localMode = "editor"
+        if (this.canEdit) {
+          this.localMode = "editor"
+        }
       },
       async save_click(){
         await this.model.save()
         this.localMode = "viewer"
       },
       async destroy_click(){
-        Application.getInstance().goTo(this.model.place)
-        StateManager.getInstance().replaceState()
-        await this.model.destroy()
+        if (this.canDestroy) {
+          Application.getInstance().goTo(this.model.place)
+          StateManager.getInstance().replaceState()
+          await this.model.destroy()
+        }
       },
       async cancel_click(){
         await this.model.reload()

@@ -4,15 +4,23 @@
       <div class="card-header d-flex flex-wrap kp-small">
         <kopnik-as-link v-if="model.owner" class="mr-1"  target="_blank" :model="model.owner"></kopnik-as-link>
         <div>{{model.created|humanize}}</div>
-        <div class="ml-auto">
-          <button v-if="canEdit" class="btn btn-sm btn-secondary" @click.prevent="edit_click">
-            <span class="material-icons md-dark md-1em">edit</span>
-            Править
-          </button>
-          <button v-if="canDestroy" class="btn btn-sm btn-danger" @click.prevent="destroy_click">
-            <span class="material-icons md-dark md-1em">delete</span>
-            Снять с голосования
-          </button>
+        <div v-if="canManage" class="dropdown ml-auto">
+          <a :id="id+'_actions'" class="btn btn-secondary btn-sm dropdown-toggle" href="#" data-toggle="dropdown"
+             aria-haspopup="true" aria-expanded="false">
+            ...
+          </a>
+
+          <div class="dropdown-menu dropdown-menu-right" :aria-labelledby="id+'_actions'">
+            <a href="#" class="dropdown-item" :class="{disabled: !canEdit}" @click.prevent="edit_click">
+              <span class="material-icons md-dark md-1em">edit</span>
+              Править
+            </a>
+            <!--<div class="dropdown-divider"></div>-->
+            <a href="#" class="dropdown-item" :class="{disabled: !canDestroy}" @click.prevent="destroy_click">
+              <span class="material-icons md-dark md-1em">close</span>
+              Снять с голосования
+            </a>
+          </div>
         </div>
       </div>
       <div class="card-block">
@@ -94,6 +102,9 @@
       "kopnik-as-link": require("./kopnik-as-link.vue")
     },
     computed:{
+      canManage(){
+        return this.model.owner == Application.getInstance().user
+      },
       canEdit(){
           return this.model.owner==Application.getInstance().user && this.model.golosa && this.model.golosa.length==0
       },
