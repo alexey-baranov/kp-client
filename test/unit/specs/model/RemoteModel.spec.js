@@ -110,12 +110,13 @@ describe('RemoteModel', function () {
     let slovo
     let slovoValue = "temp 123",
       slovoNote = "456"
-    it("should create new Slovo with id", async function () {
+    it("should create new Slovo with id, created, attachments", async function () {
       slovo = await models.Slovo.create({
         place: models.Kopa.getReference(KOPA),
         owner: models.Kopnik.getReference(KOPNIK2),
         value: slovoValue,
         note: slovoNote,
+        attachments: [models.File.getReference(1), models.File.getReference(2)]
       })
       assert.equal(slovo instanceof models.Slovo, true, "instanceof")
       assert.equal(_.isNumber(slovo.id), true, "slovo.id")
@@ -129,6 +130,9 @@ describe('RemoteModel', function () {
       assert.equal(slovo.owner.id, KOPNIK2, "slovo.owner.id")
       assert.equal(slovo.value, slovoValue, "slovo.value")
       assert.equal(slovo.note, slovoNote, "slovo.note")
+      assert.equal(_.isArray(slovo.attachments), true, "_.isArray(slovo.attachments)")
+      assert.equal(slovo.attachments.length, 2, "slovo.attachments.length, 2")
+      assert.equal(slovo.attachments[0] instanceof models.File, true, "slovo.attachments[0] instanceof models.File")
     })
 
     it.skip('should publish event after create done', function (done) {
@@ -166,6 +170,7 @@ describe('RemoteModel', function () {
           await connection.session.subscribe("ru.kopa.model.Zemla.id2.change", function () {
             done()
           })
+
           zemla.note = zemlaNote
           await zemla.save()
         }
@@ -179,6 +184,24 @@ describe('RemoteModel', function () {
     it('should be saved into database', async function () {
       await zemla.reload()
       assert.equal(zemla.note, zemlaNote, "zemla.note")
+    })
+
+    it('should save attachments', async function () {
+      let zemla = await models.Zemla.create({
+        name: "unit test",
+        parent: models.Zemla.getReference(1),
+        attachments: [models.File.getReference(1), models.File.getReference(2)]
+      })
+
+      await zemla.reload()
+      let file2 = zemla.attachments.find(each => each.id == 2)
+      zemla.attachments.splice(zemla.attachments.indexOf(file2), 1)
+      await zemla.save()
+      await zemla.reload()
+
+      assert.equal(zemla.attachments.length, 1, "zemla.attachments.length, 1")
+      assert.equal(zemla.attachments[0] instanceof models.File, true, "zemla.attachments[0] instanceof models.File")
+      assert.equal(zemla.attachments[0].id, 1, "zemla.attachments[0],id==1")
     })
   })
 })

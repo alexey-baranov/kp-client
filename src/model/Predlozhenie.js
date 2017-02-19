@@ -54,7 +54,7 @@ class Predlozhenie extends RemoteModel {
             this.note = json.note;
         }
         if (json.hasOwnProperty("attachments")) {
-            this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
+          this.attachments = json.attachments.map(each => File.getReference(each.id))
         }
         if (json.hasOwnProperty("owner_id")) {
             this.owner = Kopnik.getReference(json.owner_id);

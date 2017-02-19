@@ -27,7 +27,7 @@ class Slovo extends RemoteModel{
             value: this.value,
             note: this.note,
             attachments:this.attachments?this.attachments.map(each=>each.id):[],
-            created: this.created?this.created.toISOString():undefined
+            created: this.created?this.created.toISOString():[]
         };
         return result;
     }
@@ -48,7 +48,7 @@ class Slovo extends RemoteModel{
             this.note = json.note;
         }
         if (json.hasOwnProperty("attachments")) {
-            this.attachments = json.attachments.map(EACH_ATTACHMENT=>File.getReference(EACH_ATTACHMENT));
+          this.attachments = json.attachments.map(each => File.getReference(each.id))
         }
         if (json.hasOwnProperty("owner_id")) {
             this.owner = Kopnik.getReference(json.owner_id);

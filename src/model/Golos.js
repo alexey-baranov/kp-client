@@ -47,7 +47,7 @@ class Golos extends RemoteModel {
       this.note = json.note;
     }
     if (json.hasOwnProperty("attachments")) {
-      this.attachments = json.attachments.map(each => File.get(each))
+      this.attachments = json.attachments.map(each => File.getReference(each.id))
     }
     if (json.hasOwnProperty("owner_id")) {
       this.owner = Kopnik.getReference(json.owner_id)

@@ -8,8 +8,9 @@
         </div>
         <div class="card-block d-flex flex-column">
           <textarea class="form-control" v-model="model.question"
-                    placeholder="Вопрос, который нужно обсудить на копе"></textarea>
-          <files :id="id+'_files' " mode="editor" :model="model.attachments"></files>
+                      placeholder="Вопрос, который нужно обсудить на копе"></textarea>
+          <files :id="id+'_files' " mode="editor" :model="model.attachments"
+                 :drop="id+'_file_drop'"></files>
           <div class="d-flex flex-wrap align-self-end mt-4">
             <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
             <button class="btn btn-success" @click="save_click">Сохранить</button>
@@ -31,9 +32,9 @@
             </button>
           </div>
         </div>
-        <div class="card-block">
+        <div :id="id+'_card_block'" class="card-block">
           <div class="card-text">{{model.question}}</div>
-          <files :id="id+'_files' " :model="model.attachments"></files>
+          <files :id="id+'_files' " :model="model.attachments" :drop="id+'_card_block'"></files>
           <button v-if="!model.invited" class="btn btn-block btn-primary mt-2" @click="invite_click">Созвать копу
           </button>
         </div>
@@ -220,10 +221,6 @@
         }
         if (!this.model.dialog) {
           await this.model.loadDialog();
-        }
-
-        for(let each of this.model.attachments){
-            await each.joinedLoaded()
         }
       },
 

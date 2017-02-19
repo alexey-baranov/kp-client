@@ -120,7 +120,7 @@ class Zemla extends RemoteModel {
       this.parent = null;
     }
     this.note = json.note;
-    this.attachments = json.attachments.map(EACH_ATTACHMENT => File.getReference(EACH_ATTACHMENT));
+    this.attachments = json.attachments.map(each => File.getReference(each.id))
 
     if (this.name != prevState.name ||
       this.intensity != prevState.intensity ||

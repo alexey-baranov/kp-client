@@ -45,7 +45,7 @@ class Kopnik extends RemoteModel {
       starshina_id: this.starshina ? this.starshina.id : null,
       note: this.note,
       druzhina: this.druzhina ? this.druzhina.map(eachDruzhe => eachDruzhe.getPlain()) : undefined,
-      attachments: this.attachments ? this.attachments.map(each => each.id) : undefined
+      attachments: this.attachments ? this.attachments.map(each => each.id) : []
     }
     return result
   }
@@ -71,7 +71,7 @@ class Kopnik extends RemoteModel {
 
     this.dom = Zemla.getReference(json.dom_id);
     this.starshina = json.starshina_id ? Kopnik.getReference(json.starshina_id) : null;
-    this.attachments = json.attachments ? json.attachments.map(EACH_ATTACHMENT => File.getReference(EACH_ATTACHMENT)) : undefined;
+    this.attachments = json.attachments.map(each => File.getReference(each.id))
     /*      это асинхронная штукенция поэтому непонятно как ее тут выполнять даже
      if (json.druzhina) {
      this.druzhina= json.druzhina.map(eachDruzheAsPlain=>{

@@ -53,6 +53,7 @@
 </template>
 
 <script>
+  let $ = require("jquery")(window)
   import Application from "../Application"
   import logMixin from "./mixin/log"
   import Notifier from "../Notifier"
@@ -87,6 +88,14 @@
             throw new Error("Неверный тип тела")
           }
           await this.model.body.joinedLoaded()
+          /**
+           * такой код работает хорошо всегда
+           */
+          if (this.model.state == Application.State.Main) {
+//          Vue.nextTick(()=>{})
+            this.log.debug(this.model.body.toString(), this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id))
+            $.scrollTop(this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id)||0)
+          }
         }
       }
     },
@@ -125,24 +134,26 @@
        */
       auth_input: async function (credentials) {
         try {
-          await this.model.auth(credentials.email, credentials.password, credentials.captchaResponse)
-          await this.model.user.dom.joinedLoaded()
+          await
+            this.model.auth(credentials.email, credentials.password, credentials.captchaResponse)
+          await
+            this.model.user.dom.joinedLoaded()
           this.model.setBody(this.model.user.dom)
 //          this.model.state = Application.State.Main
           StateManager.getInstance().popState(location.search.substring(1))
         }
         catch (err) {
           if (err.reason == 'wamp.error.authentication_failed') {
-            if (err.message.indexOf("org.kopnik.invalid_captcha_status_code")!=-1) {
+            if (err.message.indexOf("org.kopnik.invalid_captcha_status_code") != -1) {
               Grumbler.getInstance().pushError("Вы не прошли Антибот-проверку - проверка временно невозможна")
             }
-            else if (err.message.indexOf("org.kopnik.invalid_captcha")!=-1) {
+            else if (err.message.indexOf("org.kopnik.invalid_captcha") != -1) {
               Grumbler.getInstance().pushError("Вы не прошли Антибот-проверку")
             }
-            else if (err.message.indexOf("incorrect_username_or_password")!=-1){
+            else if (err.message.indexOf("incorrect_username_or_password") != -1) {
               this.grumbler.pushError("Неверное имя пользователя или пароль")
             }
-            else{
+            else {
               this.grumbler.pushError(err)
             }
           }
@@ -156,9 +167,21 @@
       },
       getState(){
         return "av"
+        return {
+          scrollY: window.scrollY
+        }
       },
-      setState(){
-
+      setState(state){
+        /**
+         * такой код работает хорошо, но он не обеспечивает правильное поведение во всех случаях
+         * например если из копы кнопками назад потом вперед он сработает
+         * а из копы кнопкой назад, а потом мышкой заходим обратно, то скрол будет в начале экрана
+         *
+         */
+/*
+        this.log.debug("#setState()", state.scrollY)
+        $.scrollTop(state.scrollY)
+*/
       },
       debug(){
         this.log.debug.bind(log).apply(arguments)
@@ -166,12 +189,35 @@
     },
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
+      this.positions = new Map()
+      this.positions.set(Application.State.Main, new Map())
+      for(let each of models.RemoteModel.cache.keys()){
+          this.positions.get(Application.State.Main).set(each, new Map())
+      }
+
 
       if (this.model.user) {
         this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
       }
     },
     mounted() {
+      window.addEventListener('scroll', (e) => {
+        if (this.model.state == Application.State.Main && this.model.body) {
+          /**
+           * такой код работает хорошо всегда
+           */
+          this.positions.get(Application.State.Main).get(this.model.body.constructor.name).set(this.model.body.id, window.scrollY)
+//          this.log.debug(this.positions)
+
+          /**
+           * такой код работает хорошо, но он не обеспечивает правильное поведение во всех случаях
+           * например если из копы кнопками назад потом вперед он сработает
+           * а из копы кнопкой назад, а потом мышкой заходим обратно, то скрол будет в начале экрана
+           *
+           */
+//          StateManager.getInstance().replaceState()
+        }
+      })
     },
   }
 
@@ -215,5 +261,9 @@
 
   ul {
     margin: 0;
+  }
+
+  .bg-none {
+    background: none;
   }
 </style>

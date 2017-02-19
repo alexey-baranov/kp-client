@@ -80,7 +80,7 @@ class Registration extends RemoteModel {
     this.verifier = json.verifier_id?Kopnik.getReference(json.verifier_id):null
     this.result = json.result_id?Kopnik.getReference(json.result_id):null
 
-    this.attachments = json.attachments ? json.attachments.map(EACH_ATTACHMENT => File.getReference(EACH_ATTACHMENT)) : undefined;
+    this.attachments = json.attachments.map(each => File.getReference(each.id))
 
     if (this.state!= prevState.state || this.email != prevState.email || this.name != prevState.name || this.surname != prevState.surname ||
       this.patronymic != prevState.patronymic || this.birth != prevState.birth || this.note != prevState.note ||
