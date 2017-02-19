@@ -16,6 +16,12 @@ class File extends RemoteModel {
     this.name = undefined;
     this.size = undefined;
     this.mimeType = undefined;
+
+    /**
+     * загруженных байт, undefined - загрузка в данный момент не совершается
+     * @type {undefined}
+     */
+    this.uploadProgress = undefined
   }
 
   getPlain() {

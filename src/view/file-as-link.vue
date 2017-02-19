@@ -4,8 +4,13 @@
       <i class="material-icons md-dark md-1em">attachment</i>
     </slot>
     <a :href="pathFromData" class="file-as-link" @click.stop="">
-      {{model.name}} ({{model.size | humanizeDiskSpase }}) <!--{{model.path}}-->
+      {{model.name}} ({{model.size | humanizeDiskSpase }})
     </a>
+
+    <span v-if="!model.id" class="text-nowrap">
+      <i class="material-icons">file_upload</i> {{model.uploadProgress | percents}} %
+    </span>
+    <!--{{model.path}}-->
   </span>
 </template>
 
@@ -26,6 +31,7 @@
       return {pathFromData: undefined}
     },
     props: ["id", "model", "target"],
+    watch: {},
     computed: {
       path(){
         let result = `${config["file-server"].schema}://${config["file-server"].host}:${config["file-server"].port}/${config["file-server"]["download-path"]}`
@@ -39,9 +45,18 @@
     methods: {},
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
-      await
-      this.model.joinedLoaded()
-      this.pathFromData = this.path
+      if (this.model.id) {
+        await this.model.joinedLoaded()
+        this.pathFromData = this.path
+      }
+      else {
+        let STUPID_BUG_PATH_INTERVAL = setInterval(() => {
+          if (this.model.path) {
+            this.pathFromData = this.path
+            clearInterval(STUPID_BUG_PATH_INTERVAL)
+          }
+        }, 1000)
+      }
     }
   }
 </script>

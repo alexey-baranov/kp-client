@@ -25,6 +25,23 @@ module.exports= {
       if (diskSpaceInBytes<1000000000000) {
         return _.round(diskSpaceInBytes/1000000000,1) + " Гб"
       }
+    },
+
+    percents(value){
+      if (value) {
+        return Math.round(value * 100)
+      }
+      else{
+        return 0
+      }
+    },
+
+    round(value){
+      return Math.round(value)
+    },
+
+    round1(value){
+      return _.round(value,1)
     }
   }
 }

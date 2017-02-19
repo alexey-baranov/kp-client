@@ -312,6 +312,6 @@
 
 <style scoped>
   .kopa {
-    padding-bottom: 10em;
+    padding-bottom: 15em;
   }
 </style>

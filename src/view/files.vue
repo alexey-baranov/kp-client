@@ -2,8 +2,8 @@
   <div class="files px-1 py-1">
     <div v-show="mode == 'editor'" :id="id+'_drop'" class="drop">
       <div :id="id+'_browse'" href="#" class="browse" @click="">Выбрать файлы...
-        <ul class="list-group">
-          <li v-for="eachFile in model" class="list-group-item py-0 border-0 bg-none">
+        <ul class="list-group flex-row row">
+          <li v-for="eachFile in model" class="list-group-item border-0 bg-none  col-12 col-md-6 col-xl-4">
             <file-as-link :model="eachFile">
               <i class="material-icons md-dark md-1em" @click.stop="remove_click(eachFile)">remove_circle</i>
             </file-as-link>
@@ -12,8 +12,8 @@
       </div>
     </div>
     <template v-if="mode != 'editor' ">
-      <ul v-if="model.length" class="list-group">
-        <li v-for="eachFile in model" class="list-group-item py-0 border-0">
+      <ul v-if="model.length" class="list-group flex-row row">
+        <li v-for="eachFile in model" class="list-group-item border-0 col-12 col-md-6 col-xl-4">
           <file-as-link :model="eachFile"></file-as-link>
         </li>
       </ul>
@@ -49,18 +49,12 @@
     },
     methods: {
       async remove_click(file){
+          if (file.resumable){
+              file.resumable.cancel()
+          }
         let FILE = this.model.indexOf(file)
         this.model.splice(FILE, 1)
       },
-      async loadModel(){
-        for (let each of this.model) {
-          await each.joinedLoaded()
-        }
-      },
-      /**
-       * Прикрепляет обработчики но только однажды на дом элемент
-       */
-
     },
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
@@ -91,23 +85,45 @@
 
         r.assignDrop(document.getElementById(this.id + '_drop'));
 
-        r.on('fileAdded', (file) => {
-          this.log.debug('fileAdded', file);
-          if (file.size > chunkSize) {
-            r.removeFile(file)
+        r.on('fileAdded', (value) => {
+          this.log.debug('fileAdded', value);
+
+          if (value.size > chunkSize) {
+            r.removeFile(value)
             Grumbler.getInstance().pushError(`"Размер файла не может превышать ${chunkSize / 1024 / 1024} Мб`)
           }
           else {
+            let file= new models.File()
+            file.name= value.fileName
+            file.size= value.size
+            file.resumable= value
+
+            this.model.push(file)
             r.upload()
           }
         });
-        r.on('fileSuccess', async(file, message) => {
-          this.model.push(await models.File.get(JSON.parse(message)))
+        r.on('fileProgress', (value) => {
+          this.log.debug('fileProgress', value);
+
+          let file= this.model.find(each=>each.resumable== value)
+          file.uploadProgress= value.progress()
+        })
+        r.on('fileSuccess', async(value, message) => {
+          this.log.debug('fileSuccess', value, message);
+
+          let fileAsPlain= JSON.parse(message)
+
+          let file= this.model.find(each=>each.resumable== value)
+          file.id= fileAsPlain.id
+          file.merge(fileAsPlain)
+//          this.model.push(await models.File.get(JSON.parse(message)))
           // enable repeated upload since other user can delete the file on the server
           // and this user might want to reupload the file
-          r.removeFile(file)
+          r.removeFile(value)
         });
-        r.on('fileError', (file, message) => {
+        r.on('fileError', (value, message) => {
+          this.log.debug('fileError', value, message);
+
           Grumbler.getInstance().pushError(message)
         })
       }
