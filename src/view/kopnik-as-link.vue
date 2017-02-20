@@ -1,9 +1,11 @@
 <template>
-  <a :href="'/?body=Kopnik:'+model.id" class="kopnik-as-link" :target="target" @click="a_click">{{model.surname}}
-    {{model.name}} {{model.patronymic}}
-    <small v-if="model.voiskoSize">(+{{model.voiskoSize}})</small>
-    <slot></slot>
-  </a>
+  <span class="kopnik-as-link">
+    <a :href="'/?body=Kopnik:'+model.id" class="kopnik-as-link" :target="target" @click="a_click">{{model.surname}}
+      {{model.name}} {{model.patronymic}}
+      <small v-if="model.voiskoSize">(+{{model.voiskoSize}})</small>
+      <slot></slot>
+    </a>
+  </span>
 </template>
 
 <script>
@@ -27,11 +29,14 @@
       }
     },
     created() {
-      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
       this.model.joinedLoaded();
     }
   }
 </script>
 
 <style scoped>
+  .card-inverse .kopnik-as-link {
+    color: rgb(255, 255, 255)
+  }
 </style>

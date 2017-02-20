@@ -28,7 +28,8 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" target="_blank" href="https://www.youtube.com/channel/UCJRtg8s94PTFXEfZ6sEnlGw">Youtube</a>
+            <a class="nav-link" target="_blank"
+               href="https://www.youtube.com/channel/UCJRtg8s94PTFXEfZ6sEnlGw">Youtube</a>
           </li>
 
           <li v-if="model.user" class="nav-item">
@@ -41,7 +42,8 @@
       <auth v-if="!model.user && model.state!='registration'" @input="auth_input"></auth>
       <registration-as-form v-if="model.state=='registration'" :id="id+'_registration'"></registration-as-form>
       <template v-if="model.user">
-        <kopnik-as-verifier v-if="model.state=='verification'"  :id="id+'_verification'" :model="model.user"></kopnik-as-verifier>
+        <kopnik-as-verifier v-if="model.state=='verification'" :id="id+'_verification'"
+                            :model="model.user"></kopnik-as-verifier>
         <div v-if="model.state=='main' && model.body">
           <h1 class="title">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
           <location :model="model.body"></location>
@@ -94,7 +96,7 @@
           if (this.model.state == Application.State.Main) {
 //          Vue.nextTick(()=>{})
 //            this.log.debug(this.model.body.toString(), this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id))
-            $.scrollTop(this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id)||0)
+            $.scrollTop(this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id) || 0)
           }
         }
       }
@@ -178,10 +180,10 @@
          * а из копы кнопкой назад, а потом мышкой заходим обратно, то скрол будет в начале экрана
          *
          */
-/*
-        this.log.debug("#setState()", state.scrollY)
-        $.scrollTop(state.scrollY)
-*/
+        /*
+         this.log.debug("#setState()", state.scrollY)
+         $.scrollTop(state.scrollY)
+         */
       },
       debug(){
         this.log.debug.bind(log).apply(arguments)
@@ -191,8 +193,8 @@
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
       this.positions = new Map()
       this.positions.set(Application.State.Main, new Map())
-      for(let each of models.RemoteModel.cache.keys()){
-          this.positions.get(Application.State.Main).set(each, new Map())
+      for (let each of models.RemoteModel.cache.keys()) {
+        this.positions.get(Application.State.Main).set(each, new Map())
       }
 
 
@@ -265,5 +267,10 @@
 
   .bg-none {
     background: none;
+  }
+
+  /*bootstrap override*/
+  .card-inverse .card-blockquote .blockquote-footer, .card-inverse .card-link, .card-inverse .card-subtitle, .card-inverse .card-text {
+    color: rgb(255, 255, 255);
   }
 </style>

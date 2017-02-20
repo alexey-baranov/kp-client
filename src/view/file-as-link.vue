@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span class="file-as-link">
     <slot>
       <i class="material-icons md-dark md-1em">attachment</i>
     </slot>
@@ -55,4 +55,7 @@
 </script>
 
 <style scoped>
+  .card-inverse .file-as-link{
+    color:rgb(255,255,255)
+  }
 </style>

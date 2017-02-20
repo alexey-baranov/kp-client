@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" class="predlozhenie-as-list-item card" :class="{stateZa: model.state==1, stateProtiv: model.state==-1}">
+  <div :id="id" class="predlozhenie-as-list-item card" :class="{'card-inverse': model.state, 'card-success': model.state==1, 'card-danger':model.state==-1}">
     <template v-if="(localMode||mode)!='editor'">
       <div class="card-header d-flex flex-wrap kp-small">
         <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
@@ -54,12 +54,12 @@
           <i class="material-icons" title="Показать голосовавших">expand_more</i>
         </button>
       </div>
-      <div class="collapse" :id="`${id}_voted_za`">
-        <div class="card card-block">
-          <kopnik-as-link v-if="eachZa.owner" v-for="eachZa of model.za" target="_blank" :model="eachZa.owner">
-            <!--(+{{eachZa.owner.voiskoSize}})-->
-          </kopnik-as-link>
-        </div>
+      <div :id="`${id}_voted_za`" class="collapse">
+        <ul class="list-group">
+          <li v-for="eachZa of model.za" v-if="eachZa.owner" class="list-group-item bg-none border-0 py-1">
+            <kopnik-as-link target="_blank" :model="eachZa.owner"></kopnik-as-link>
+          </li>
+        </ul>
       </div>
 
       <!--protiv-->
@@ -73,12 +73,11 @@
         </button>
       </div>
       <div class="collapse" :id="`${id}_voted_protiv`">
-        <div class="card card-block">
-          <kopnik-as-link v-if="eachProtiv.owner" v-for="eachProtiv of model.protiv" target="_blank"
-                          :model="eachProtiv.owner">
-            <!--(+{{eachProtiv.owner.voiskoSize}})-->
-          </kopnik-as-link>
-        </div>
+        <ul class="list-group">
+          <li v-for="eachProtiv of model.protiv" v-if="eachProtiv.owner" class="list-group-item bg-none border-0 py-1">
+            <kopnik-as-link target="_blank" :model="eachProtiv.owner"></kopnik-as-link>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -177,8 +176,9 @@
 
   }
 
-  .stateZa {
-    background-color: green;
+  .fixed {
+    background-color: #333;
+    border-color: #333;
   }
 
   .stateProtiv {
