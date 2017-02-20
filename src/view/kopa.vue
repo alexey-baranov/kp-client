@@ -9,8 +9,7 @@
         <div class="card-block d-flex flex-column">
           <textarea class="form-control" v-model="model.question"
                     placeholder="Вопрос, который нужно обсудить на копе"></textarea>
-          <files :id="id+'_files' " mode="editor" :model="model.attachments"
-                 :drop="id+'_file_drop'"></files>
+          <files :id="id+'_files' " ref="attachments" mode="editor" :model="model.attachments"></files>
           <div class="d-flex flex-wrap align-self-end mt-4">
             <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
             <button class="btn btn-success" @click="save_click">Сохранить</button>
@@ -65,22 +64,22 @@
     <ul class="list-group">
       <li v-for="eachResult of model.result" class="list-group-item  border-0 px-0">
         <predlozhenie-as-list-item :id="id+'_result_'+eachResult.id"
-                                   :class="{'w-100':!eachResult.state, 'w-50':eachResult.state, 'mr-auto': eachResult.state==1}"
+                                   :class="{'w-100':!eachResult.state, 'w-100':eachResult.state, 'mx-auto': eachResult.state==1}"
                                    :model="eachResult"></predlozhenie-as-list-item>
       </li>
       <li class="list-group-item border-0 px-0">
-        <predlozhenie-as-submit :id="id+'_new_predlozhenie'" class="w-100" :model="model.newResult"
+        <predlozhenie-as-submit :id="id+'_result_new'" class="w-100" :model="model.newResult"
                                 @submit="predlozhenie_submit">
         </predlozhenie-as-submit>
       </li>
     </ul>
     <ul v-if="model.invited" class="list-group">
       <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
-        <slovo-as-list-item :id="id+'_slovo'+eachSlovo.id" class="w-100" :model="eachSlovo"></slovo-as-list-item>
+        <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" class="w-100" :model="eachSlovo"></slovo-as-list-item>
       </li>
       <li class="list-group-item list-group-item-info border-0 px-0 py-0 fixed-bottom">
 
-        <slovo-as-submit :id="id+'_new_slovo'" class="w-100 <!--bg-info-->" :model="model.newSlovo"
+        <slovo-as-submit :id="id+'_slovo_new'" class="w-100 <!--bg-info-->" :model="model.newSlovo"
                          @submit="slovo_submit">
         </slovo-as-submit>
       </li>

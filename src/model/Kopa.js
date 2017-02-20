@@ -36,6 +36,7 @@ class Kopa extends RemoteModel {
   }
 
   getPlain() {
+
     let result = {
       id: this.id,
       place_id: this.place ? this.place.id : null,
@@ -43,7 +44,7 @@ class Kopa extends RemoteModel {
       question: this.question,
       invited: this.invited,
       note: this.note,
-      attachments: this.attachments ? this.attachments.map(each => each.id) : []
+      attachments: this.attachments ? this.attachments.map(each => each.id).filter(each => each) : []
     };
     return result;
   }
@@ -140,25 +141,11 @@ class Kopa extends RemoteModel {
    * или предыдущую порцию, если он уже начат загружаться
    */
   async loadDialog() {
-    let BEFORE = this.dialog && this.dialog.length ? this.dialog[0].created.getTime() : null;
-    let dialogAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getDialog", [], {
-      PLACE: this.id,
-      BEFORE: BEFORE
-    }, {disclose_me: true});
+    let dialogAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getDialog", [this.id], null, {disclose_me: true})
 
-    let dialog = await Promise.all(dialogAsPlain.map(async eachSlovoAsPlain => {
-
-      let eachSlovo = await Slovo.get(eachSlovoAsPlain);
-      return eachSlovo;
-    }));
-
-    if (!this.dialog || !this.dialog.length) {
-      this.dialog = dialog;
-    }
-    else {
-      this.dialog = dialog.concat(this.dialog);
-    }
-    this.emit(Kopa.event.dialogLoad, this);
+    let dialog = await Promise.all(dialogAsPlain.map(async eachSlovoAsPlain => Slovo.get(eachSlovoAsPlain)))
+    this.dialog = dialog
+    this.emit(Kopa.event.dialogLoad, this)
 
     return this.dialog;
   }

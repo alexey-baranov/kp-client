@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "crossbar": "cd ../kp-sequelizejs && export NODE_ENV=testing && crossbar start",
-    "server": "cd ../kp-sequelizejs && export NODE_ENV=testing && /home/alexey2baranov/htdocs/kp-sequelizejs/node_modules/babel-cli/bin/babel-node.js --use-strict /home/alexey2baranov/htdocs/kp-sequelizejs/src/index.js",
-    "server:init-test": "cd ../kp-sequelizejs && export NODE_ENV=test && /usr/bin/babel-node --use-strict /home/alexey2baranov/htdocs/kp-sequelizejs/src/init.js",
+    "server": "cd ../kp-sequelizejs && export NODE_ENV=testing && ./node_modules/babel-cli/bin/babel-node.js --use-strict ./src/index.js",
+    "file-server": "cd ../kp-sequelizejs && export NODE_ENV=testing && ./node_modules/babel-cli/bin/babel-node.js --use-strict ./src/file-server.index.js",
+    "server:init-test": "cd ../kp-sequelizejs && export NODE_ENV=test && /usr/bin/babel-node --use-strict ./src/init.js",
     "dev": "node build/dev-server.js",
     "build": "node build/build.js",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",

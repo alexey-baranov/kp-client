@@ -26,7 +26,7 @@ class Golos extends RemoteModel {
       owner_id: this.owner ? this.owner.id : null,
       subject_id: this.subject ? this.subject.id : null,
       note: this.note,
-      attachments: this.attachments ? this.attachments.map(each => each.id) : []
+      attachments: this.attachments ? this.attachments.map(each => each.id).filter(each=>each) : []
     };
     return result;
   }

@@ -26,6 +26,12 @@
     name: "kopnik-as-link",
     props: ["id", "model", "target"],
     filters:{
+      /**
+       * url на скачивание по пути файла
+       * computed не срабатывает, поэтому делаем тоже самое чере filter
+       * @param value
+       * @return {string}
+       */
       download(value){
         let result = `${config["file-server"].schema}://${config["file-server"].host}:${config["file-server"].port}/${config["file-server"]["download-path"]}`
         result += `?path=${encodeURIComponent(value)}`

@@ -45,7 +45,7 @@ class Kopnik extends RemoteModel {
       starshina_id: this.starshina ? this.starshina.id : null,
       note: this.note,
       druzhina: this.druzhina ? this.druzhina.map(eachDruzhe => eachDruzhe.getPlain()) : undefined,
-      attachments: this.attachments ? this.attachments.map(each => each.id) : []
+      attachments: this.attachments ? this.attachments.map(each => each.id).filter(each=>each) : []
     }
     return result
   }

@@ -1,8 +1,10 @@
 <template>
   <div :id="id" class="predlozhenie-as-submit card" :class="{'predlozhenie-as-submit--empty': !model.value}">
     <div class="card-block">
-            <textarea class="form-control" v-model="model.value"
-                      placeholder="Ваше предложение, которое будет поставлено на голосование на этой копе"  @keyup.ctrl.enter="submit_click"> </textarea>
+      <textarea class="form-control" v-model="model.value"
+                placeholder="Ваше предложение, которое будет поставлено на голосование на этой копе"
+                @keyup.ctrl.enter="submit_click"> </textarea>
+      <files :id="id+'_upload'" mode="editor" :model="model.attachments"></files>
       <button class="btn btn-block btn-primary mt-2" @click="submit_click">Предложить на голосование</button>
     </div>
   </div>
@@ -15,17 +17,18 @@
 
   export default  {
 //    mixins:[logMixin],
-    name:"predlozhenie-as-submit",
+    name: "predlozhenie-as-submit",
     props: ["id", "model"],
     methods: {
-        submit_click(){
-            this.$emit("submit", this)
-        }
+      submit_click(){
+        this.$emit("submit", this)
+      }
     },
     components: {
+      "files": require("./files.vue")
     },
     created: async function () {
-      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
 
       await this.model.place.joinedLoaded();
       await this.model.place.place.joinedLoaded();
@@ -43,6 +46,10 @@
   }
 
   .predlozhenie-as-submit--empty button {
+    display: none;
+  }
+
+  .predlozhenie-as-submit--empty .files {
     display: none;
   }
 </style>

@@ -51,7 +51,7 @@ class Zemla extends RemoteModel {
       intensity: this.intensity,
       parent_id: this.parent ? this.parent.id : null,
       note: this.note,
-      attachments: this.attachments ? this.attachments.map(each => each.id) : []
+      attachments: this.attachments ? this.attachments.map(each => each.id).filter(each=>each) : []
     };
     return result;
   }

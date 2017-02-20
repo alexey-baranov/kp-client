@@ -2,14 +2,13 @@
   <div :id="id" class="predlozhenie-as-list-item card" :class="{stateZa: model.state==1, stateProtiv: model.state==-1}">
     <template v-if="(localMode||mode)!='editor'">
       <div class="card-header d-flex flex-wrap kp-small">
-        <kopnik-as-link v-if="model.owner" class="mr-1"  target="_blank" :model="model.owner"></kopnik-as-link>
+        <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
         <div>{{model.created|humanize}}</div>
         <div v-if="canManage" class="dropdown ml-auto">
           <a :id="id+'_actions'" class="btn btn-secondary btn-sm dropdown-toggle" href="#" data-toggle="dropdown"
              aria-haspopup="true" aria-expanded="false">
             ...
           </a>
-
           <div class="dropdown-menu dropdown-menu-right" :aria-labelledby="id+'_actions'">
             <a href="#" class="dropdown-item" :class="{disabled: !canEdit}" @click.prevent="edit_click">
               <span class="material-icons md-dark md-1em">edit</span>
@@ -25,6 +24,7 @@
       </div>
       <div class="card-block">
         <div class="card-text">{{model.value}}</div>
+        <files :id="id+'_attachments'" :model="model.attachments"></files>
       </div>
     </template>
     <template v-else>
@@ -33,8 +33,9 @@
         <span>{{model.created|humanize}}</span>
       </div>
       <div class="card-block d-flex flex-column">
-      <textarea class="form-control" v-model="model.value"
-                placeholder="Предложение, которое будет поставлено на голосование на копе"> </textarea>
+        <textarea class="form-control" v-model="model.value"
+                  placeholder="Предложение, которое будет поставлено на голосование на копе"> </textarea>
+        <files :id="id+'_attachments'" mode="editor" :model="model.attachments"></files>
         <div class="d-flex flex-wrap align-self-end mt-4">
           <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
           <button class="btn btn-success" @click="save_click">Сохранить</button>
@@ -45,7 +46,8 @@
     <div class="card-block">
       <!--za-->
       <div class="btn-group w-100" role="group">
-        <button class="btn btn-success d-flex justify-content-between w-100" :disabled="model.state>0" @click.prevent="za_click">
+        <button class="btn btn-success d-flex justify-content-between w-100" :disabled="model.state>0"
+                @click.prevent="za_click">
           <span>{{model.totalZa}}</span><span>За</span><span v-if="zemlaLoaded">({{model.totalZa/model.place.place.obshinaSize*100}}%)</span>
         </button>
         <button class="btn btn-success" data-toggle="collapse" :href="`#${id}_voted_za`">
@@ -62,7 +64,8 @@
 
       <!--protiv-->
       <div class="btn-group w-100" role="group">
-        <button class="btn btn-danger d-flex justify-content-between w-100" :disabled="model.state>0" @click.prevent="protiv_click">
+        <button class="btn btn-danger d-flex justify-content-between w-100" :disabled="model.state>0"
+                @click.prevent="protiv_click">
           <span>{{model.totalProtiv}}</span><span>Против</span><span v-if="zemlaLoaded">({{model.totalProtiv/model.place.place.obshinaSize*100}}%)</span>
         </button>
         <button class="btn btn-danger" data-toggle="collapse" :href="`#${id}_voted_protiv`">
@@ -71,7 +74,8 @@
       </div>
       <div class="collapse" :id="`${id}_voted_protiv`">
         <div class="card card-block">
-          <kopnik-as-link v-if="eachProtiv.owner" v-for="eachProtiv of model.protiv" target="_blank" :model="eachProtiv.owner">
+          <kopnik-as-link v-if="eachProtiv.owner" v-for="eachProtiv of model.protiv" target="_blank"
+                          :model="eachProtiv.owner">
             <!--(+{{eachProtiv.owner.voiskoSize}})-->
           </kopnik-as-link>
         </div>
@@ -87,8 +91,8 @@
 
   export default  {
 //    mixins:[logMixin],
-    mixins:[require("./mixin/humanize")],
-    name:"predlozhenie-as-list-item",
+    mixins: [require("./mixin/humanize")],
+    name: "predlozhenie-as-list-item",
     data() {
       return {
         /**
@@ -99,22 +103,30 @@
     },
     props: ["id", "model", "mode"],
     components: {
-      "kopnik-as-link": require("./kopnik-as-link.vue")
+      "kopnik-as-link": require("./kopnik-as-link.vue"),
+      "files": require("./files.vue"),
     },
-    computed:{
+    computed: {
       canManage(){
         return this.model.owner == Application.getInstance().user
       },
       canEdit(){
-          return this.model.owner==Application.getInstance().user && this.model.golosa && this.model.golosa.length==0
+        return this.model.owner == Application.getInstance().user && this.model.golosa && this.model.golosa.length == 0
       },
       canDestroy(){
-          return this.model.owner==Application.getInstance().user && ! this.model.state
+        return this.model.owner == Application.getInstance().user && !this.model.state
       }
     },
     methods: {
       async destroy_click(){
-        await this.model.destroy()
+        if (this.canDestroy) {
+          await this.model.destroy()
+        }
+      },
+      edit_click(){
+        if (this.canEdit) {
+          this.localMode = "editor"
+        }
       },
       async save_click(){
         await this.model.save()
@@ -123,9 +135,6 @@
       async cancel_click(){
         await this.model.reload()
         this.localMode = "viewer"
-      },
-      edit_click(){
-        this.localMode = "editor"
       },
       zemlaLoaded(){
         return this.model.place && this.model.place.place && this.model.place.place._isLoaded;
@@ -148,7 +157,7 @@
       }
     },
     created: async function () {
-      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
 
       if (this.model.id) {
         await this.model.joinedLoaded();

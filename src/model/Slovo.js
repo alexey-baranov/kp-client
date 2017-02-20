@@ -26,7 +26,7 @@ class Slovo extends RemoteModel{
             owner_id: this.owner?this.owner.id:null,
             value: this.value,
             note: this.note,
-            attachments:this.attachments?this.attachments.map(each=>each.id):[],
+            attachments:this.attachments?this.attachments.map(each=>each.id).filter(each=>each):[],
             created: this.created?this.created.toISOString():[]
         };
         return result;

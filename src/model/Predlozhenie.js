@@ -30,7 +30,7 @@ class Predlozhenie extends RemoteModel {
             place_id: this.place ? this.place.id : null,
             owner_id: this.owner ? this.owner.id : null,
             note: this.note,
-            attachments: this.attachments ? this.attachments.map(each=>each.id) : []
+            attachments: this.attachments ? this.attachments.map(each=>each.id).filter(each=>each) : []
         };
         return result;
     }

@@ -75,7 +75,7 @@ application.auth()
 
     global.view= new Vue({
       el: '#application',
-      template:"<application :model='application'></application>",
+      template:"<application id='a' :model='application'></application>",
       data:{
         application
       },

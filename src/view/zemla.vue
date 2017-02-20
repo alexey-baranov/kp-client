@@ -62,6 +62,7 @@
         result.owner = Application.getInstance().user
         return result
       },
+
       kopa_click(kopa){
         Application.getInstance().goTo(kopa)
         StateManager.getInstance().pushState()

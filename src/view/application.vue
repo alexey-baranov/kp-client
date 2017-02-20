@@ -39,13 +39,13 @@
     </nav>
     <div class="container container-under-navbar">
       <auth v-if="!model.user && model.state!='registration'" @input="auth_input"></auth>
-      <registration-as-form v-if="model.state=='registration'"></registration-as-form>
+      <registration-as-form v-if="model.state=='registration'" :id="id+'_registration'"></registration-as-form>
       <template v-if="model.user">
-        <kopnik-as-verifier v-if="model.state=='verification'" :model="model.user"></kopnik-as-verifier>
+        <kopnik-as-verifier v-if="model.state=='verification'"  :id="id+'_verification'" :model="model.user"></kopnik-as-verifier>
         <div v-if="model.state=='main' && model.body">
           <h1 class="title">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
           <location :model="model.body"></location>
-          <component v-bind:is="bodyType" :model="model.body"></component>
+          <component v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
         </div>
       </template>
     </div>

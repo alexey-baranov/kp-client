@@ -54,7 +54,7 @@ class Registration extends RemoteModel {
       dom_id: this.dom ? this.dom.id : null,
       verifier_id: this.verifier ? this.verifier.id : null,
       result_id: this.result ? this.result.id : null,
-      attachments:this.attachments?this.attachments.map(each=>each.id):[],
+      attachments:this.attachments?this.attachments.map(each=>each.id).filter(each=>each):[],
     }
     return result
   }

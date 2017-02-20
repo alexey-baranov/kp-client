@@ -1,7 +1,8 @@
 <template>
-  <div class="files px-1 py-1">
+  <div class="files mt-3">
     <div v-show="mode == 'editor'" :id="id+'_drop'" class="drop">
-      <div :id="id+'_browse'" href="#" class="browse" @click="">Выбрать файлы...
+      <div :id="id+'_browse'" href="#" class="browse py-2 px-2" @click="">
+        <div class="browse--message">Выбрать файлы или перенесите их сюда...</div>
         <ul class="list-group flex-row row">
           <li v-for="eachFile in model" class="list-group-item border-0 bg-none  col-12 col-md-6 col-xl-4">
             <file-as-link :model="eachFile">
@@ -43,18 +44,50 @@
     },
     props: ["id", "model", "mode", "drop"],
     watch: {
-      model(cur, prev){
-//        this.loadModel()
+      mode(current, prev){
+        if (current == "view") {
+          this.cancelUpload()
+        }
       },
+      model(current, prev){
+        if (current != prev) {
+          this.cancelUpload(prev)
+        }
+      }
     },
     methods: {
+      getFileByResumable(resumable){
+        let result = this.model.find(each => each.resumable == resumable)
+        return result
+      },
       async remove_click(file){
-          if (file.resumable){
-              file.resumable.cancel()
-          }
+        if (file.resumable) {
+          file.resumable.cancel()
+        }
         let FILE = this.model.indexOf(file)
         this.model.splice(FILE, 1)
       },
+      /**
+       * отменить все закачки, которые сейчас идут или в очереди
+       *
+       * @param {Array} model массив[models.File] нужен затем что внутри watch.model() значение this.model уже будет указывать на новую модель
+       *
+       */
+      cancelUpload(model = this.model){
+        if (this.r) {
+          for (let eachResumable of this.r.files) {
+            this.log.debug("canceling ", eachResumable.fileName, eachResumable)
+            let file = model.find(eachFile => eachFile.resumable == eachResumable)
+            if (file) {
+              model.splice(model.indexOf(file), 1)
+            }
+            else {
+              this.log.warn("can't find models.File for resumable", eachResumable.fileName)
+            }
+          }
+          this.r.cancel()
+        }
+      }
     },
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
@@ -62,7 +95,7 @@
 //      this.loadModel()
     },
     mounted(){
-      var r = new Resumable({
+      this.r = new Resumable({
         target: `${config["file-server"].schema}://${config["file-server"].host}:${config["file-server"].port}/${config["file-server"]["upload-path"]}`,
         chunkSize,
         testChunks: false, //http://resumablejs.com/
@@ -70,11 +103,11 @@
           OWNER: Application.getInstance().user.id,
         }
       })
-      if (!r.support) {
+      if (!this.r.support) {
         this.log.error("Fatal: ResumableJS not supported!")
       }
       else {
-        r.assignBrowse(document.getElementById(this.id + '_browse'));
+        this.r.assignBrowse(document.getElementById(this.id + '_browse'))
 
         /*
          //todo: разобраться почему здесь превент дефолт останавливает вызов диалога файла
@@ -83,60 +116,63 @@
          })
          */
 
-        r.assignDrop(document.getElementById(this.id + '_drop'));
+        this.r.assignDrop(document.getElementById(this.id + '_drop'))
 
-        r.on('fileAdded', (value) => {
-          this.log.debug('fileAdded', value);
+        this.r.on('fileAdded', (resumable) => {
+          this.log.debug('fileAdded', resumable)
 
-          if (value.size > chunkSize) {
-            r.removeFile(value)
+          if (resumable.size > chunkSize) {
+            this.r.removeFile(resumable)
             Grumbler.getInstance().pushError(`"Размер файла не может превышать ${chunkSize / 1024 / 1024} Мб`)
           }
           else {
-            let file= new models.File()
-            file.name= value.fileName
-            file.size= value.size
-            file.resumable= value
+            let file = new models.File()
+            file.name = resumable.fileName
+            file.size = resumable.size
+            file.resumable = resumable
 
             this.model.push(file)
-            r.upload()
+            this.r.upload()
           }
-        });
-        r.on('fileProgress', (value) => {
-          this.log.debug('fileProgress', value);
-
-          let file= this.model.find(each=>each.resumable== value)
-          file.uploadProgress= value.progress()
         })
-        r.on('fileSuccess', async(value, message) => {
-          this.log.debug('fileSuccess', value, message);
+        this.r.on('fileProgress', (resumable) => {
+          this.log.debug('fileProgress', resumable)
 
-          let fileAsPlain= JSON.parse(message)
+          let file = this.getFileByResumable(resumable)
+          if (file) {
+            file.uploadProgress = resumable.progress();
+          }
+        })
+        this.r.on('fileSuccess', async(resumable, message) => {
+          this.log.debug('fileSuccess', resumable, message)
 
-          let file= this.model.find(each=>each.resumable== value)
-          file.id= fileAsPlain.id
-          file.merge(fileAsPlain)
+          let fileAsPlain = JSON.parse(message)
+
+          let file = this.getFileByResumable(resumable)
+          let FILE = this.model.indexOf(file)
+          file = await models.File.get(fileAsPlain)
+
+          this.model.splice(FILE, 1, file)
+
 //          this.model.push(await models.File.get(JSON.parse(message)))
           // enable repeated upload since other user can delete the file on the server
           // and this user might want to reupload the file
-          r.removeFile(value)
-        });
-        r.on('fileError', (value, message) => {
+          this.r.removeFile(resumable)
+        })
+        this.r.on('fileError', (value, message) => {
           this.log.debug('fileError', value, message);
 
           Grumbler.getInstance().pushError(message)
         })
       }
+    },
+    beforeDestroy(){
+      this.cancelUpload()
     }
   }
 </script>
 
 <style scoped>
-  .browse {
-    color: blue;
-    cursor: pointer;
-  }
-
   .drop {
     border: solid lightgray 1px;
   }
@@ -147,5 +183,14 @@
     background-size: contain;
     background-position: center center;
     background-repeat: no-repeat;
+  }
+
+
+  .browse {
+    cursor: pointer;
+  }
+
+  .browse:hover .browse--message{
+    color: blue;
   }
 </style>
