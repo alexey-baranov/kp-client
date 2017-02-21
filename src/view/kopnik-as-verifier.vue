@@ -11,7 +11,7 @@
         </div>
       </li>
     </ul>
-    <div v-if="!model.registrations || !model.registrations.length" class="alert alert-info">
+    <div v-if="model.registrations && !model.registrations.length" class="alert alert-info">
       Все регистрации заверены
     </div>
   </div>

@@ -2,9 +2,9 @@
   <div class="location">
     <ol class="breadcrumb">
       <li v-for="eachNode of nodes" class="breadcrumb-item">
-        <zemla-as-link v-if="modelClassName=='Zemla'" :model="eachNode"></zemla-as-link>
-        <zemla-as-link v-if="modelClassName=='Kopa'" :model="eachNode"></zemla-as-link>
-        <kopnik-as-link v-if="modelClassName=='Kopnik'" :model="eachNode"></kopnik-as-link>
+        <zemla-as-link v-if="modelClassName=='Zemla'" :target="target" :model="eachNode"></zemla-as-link>
+        <zemla-as-link v-if="modelClassName=='Kopa'" :target="target" :model="eachNode"></zemla-as-link>
+        <kopnik-as-link v-if="modelClassName=='Kopnik'" :target="target" :model="eachNode"></kopnik-as-link>
       </li>
     </ol>
   </div>
@@ -22,7 +22,7 @@
         nodes: []
       }
     },
-    props: ["id", "model", "full"],
+    props: ["id", "model", "full", "target"],
     watch: {
       model: async function () {
         await this.fillNodes()

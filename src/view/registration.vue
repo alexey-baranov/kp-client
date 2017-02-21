@@ -45,7 +45,7 @@
     <div class="form-group row">
       <label class="col-sm-3 col-form-label">Полный адрес</label>
       <div class="col-sm-9">
-        <location :model="model.dom" full="true"></location>
+        <location target="_blank" :model="model.dom" full="true"></location>
       </div>
     </div>
   </div>

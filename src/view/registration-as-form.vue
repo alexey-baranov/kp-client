@@ -55,7 +55,8 @@
             четыре цифры паспорта</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="passport" v-model="model.passport">
-            <small class="form-text <!--text-muted-->">Защита от того что пользователь зарегистрирует несколько учетных записей и будет голосовать несколькими голосами
+            <small class="form-text <!--text-muted-->">Защита от того что пользователь зарегистрирует несколько учетных
+              записей и будет голосовать несколькими голосами
             </small>
             <small class="form-text <!--text-muted--> mt-2">Не показывается другим участникам</small>
           </div>
@@ -140,9 +141,29 @@
 
       <div v-if="model.id" class="alert alert-success" role="alert">
         <h4 class="alert-heading">Вы зарегистрировались</h4>
-        <p>Ваша регистрация будет обработана в ближайшее время.</p>
-        <p>Согласно правилам сервиса от вас потребуют подтвердить паспортные данные по Skype или Viber или другим
-          способом передачи видео на ваш выбор.</p>
+        <!--<p>Ваша регистрация будет обработана в ближайшее время.</p>-->
+        <p>
+          Согласно правилам kopnik.org от вас потребуется подтвердить паспортные данные по Skype или Viber или другим
+          способом передачи видео на ваш выбор.
+          Или вы можете предоставить паспорт заверителю при личной встрече, если вы опасаетесь или у вас есть сомнения.
+        </p>
+        <p class="font-weight-bold">
+          Процедура заверения нужна для того чтобы предотвратить электронную регистрацию одним человеком нескольких учетных записей и голосование на копах несколькими голосами.
+          Просим отнестись с пониманием.
+        </p>
+        <p>
+          Вы можете сделать это прямо сейчас или в другое удобное время.
+          Для этого свяжитесь с заверителем по вашему региону.
+          Процедура занимает 3-5 минут. Предворительно приготовьте паспорт и убедитесь, что у вас на телефоне (компьютере) работает видеокамера.
+        </p>
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Заверителем по вашему региону выбран копник</h4>
+            <p>{{model.verifier.surname}} {{model.verifier.name}} {{model.verifier.patronymic}}</p>
+            <p>email: <a :href="'mailto:'+model.verifier.email">{{model.verifier.email}}</a></p>
+            <p>skype: <a :href="'skype:'+model.verifier.skype+'?call'">{{model.verifier.skype}}</a></p>
+          </div>
+        </div>
         <strong>Номер вашей регистрации #{{model.id}}.</strong>
         <p class="mb-0">Копия письма отправлена на указанный адрес {{model.email}}</p>
       </div>
@@ -161,11 +182,14 @@
   let $ = require("jquery")
 
   import captcha from "./mixin/captcha"
-  let config = require("../../cfg/main")[process.env.NODE_ENV]
+  let Cookies = require("js-cookie")
+
   import Connection from "../Connection"
   import logMixin from "./mixin/log"
   import models from "../model"
   import Notifier from "../Notifier"
+
+  let config = require("../../cfg/main")[process.env.NODE_ENV]
 
   export default{
     name: "registration-as-form",
@@ -208,6 +232,7 @@
         if (this.model.isReady()) {
           try {
             $("#submit").attr("disabled", true)
+            debugger
             this.model = await models.Registration.create(this.model)
             $("html, body").animate({scrollTop: $(document).height()}/*, "fast"*/);
           }
@@ -223,26 +248,28 @@
     },
     beforeCreate(){
     },
-    created() {
-      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+    async created() {
+      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
       if (!Connection.getAnonymousInstance().isOpen) {
         this.connection = Connection.getAnonymousInstance()
 
-        return new Promise((res, rej) => {
+        await new Promise((res, rej) => {
           Connection.getAnonymousInstance().onopen = async(session, details) => {
             this.log.debug("anonymous session opened")
+            Cookies.remove("cbtid")
             session.prefix('api', 'ru.kopa')
             res()
           }
 
           Connection.getAnonymousInstance().onclose = async(reason, details) => {
             this.log.error("anonymous session open fails", reason, details)
-            if (reason=="closed" || reason=="unreachable" || reason=="unsupported")
-            rej(new Error(reason+" "+details.reason+" "+details.message))
+            if (reason == "closed" || reason == "unreachable" || reason == "unsupported")
+              rej(new Error(reason + " " + details.reason + " " + details.message))
           }
           Connection.getAnonymousInstance().open()
         })
       }
+      await this.model.fill()
     },
     async mounted() {
       let this2 = this
@@ -251,9 +278,9 @@
       global.$('#country').typeahead({
         autoSelect: false,
         delay: 500,
-        source: async(term, process) => {
-          let items = await this2.model.getCountries(term)
-          process(items)
+        source: (term, process) => {
+          this2.model.getCountries(term)
+            .then(process)
         }
       })
         .change(function () {
@@ -270,10 +297,9 @@
       global.$('#town').typeahead({
         autoSelect: false,
         delay: 500,
-        source: async(term, process)
-          => {
-          let items = await this2.model.getTowns(term, this2.address.country.id)
-          process(items)
+        source: (term, process) => {
+          this2.model.getTowns(term, this2.address.country.id)
+            .then(process)
         }
       })
         .change(function () {
@@ -290,10 +316,9 @@
       global.$('#street').typeahead({
         autoSelect: false,
         delay: 500,
-        source: async(term, process)
-          => {
-          let items = await this2.model.getStreets(term, this2.address.town.id)
-          process(items)
+        source: (term, process) => {
+          this2.model.getStreets(term, this2.address.town.id)
+            .then(process)
         }
       })
         .change(function () {
@@ -310,10 +335,9 @@
       global.$('#dom').typeahead({
         autoSelect: false,
         delay: 2000,
-        source: async(term, process)
-          => {
-          let items = await this2.model.getHouses(term, this2.address.street.id)
-          process(items)
+        source: (term, process) => {
+          this2.model.getHouses(term, this2.address.street.id)
+            .then(process)
         }
       })
         .change(function () {

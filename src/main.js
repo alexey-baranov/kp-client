@@ -38,8 +38,8 @@ import $ from "jquery"; //global.$=$;
 import Vue from 'vue'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
-require('vue-strap/dist/vue-strap-lang.js')
-require('vue-strap/dist/isMobileBrowser.js')
+// require('vue-strap/dist/vue-strap-lang.js')
+// require('vue-strap/dist/isMobileBrowser.js')
 
 import Application from './Application'
 import applicationView from './view/application.vue'
@@ -48,7 +48,7 @@ let models = global.models = require("./model")
 import StateManager from './StateManager'
 import Grumbler from './Grumbler'
 
-Vue.use(MuseUI)
+Vue.use(MuseUI);
 Grumbler.getInstance().addEventHandler()
 
 /**
@@ -95,7 +95,8 @@ application.auth()
     if (application.user) {
       stateManager.popState(location.search.substring(1))
     } else {
-      application.state = Application.State.Auth
+      stateManager.popState(location.search.substring(1))
+      // application.state = Application.State.Auth
     }
 
     if (0) {

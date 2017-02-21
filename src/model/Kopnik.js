@@ -41,6 +41,8 @@ class Kopnik extends RemoteModel {
       patronymic: this.patronymic,
       birth: this.birth,
       passport: this.passport,
+      skype: this.skype,
+
       dom_id: this.dom ? this.dom.id : null,
       starshina_id: this.starshina ? this.starshina.id : null,
       note: this.note,
@@ -65,13 +67,14 @@ class Kopnik extends RemoteModel {
     this.patronymic = json.patronymic;
     this.birth = json.birth;
     this.passport = json.passport
+    this.skype= json.skype
     this.isOnline = json.isOnline;
     this.note = json.note;
     this.voiskoSize = json.voiskoSize;
 
     this.dom = Zemla.getReference(json.dom_id);
     this.starshina = json.starshina_id ? Kopnik.getReference(json.starshina_id) : null;
-    this.attachments = json.attachments.map(each => File.getReference(each.id))
+    this.attachments = json.attachments?json.attachments.map(each => File.getReference(each.id)):[]
     /*      это асинхронная штукенция поэтому непонятно как ее тут выполнять даже
      if (json.druzhina) {
      this.druzhina= json.druzhina.map(eachDruzheAsPlain=>{
@@ -82,7 +85,8 @@ class Kopnik extends RemoteModel {
      }*/
 
     if (this.email != prevState.email || this.name != prevState.name || this.surname != prevState.surname ||
-      this.patronymic != prevState.patronymic || this.birth != prevState.birth || this.passport != prevState.passport || this.note != prevState.note ||
+      this.patronymic != prevState.patronymic || this.birth != prevState.birth || this.passport != prevState.passport ||
+      this.skype != prevState.skype || this.note != prevState.note ||
       this.dom != prevState.dom ||
       _.difference(this.attachments, prevState.attachments).length) {
 

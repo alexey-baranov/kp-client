@@ -4,6 +4,7 @@
 "use strict";
 let _ = require("lodash");
 var assert = require('chai').assert;
+let Cookies = require("js-cookie")
 
 import Connection from "../../../../src/Connection"
 var models = require("../../../../src/model")
@@ -14,10 +15,12 @@ let KOPNIK4 = 4;
 let ZEMLA2 = 2
 let ZEMLA3 = 3
 let KOPA = 3
+
 let connection = Connection.getUnitTestInstance()
+let anonymousConnection = require("../../../../src/Connection").default.getAnonymousInstance()
 let Cleaner = require("../../../../src/Cleaner")
 
-describe.skip('Kopnik', function () {
+describe('Kopnik', function () {
   before(function () {
     models.RemoteModel.clearCache()
     return new Promise(function (res, rej) {
@@ -28,7 +31,18 @@ describe.skip('Kopnik', function () {
       connection.open()
     })
       .then(function () {
-        return Cleaner.clean()
+        // connection= require("Connection").default.getUnitTestInstance();
+        return new Promise(function (res, rej) {
+          anonymousConnection.onopen = function (session, details) {
+            Cookies.remove("cbtid")
+            session.prefix('api', 'ru.kopa');
+            res()
+          }
+          anonymousConnection.open()
+        })
+      })
+      .then(function () {
+        return Cleaner.clean();
       })
   })
 
@@ -38,7 +52,15 @@ describe.skip('Kopnik', function () {
         res()
       };
       connection.close();
-    });
+    })
+      .then(function () {
+        return new Promise(function (res, rej) {
+          anonymousConnection.onclose = function (session, details) {
+            res()
+          }
+          anonymousConnection.close()
+        })
+      })
   })
 
   describe("#get()", function () {
@@ -353,6 +375,7 @@ describe.skip('Kopnik', function () {
   })
 
   describe("#verifyRegistration()", function () {
+    this.timeout(5000)
     it('should verify', function (done) {
       (async() => {
         try {
@@ -362,11 +385,8 @@ describe.skip('Kopnik', function () {
           //2. копник поймал что ему пришла регистрация
           kopnik2.once(models.Kopnik.event.registrationAdd, async(sender, localRegistration) => {
             try {
-              let x = 3;
-              //3. копник заверяет регистрацию
-              await kopnik2.verifyRegistration(localRegistration, 1)
               //4. регистрация поймала что ее заверили
-              localRegistration.on(models.RemoteModel.event.change, function () {
+              localRegistration.once(models.RemoteModel.event.change, function () {
                 //5. проверям что регистрация правильная
                 try {
                   expect(localRegistration.verifier.id).equal(2, "localRegistration.verifier.id")
@@ -378,6 +398,8 @@ describe.skip('Kopnik', function () {
                   done(err)
                 }
               })
+              //3. копник заверяет регистрацию
+              await kopnik2.verifyRegistration(localRegistration, 1)
             }
             catch (err) {
               done(err);
@@ -386,7 +408,7 @@ describe.skip('Kopnik', function () {
 
           //1. создал регистрацию
           await models.Registration.create({
-            email: "unit@unit.unit",
+            email: "unit@mail.ru",
             password: "unit",
             name: "unit",
             surname: "temp",
@@ -411,10 +433,8 @@ describe.skip('Kopnik', function () {
           //2. копник поймал что ему пришла регистрация
           kopnik2.once(models.Kopnik.event.registrationAdd, async(sender, localRegistration) => {
             try {
-              //3. копник заверяет регистрацию
-              await kopnik2.verifyRegistration(localRegistration, -1)
               //4. регистрация поймала что ее заверили
-              localRegistration.on(models.RemoteModel.event.change, function () {
+              localRegistration.once(models.RemoteModel.event.change, function () {
                 //5. проверям что регистрация правильная
                 try {
                   expect(localRegistration.verifier.id).equal(2, "localRegistration.verifier.id")
@@ -426,15 +446,17 @@ describe.skip('Kopnik', function () {
                   done(err)
                 }
               })
+              //3. копник заверяет регистрацию
+              await kopnik2.verifyRegistration(localRegistration, -1)
             }
             catch (err) {
               done(err);
             }
-          })
+          });
 
           //1. создал регистрацию
           await models.Registration.create({
-            email: "unit@unit.unit",
+            email: "unit@mail.ru",
             password: "unit",
             name: "reject",
             surname: "temp",
@@ -461,7 +483,7 @@ describe.skip('Kopnik', function () {
 
     it('should load array of 1 registrations', async function () {
       expect(kopnik2.registrations).a("array")
-      expect(kopnik2.registrations).lengthOf(1);
+      expect(kopnik2.registrations).lengthOf(1)
       expect(kopnik2.registrations[0]).instanceof(models.Registration)
     })
 

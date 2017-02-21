@@ -67,7 +67,7 @@
                                    :class="{'w-100':!eachResult.state, 'w-100':eachResult.state, 'mx-auto': eachResult.state==1}"
                                    :model="eachResult"></predlozhenie-as-list-item>
       </li>
-      <li class="list-group-item border-0 px-0">
+      <li class="list-group-item <!--border-0--> px-0">
         <predlozhenie-as-submit :id="id+'_result_new'" class="w-100" :model="model.newResult"
                                 @submit="predlozhenie_submit">
         </predlozhenie-as-submit>
@@ -168,7 +168,7 @@
         await this.model.invite()
       },
       holdBottom(){
-        //если пользователь расположен в самом низу (последние 20 пикселей) копных обсуждений
+        //если пользователь расположен в самом низу (последние 20 пикселей) обсуждений
         if ($(document).scrollTop() + window.innerHeight + 20 >= $(document).height()) {
           $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing');
         }
@@ -296,14 +296,23 @@
         await this.loadModel();
 
       }
+    },
+    mounted(){
 
       /**
        автоскролинг
        */
       this.model.on(models.Kopa.event.slovoAdd, this.holdBottom)
+
+/*      this.bottomPaddingInterval= setInterval(()=>{
+        let height= $(`#${this.id}_slovo_new`).height()||10
+        this.log.debug("slovo_new height", height)
+        $(`#${this.id}`).css('padding-bottom', height)
+      },1000)*/
     },
-    destroyed(){
+    beforeDestroy(){
       this.model.removeListener(models.Kopa.event.slovoAdd, this.holdBottom);
+//      clearInterval(this.bottomPaddingInterval)
     }
   }
 </script>
@@ -311,6 +320,7 @@
 
 <style scoped>
   .kopa {
-    padding-bottom: 15em;
+    padding-bottom: 13em;
+    /*padding-bottom: 1em;*/
   }
 </style>

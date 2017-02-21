@@ -27,7 +27,7 @@
     components: {
       "files": require("./files.vue")
     },
-    created: async function () {
+    async created () {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
 
       await this.model.place.joinedLoaded();

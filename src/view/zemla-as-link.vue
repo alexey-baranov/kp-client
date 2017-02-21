@@ -1,5 +1,5 @@
 <template>
-  <a :href="'body=zemla:'+model.id" class="zemla-as-link" :target="target" @click="a_click">{{model.name}}</a>
+  <a :href="'?body=Zemla:'+model.id" class="zemla-as-link" :target="target" @click="a_click">{{model.name}}</a>
 </template>
 
 <script>

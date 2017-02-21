@@ -1,8 +1,8 @@
 <template>
-  <div class="files mt-3">
+  <div class="files mt-1">
     <div v-show="mode == 'editor'" :id="id+'_drop'" class="drop">
-      <div :id="id+'_browse'" href="#" class="browse py-2 px-2" @click="">
-        <div class="browse--message">Выбрать файлы или перенесите их сюда...</div>
+      <div :id="id+'_browse'" href="#" class="browse py-2 px-2" @click="" title="Выберите файлы или перенесите их мышкой">
+        <div class="browse--message">Выбрать файлы...</div>
         <ul class="list-group flex-row row">
           <li v-for="eachFile in model" class="list-group-item border-0 bg-none  col-12 col-md-6 col-xl-4">
             <file-as-link :model="eachFile">

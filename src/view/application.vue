@@ -79,6 +79,7 @@
         if (this.model.user) {
           await this.model.user.joinedLoaded()
           this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
+          await this.model.user.reloadRegistrations()
         }
         else {
           this.userDoma = null
@@ -200,6 +201,7 @@
 
       if (this.model.user) {
         this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
+        await this.model.user.reloadRegistrations()
       }
     },
     mounted() {
@@ -220,9 +222,8 @@
 //          StateManager.getInstance().replaceState()
         }
       })
-    },
+    }
   }
-
 </script>
 
 <style scoped>
