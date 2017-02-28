@@ -2,13 +2,17 @@
   <div :id="id" class="zemla">
     <ul class="list-group flex-column-reverse ">
       <a v-for="eachKopa of model.kopi" class="list-group-item no-color border-0 px-0 py-0 my-3"
-          :href="`/?body=Kopa:${eachKopa.id}`" @click.prevent="kopa_click(eachKopa)">
+         :href="`?body=Kopa:${eachKopa.id}`" @click.prevent="kopa_click(eachKopa)">
         <kopa-as-list-item class="w-100" :model="eachKopa"></kopa-as-list-item>
       </a>
 
       <!--новая копа-->
       <li class="list-group-item border-0 px-0">
-        <kopa-as-submit :id="id+'_new'" class="w-100" :model="model.newKopa" @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
+        <kopa-as-submit v-if="starshinaNaZemle===null" :id="id+'_new'" class="w-100" :model="model.newKopa"
+                        @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
+        <div v-if="starshinaNaZemle" class="alert alert-info">Ваш старшина на {{model.name}}
+          <kopnik-as-link target="_blank" :model="starshinaNaZemle"></kopnik-as-link>
+        </div>
       </li>
     </ul>
     <mu-infinite-scroll :loading="areKopiLoaded" loadingText="Подождите..." @load="scroll_load"/>
@@ -26,7 +30,8 @@
     name: "zemla",
     data() {
       return {
-        areKopiLoaded: false
+        areKopiLoaded: false,
+        starshinaNaZemle: undefined
       }
     },
     props: ["id", "model"],
@@ -34,13 +39,11 @@
       "kopa-as-list-item": require("./kopa-as-list-item.vue"),
       "kopa-as-submit": require("./kopa-as-submit.vue"),
       "kopa": require("./kopa.vue"),
+      "kopnik-as-link": require("./kopnik-as-link.vue"),
     },
     watch: {
-      model(){
-        this.loadModel()
-        if (!this.model.newKopa) {
-          this.model.newKopa = this.getNewKopa()
-        }
+      async model(){
+        await this.onModel()
       }
     },
     computed: {},
@@ -68,18 +71,29 @@
         StateManager.getInstance().pushState()
       },
 
-      async loadModel () {
+      async onModel () {
+        this.starshinaNaZemle = undefined
+        /**
+         * таким образом новая копа сохраняется за землей между переходами пользователя
+         */
+        if (!this.model.newKopa) {
+          this.model.newKopa = this.getNewKopa()
+        }
+
         await this.model.joinedLoaded()
+
         if (!this.model.kopi) {
           await this.model.loadKopi();
         }
+
+        this.starshinaNaZemle = await Application.getInstance().user.getStarshinaNaZemle(this.model)
       },
 
       /**
        * Созыает новую копу
        *
        */
-       async kopa_submit () {
+      async kopa_submit () {
         let newKopa = this.model.newKopa
 
         /**
@@ -109,23 +123,16 @@
         newKopa = await models.Kopa.create(newKopa)
       }
     },
-    created() {
-      this.log = require("loglevel").getLogger(this.$options.name+".vue")
-      this.loadModel()
-
-      /**
-       * таким образом новая копа сохраняется за землей между переходами пользователя
-       */
-      if (!this.model.newKopa) {
-        this.model.newKopa = this.getNewKopa()
-      }
+    async created() {
+      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
+      await this.onModel()
     },
   }
 </script>
 
 
 <style scoped>
-a.no-color{
-  color: inherit;
-}
+  a.no-color {
+    color: inherit;
+  }
 </style>

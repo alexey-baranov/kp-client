@@ -13,7 +13,7 @@
           <div id="g-recaptcha"></div>
         </div>
         <div class="form-group w-100">
-          <input type="submit" class="btn btn-primary btn-block mt-3" value="Войти" :disabled="!captchaResponse"
+          <input type="submit" class="btn btn-primary btn-block mt-3" value="Войти" :disabledX="!captchaResponse"
                  @click.prevent="submit_click">
         </div>
         <div>

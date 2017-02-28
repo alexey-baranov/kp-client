@@ -131,6 +131,52 @@ class Kopnik extends RemoteModel {
     }
   }
 
+  async getStarshinaNaZemle(zemla){
+    let starshini= await this.getStarshini()
+
+    starshini.reverse()
+
+    for(let eachStarshina of starshini){
+      for (let eachStarshinaEachDom of await eachStarshina.getDoma()){
+        if (eachStarshinaEachDom== zemla){
+          return eachStarshina
+        }
+      }
+    }
+
+    return null
+  }
+  async getStarshinaNaKope(kopa){
+    await kopa.joinedLoaded()
+    return await this.getStarshinaNaZemle(kopa.place)
+  }
+
+  /**
+   * Все дома, начиная от непосредственного
+   *
+   * @return {Promise.<[*]>}
+   */
+  async getDoma(){
+    let result= [await this.dom.joinedLoaded()]
+    result= result.concat(await this.dom.getParents())
+
+    return result
+  }
+
+  /**
+   * Всех старшин, начиная от непосредственного
+   *
+   * @return {Promise.<Array>}
+   */
+  async getStarshini(){
+    let result= []
+    for (let eachStarshina = this.starshina; eachStarshina; eachStarshina = eachStarshina.starshina) {
+      await eachStarshina.joinedLoaded()
+      result.push(eachStarshina)
+    }
+    return result
+  }
+
   async setStarshina(value) {
     await Connection.getInstance().session.call("api:model.Kopnik.setStarshina", null, {
       KOPNIK: this.id,

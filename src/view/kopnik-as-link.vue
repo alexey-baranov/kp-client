@@ -1,6 +1,6 @@
 <template>
   <span class="kopnik-as-link">
-    <a :href="'/?body=Kopnik:'+model.id" class="kopnik-as-link" :target="target" @click="a_click">{{model.surname}}
+    <a :href="'?body=Kopnik:'+model.id" class="kopnik-as-link" :target="target" @click="a_click">{{model.surname}}
       {{model.name}} {{model.patronymic}}
       <small v-if="model.voiskoSize">(+{{model.voiskoSize}})</small>
       <slot></slot>

@@ -66,15 +66,20 @@ export default class Application {
       })
 
       connection.onopen = async(session, details) => {
-        this.log.info("connection opened")
-        /**
-         * success auth
-         */
-        if (!this.user) {
-          session.prefix('api', 'ru.kopa')
-          this.user = await models.Kopnik.getByEmail(details.authid)
-          this.log.info("user", this.user)
-          res(this.user)
+        try{
+          this.log.info("connection opened")
+          /**
+           * success auth
+           */
+          if (!this.user) {
+            session.prefix('api', 'ru.kopa')
+            this.user = await models.Kopnik.getByEmail(details.authid)
+            this.log.info("user", this.user)
+            res(this.user)
+          }
+        }
+        catch(err){
+          rej(err)
         }
       }
 

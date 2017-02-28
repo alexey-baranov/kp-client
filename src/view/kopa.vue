@@ -63,12 +63,12 @@
     </div>
     <ul class="list-group">
       <li v-for="eachResult of model.result" class="list-group-item  border-0 px-0">
-        <predlozhenie-as-list-item :id="id+'_result_'+eachResult.id"
-                                   :class="{'w-100':!eachResult.state, 'w-100':eachResult.state, 'mx-auto': eachResult.state==1}"
+        <predlozhenie-as-list-item :id="id+'_result_'+eachResult.id" class="w-100"
                                    :model="eachResult"></predlozhenie-as-list-item>
       </li>
       <li class="list-group-item <!--border-0--> px-0">
-        <predlozhenie-as-submit :id="id+'_result_new'" class="w-100" :model="model.newResult"
+        <predlozhenie-as-submit v-if="starshinaNaKope===null" :id="id+'_result_new'" class="w-100"
+                                :model="model.newResult"
                                 @submit="predlozhenie_submit">
         </predlozhenie-as-submit>
       </li>
@@ -77,11 +77,15 @@
       <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
         <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" class="w-100" :model="eachSlovo"></slovo-as-list-item>
       </li>
+      <!--Новое слово-->
       <li class="list-group-item list-group-item-info border-0 px-0 py-0 fixed-bottom">
-
-        <slovo-as-submit :id="id+'_slovo_new'" class="w-100 <!--bg-info-->" :model="model.newSlovo"
+        <slovo-as-submit v-if="starshinaNaKope===null" :id="id+'_slovo_new'" class="w-100"
+                         :model="model.newSlovo"
                          @submit="slovo_submit">
         </slovo-as-submit>
+        <div v-if="starshinaNaKope" class="alert alert-info mb-0">Ваш старшина на копе
+          <kopnik-as-link target="_blank" :model="starshinaNaKope"></kopnik-as-link>
+        </div>
       </li>
     </ul>
   </div>
@@ -116,7 +120,8 @@
          * намерение задать вопрос возникает когда пользователь встает на поле "Вопрос"
          * и используется для раздвигания виьюшки из short="true"
          */
-        questionIntention: false
+        questionIntention: false,
+        starshinaNaKope: undefined
       };
     },
     /**
@@ -133,13 +138,7 @@
     },
     watch: {
       model(){
-        this.loadModel()
-        if (!this.model.newResult) {
-          this.model.newResult = this.getNewResult()
-        }
-        if (!this.model.newSlovo) {
-          this.model.newSlovo = this.getNewSlovo()
-        }
+        this.onModel()
       }
     },
     computed: {
@@ -163,7 +162,23 @@
       }
     },
     methods: {
-
+      async onModel(){
+        this.starshinaNaKope = undefined
+        if (!this.model.newResult) {
+          this.model.newResult = this.getNewResult()
+        }
+        if (!this.model.newSlovo) {
+          this.model.newSlovo = this.getNewSlovo()
+        }
+        await this.model.joinedLoaded();
+        if (!this.model.result) {
+          await this.model.loadResult();
+        }
+        if (!this.model.dialog) {
+          await this.model.loadDialog();
+        }
+        this.starshinaNaKope= await Application.getInstance().user.getStarshinaNaKope(this.model)
+      },
       async invite_click(){
         await this.model.invite()
       },
@@ -244,15 +259,6 @@
         await this.model.reload()
         this.localMode = "viewer"
       },
-      async loadModel() {
-        await this.model.joinedLoaded();
-        if (!this.model.result) {
-          await this.model.loadResult();
-        }
-        if (!this.model.dialog) {
-          await this.model.loadDialog();
-        }
-      },
 
       /**
        * Пустое предложение-кандидит для копы model2
@@ -285,17 +291,7 @@
     },
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
-
-      if (this.model.id) {
-        if (!this.model.newResult) {
-          this.model.newResult = this.getNewResult()
-        }
-        if (!this.model.newSlovo) {
-          this.model.newSlovo = this.getNewSlovo()
-        }
-        await this.loadModel();
-
-      }
+      await this.onModel()
     },
     mounted(){
 
@@ -304,11 +300,11 @@
        */
       this.model.on(models.Kopa.event.slovoAdd, this.holdBottom)
 
-/*      this.bottomPaddingInterval= setInterval(()=>{
-        let height= $(`#${this.id}_slovo_new`).height()||10
-        this.log.debug("slovo_new height", height)
-        $(`#${this.id}`).css('padding-bottom', height)
-      },1000)*/
+      /*      this.bottomPaddingInterval= setInterval(()=>{
+       let height= $(`#${this.id}_slovo_new`).height()||10
+       this.log.debug("slovo_new height", height)
+       $(`#${this.id}`).css('padding-bottom', height)
+       },1000)*/
     },
     beforeDestroy(){
       this.model.removeListener(models.Kopa.event.slovoAdd, this.holdBottom);

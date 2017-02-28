@@ -23,6 +23,8 @@
             </div>
           </li>
 
+          <a class="nav-link" href="#">asdfsd</a>
+
           <li v-if="model.user && model.user.registrations && model.user.registrations.length" class="nav-item">
             <a class="nav-link" href="/?state=verification" @click.prevent="verification_click">Регистрации</a>
           </li>

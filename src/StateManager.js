@@ -27,7 +27,7 @@ export default class StateManager {
 
 
   getUrl(state) {
-    const result = "/?"+decodeURIComponent($.param(state))
+    const result = "?"+decodeURIComponent($.param(state))
     this.log.debug("url", result)
 
     return result

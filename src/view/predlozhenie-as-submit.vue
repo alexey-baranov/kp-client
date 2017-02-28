@@ -42,7 +42,7 @@
   }
 
   .predlozhenie-as-submit--empty textarea {
-    height: 2em;
+    height: 2.5em;
   }
 
   .predlozhenie-as-submit--empty button {

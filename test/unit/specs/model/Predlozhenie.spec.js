@@ -22,16 +22,16 @@ let KOPNIK = 2,
 
 describe('Predlozhenie', function () {
   before(function () {
-    models.RemoteModel.clearCache()
+    models.RemoteModel.clearCache();
     return new Promise(function (res, rej) {
       connection.onopen = function (session, details) {
-        session.prefix('api', 'ru.kopa')
+        session.prefix('api', 'ru.kopa');;;
         res()
       }
       connection.open()
     })
       .then(function () {
-        return Cleaner.clean()
+        return Cleaner.clean();;;;
       })
   })
 

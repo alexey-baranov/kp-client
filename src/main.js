@@ -37,7 +37,9 @@ log.getLogger("location.vue").setLevel("info")
 import $ from "jquery"; //global.$=$;
 import Vue from 'vue'
 import MuseUI from 'muse-ui'
-import 'muse-ui/dist/muse-ui.css'
+// import 'muse-ui/dist/muse-ui.css'
+// import 'bootstrap/dist/css/bootstrap.css'
+// import 'bootstrap/dist/css/bootstrap-theme.css'
 // require('vue-strap/dist/vue-strap-lang.js')
 // require('vue-strap/dist/isMobileBrowser.js')
 
@@ -47,6 +49,8 @@ let config = require("../cfg/main")[process.env.NODE_ENV]
 let models = global.models = require("./model")
 import StateManager from './StateManager'
 import Grumbler from './Grumbler'
+
+// alert(window.innerWidth+"x"+window.innerHeight)
 
 Vue.use(MuseUI);
 Grumbler.getInstance().addEventHandler()

@@ -55,11 +55,13 @@
         </button>
       </div>
       <div :id="`${id}_voted_za`" class="collapse">
-        <ul class="list-group">
+        <div class="card card-block bg-none">
+          <ul class="list-group">
           <li v-for="eachZa of model.za" v-if="eachZa.owner" class="list-group-item bg-none border-0 py-1">
             <kopnik-as-link target="_blank" :model="eachZa.owner"></kopnik-as-link>
           </li>
         </ul>
+        </div>
       </div>
 
       <!--protiv-->
@@ -73,11 +75,13 @@
         </button>
       </div>
       <div class="collapse" :id="`${id}_voted_protiv`">
-        <ul class="list-group">
+        <div class="card card-block bg-none">
+          <ul class="list-group">
           <li v-for="eachProtiv of model.protiv" v-if="eachProtiv.owner" class="list-group-item bg-none border-0 py-1">
             <kopnik-as-link target="_blank" :model="eachProtiv.owner"></kopnik-as-link>
           </li>
         </ul>
+        </div>
       </div>
     </div>
   </div>

@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" class="slovo-as-submit card border-right-0 border-left-0 border-bottom-0" :class="{'slovo-as-submit--empty': !model.value}">
+  <div :id="id" class="slovo-as-submit card  border-right-0 border-left-0 border-bottom-0" :class="{'slovo-as-submit--empty': !model.value}">
     <div class="card-block">
       <textarea class="form-control" v-model="model.value"
                 placeholder="Говорите..." @keyup.ctrl.enter="submit_click"> </textarea>
@@ -45,13 +45,13 @@
   }*/
 
   .slovo-as-submit--empty textarea {
-    /*height: 3em;*/
+    height: 2.5em;
   }
 
   .slovo-as-submit--empty button {
-    /*display: none;*/
+    display: none;
   }
   .slovo-as-submit--empty .files {
-    /*display: none;*/
+    display: none;
   }
 </style>

@@ -125,6 +125,7 @@ describe('Zemla', function () {
           })
 
           await models.Kopnik.create({
+            email: "unittestR@domain.ru",
             name: "temp",
             surname: "temp",
             patronymic: "temp",

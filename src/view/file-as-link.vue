@@ -25,7 +25,7 @@
     mixins: [require("./mixin/humanize")],
     name: "kopnik-as-link",
     props: ["id", "model", "target"],
-    filters:{
+    filters: {
       /**
        * url на скачивание по пути файла
        * computed не срабатывает, поэтому делаем тоже самое чере filter
@@ -33,6 +33,9 @@
        * @return {string}
        */
       download(value){
+        if (!value) {
+          return null
+        }
         let result = `${config["file-server"].schema}://${config["file-server"].host}:${config["file-server"].port}/${config["file-server"]["download-path"]}`
         result += `?path=${encodeURIComponent(value)}`
         return result
@@ -55,7 +58,7 @@
 </script>
 
 <style scoped>
-  .card-inverse .file-as-link{
-    color:rgb(255,255,255)
+  .card-inverse .file-as-link {
+    color: rgb(255, 255, 255)
   }
 </style>

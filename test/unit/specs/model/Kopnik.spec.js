@@ -59,7 +59,7 @@ describe('Kopnik', function () {
             res()
           }
           anonymousConnection.close()
-        })
+        });
       })
   })
 
@@ -69,6 +69,36 @@ describe('Kopnik', function () {
       assert.equal(kopnik2.dom instanceof models.Zemla, true);
     });
   })
+
+  it('#getStarshinaNaZemle()', async function () {
+    let kopnik6 = await models.Kopnik.get(6);
+    let starshinaNaZemle = await kopnik6.getStarshinaNaZemle(models.Zemla.getReference(4))
+    assert.equal(starshinaNaZemle===null, true, "starshinaNaZemle, null");
+
+    starshinaNaZemle = await kopnik6.getStarshinaNaZemle(models.Zemla.getReference(1))
+    assert.equal(starshinaNaZemle instanceof models.Kopnik, true, "starshinaNaZemle instanceof Kopnik");
+    assert.equal(starshinaNaZemle.id, 2, "starshinaNaZemle.id, 2")
+  })
+
+  it('#getDoma()', async function () {
+    let kopnik2 = await models.Kopnik.get(2)
+    let doma = await kopnik2.getDoma()
+    assert.equal(_.isArray(doma), true, "_.isArray(doma)")
+    assert.equal(doma.length, 2, "doma.length, 2");
+    assert.equal(doma[0] instanceof models.Zemla, true, "doma instanceof models.Zemla");
+    assert.equal(doma[0].id, 2, true, "doma[0]=2");
+    assert.equal(doma[1].id, 1, true, "doma[1]=1");
+  });
+
+  it('#getStarshini()', async function () {
+    let kopnik7 = await models.Kopnik.get(7)
+    let starshini = await kopnik7.getStarshini()
+    assert.equal(_.isArray(starshini), true, "_.isArray(starshini)")
+    assert.equal(starshini.length, 2, "starshini.length, 2");
+    assert.equal(starshini[0] instanceof models.Kopnik, true, "starshini instanceof models.Kopnik");
+    assert.equal(starshini[0].id, 3, true, "starshini[0]=3");
+    assert.equal(starshini[1].id, 2, true, "starshini[1]=2");
+  });
 
   describe("#loadDruzhina()", function () {
     let kopnik2;
@@ -123,6 +153,7 @@ describe('Kopnik', function () {
 
           //1. повесил самКопника1 на старшину Копника2
           someKopnik1 = await models.Kopnik.create({
+            email: "unittestQ@domain.ru",
             name: "temp",
             surname: "temp",
             patronymic: "temp",
@@ -134,6 +165,7 @@ describe('Kopnik', function () {
 
           //2. повесил копника на самКопника1
           someKopnik2 = await models.Kopnik.create({
+            email: "unittestW@domain.ru",
             name: "temp",
             surname: "temp",
             patronymic: "temp",
@@ -287,6 +319,7 @@ describe('Kopnik', function () {
             }
           });
           someKopnik1 = await models.Kopnik.create({
+            email: "unittestE@domain.ru",
             name: "temp",
             surname: "temp",
             patronymic: "temp",
@@ -294,8 +327,8 @@ describe('Kopnik', function () {
             passport: "1234",
             dom: models.Zemla.getReference(ZEMLA2),
           });
-          await someKopnik1.setStarshina(kopnik2);
-          await someKopnik1.setStarshina(null);
+          await someKopnik1.setStarshina(kopnik2)
+          await someKopnik1.setStarshina(null)
         }
         catch (err) {
           done(err);
@@ -321,7 +354,7 @@ describe('Kopnik', function () {
         totalZa: 0,
         totalProtiv: 0,
       });
-    });
+    })
 
     /**
      * создаю предложение, голосую и жду когда выстрелит Predlozhenie#balanceChange
@@ -370,8 +403,8 @@ describe('Kopnik', function () {
         catch (err) {
           done(err);
         }
-      })();
-    });
+      })();;
+    })
   })
 
   describe("#verifyRegistration()", function () {
@@ -491,4 +524,6 @@ describe('Kopnik', function () {
       expect(kopnik2.registrations[0].state).equals(0);
     })
   })
+
+
 })

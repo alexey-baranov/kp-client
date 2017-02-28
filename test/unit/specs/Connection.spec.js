@@ -12,13 +12,14 @@ import Connection from '../../../src/Connection'
 let config = require("../../../cfg/main")[process.env.NODE_ENV];
 
 describe('Connection', function () {
+  this.timeout(7000);
   let connection
 
   after(function () {
       return new Promise((res) => {
         if (Connection.getInstance().isOpen) {
           Connection.getInstance().onclose = function () {
-            res()
+            res();
           }
           Connection.getInstance().close();
         }
@@ -129,6 +130,9 @@ describe('Connection', function () {
       else {
         done("role=" + details.authrole)
       }
+    }
+    connection.onclose = (reason, details) =>{
+      done(Object.assign({}, {onclose_reason:reason}, details))
     }
     //1. open()
     connection.open()

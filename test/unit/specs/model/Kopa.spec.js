@@ -65,7 +65,7 @@ describe('Kopa', function () {
     it('должен опубликовать "zemla.id2.kopaAdd"', function (done) {
       (async() => {
         try {
-          let kopnik = models.Kopnik.getReference(KOPNIK)
+          let kopnik = models.Kopnik.getReference(KOPNIK);;;
           let zemla = await models.Zemla.get(ZEMLA)
           let kopa
 
@@ -89,7 +89,7 @@ describe('Kopa', function () {
             owner: kopnik,
           })
           //2. созвал копу
-          kopa.invite()
+          kopa.invite();;
         }
         catch (err) {
           done(err)
