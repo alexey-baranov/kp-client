@@ -47,7 +47,7 @@
         <kopnik-as-verifier v-if="model.state=='verification'" :id="id+'_verification'"
                             :model="model.user"></kopnik-as-verifier>
         <div v-if="model.state=='main' && model.body">
-          <h1 class="title">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
+          <h1 class="title text-truncate">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
           <location :model="model.body"></location>
           <component v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
         </div>
@@ -275,5 +275,9 @@
   /*bootstrap override*/
   .card-inverse .card-blockquote .blockquote-footer, .card-inverse .card-link, .card-inverse .card-subtitle, .card-inverse .card-text {
     color: rgb(255, 255, 255);
+  }
+
+  .text-pre{
+    white-space: pre-wrap;
   }
 </style>

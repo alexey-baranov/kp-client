@@ -53,7 +53,7 @@
                     -->
         </div>
         <div :id="id+'_card_block'" class="card-block">
-          <div class="card-text">{{model.question}}</div>
+          <div class="card-text text-pre">{{model.question}}</div>
           <files :id="id+'_files' " :model="model.attachments" :drop="id+'_card_block'"></files>
           <button v-if="!model.invited" class="btn btn-block btn-primary mt-2" @click="invite_click">Созвать копу
           </button>
@@ -77,17 +77,18 @@
       <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
         <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" class="w-100" :model="eachSlovo"></slovo-as-list-item>
       </li>
-      <!--Новое слово-->
-      <li class="list-group-item list-group-item-info border-0 px-0 py-0 fixed-bottom">
-        <slovo-as-submit v-if="starshinaNaKope===null" :id="id+'_slovo_new'" class="w-100"
-                         :model="model.newSlovo"
-                         @submit="slovo_submit">
-        </slovo-as-submit>
-        <div v-if="starshinaNaKope" class="alert alert-info mb-0">Ваш старшина на копе
-          <kopnik-as-link target="_blank" :model="starshinaNaKope"></kopnik-as-link>
-        </div>
-      </li>
+
     </ul>
+    <!--Новое слово-->
+    <div class="border-0 px-0 py-0 fixed-bottom">
+      <slovo-as-submit v-if="starshinaNaKope===null" :id="id+'_slovo_new'" class="w-100"
+                       :model="model.newSlovo"
+                       @submit="slovo_submit">
+      </slovo-as-submit>
+      <div v-if="starshinaNaKope" class="alert alert-info mb-0">Ваш старшина на копе
+        <kopnik-as-link target="_blank" :model="starshinaNaKope"></kopnik-as-link>
+      </div>
+    </div>
   </div>
 </template>
 

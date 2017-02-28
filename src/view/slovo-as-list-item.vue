@@ -20,7 +20,7 @@
         </div>
       </div>
       <div class="card-block">
-        <div class="card-text">{{model.value}}</div>
+        <div class="card-text text-pre">{{model.value}}</div>
         <files :id="id+'_attachments'" :model="model.attachments"></files>
       </div>
     </template>

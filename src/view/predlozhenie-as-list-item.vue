@@ -23,7 +23,7 @@
         </div>
       </div>
       <div class="card-block">
-        <div class="card-text">{{model.value}}</div>
+        <div class="card-text text-pre">{{model.value}}</div>
         <files :id="id+'_attachments'" :model="model.attachments"></files>
       </div>
     </template>
@@ -66,7 +66,7 @@
 
       <!--protiv-->
       <div class="btn-group w-100" role="group">
-        <button class="btn btn-danger d-flex justify-content-between w-100" :disabled="model.state>0"
+        <button class="btn btn-danger d-flex justify-content-between w-100 flex-row" :disabled="model.state>0"
                 @click.prevent="protiv_click">
           <span>{{model.totalProtiv}}</span><span>Против</span><span v-if="zemlaLoaded">({{model.totalProtiv/model.place.place.obshinaSize*100}}%)</span>
         </button>

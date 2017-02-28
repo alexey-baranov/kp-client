@@ -3,7 +3,7 @@
     <slot>
       <i class="material-icons md-dark md-1em">attachment</i>
     </slot>
-    <a :href="model.path | download" class="file-as-link" @click.stop="">
+    <a :href="model.path | download" target="_blank" class="file-as-link" @click.stop="">
       {{model.name}} ({{model.size | humanizeDiskSpase }})
     </a>
 
