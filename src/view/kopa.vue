@@ -163,7 +163,10 @@
       }
     },
     methods: {
-      async onModel(){
+      async onModel(cur, prev){
+        if (prev) {
+          this.model.removeListener(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
+        }
         this.starshinaNaKope = undefined
         if (!this.model.newResult) {
           this.model.newResult = this.getNewResult()
@@ -178,15 +181,20 @@
         if (!this.model.dialog) {
           await this.model.loadDialog();
         }
-        this.starshinaNaKope= await Application.getInstance().user.getStarshinaNaKope(this.model)
+        this.model.on(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
+        this.starshinaNaKope = await Application.getInstance().user.getStarshinaNaKope(this.model)
       },
       async invite_click(){
         await this.model.invite()
       },
+      /**
+       *  если автор я сам, то матаем вниз
+       *  во всех остальных случаях только если я стою в самом низу
+       */
       holdBottom(){
-        //если пользователь расположен в самом низу (последние 20 пикселей) обсуждений
-        if ($(document).scrollTop() + window.innerHeight + 20 >= $(document).height()) {
-          $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing');
+        if (this.model.dialog[this.model.dialog.length - 1].owner == Application.getInstance().user ||
+          $(document).scrollTop() + window.innerHeight + 20 >= $(document).height()) {
+          $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing')
         }
       },
       /**
@@ -211,7 +219,7 @@
         return result
       },
 
-      predlozhenie_submit: async function (sender) {
+      async predlozhenie_submit (sender) {
         let newResult = this.model.newResult
         newResult.created = new Date()
 
@@ -225,7 +233,7 @@
         newResult = await models.Predlozhenie.create(newResult)
       },
 
-      slovo_submit: async function () {
+      async slovo_submit () {
         let newSlovo = this.model.newSlovo
         newSlovo.created = new Date()
 
@@ -292,14 +300,10 @@
     },
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
+      this.bindedHoldBottom= this.holdBottom.bind(this)
       await this.onModel()
     },
     mounted(){
-
-      /**
-       автоскролинг
-       */
-      this.model.on(models.Kopa.event.slovoAdd, this.holdBottom)
 
       /*      this.bottomPaddingInterval= setInterval(()=>{
        let height= $(`#${this.id}_slovo_new`).height()||10

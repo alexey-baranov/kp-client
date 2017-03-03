@@ -1,5 +1,6 @@
 <template>
   <div class="application">
+    <small id="log" class="" style="z-index: 100000; position: fixed; left:0; top:0;">{{logMessage}}</small>
     <grumbler :model="grumbler"></grumbler>
     <mu-toast v-if="notifier.currentNotification" :message="notifier.currentNotification.value" @close="toast_close"/>
     <nav class="navbar fixed-top navbar-toggleable navbar-light bg-faded"><!---->
@@ -63,12 +64,14 @@
   import Notifier from "../Notifier"
   import Grumbler from "../Grumbler"
   import StateManager from "../StateManager"
+  import Connection from "../Connection"
 
   export default{
     name: "application",
 //    mixins:[logMixin], выдает ошибку
     data(){
       return {
+        logMessage: null,
         userDoma: [],
         notifier: Notifier.getInstance(),
         grumbler: Grumbler.getInstance(),
@@ -205,6 +208,33 @@
         this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
         await this.model.user.reloadRegistrations()
       }
+
+      /*
+       * хак чтобы мобильные браузеры не отваливались
+       */
+      if (require("is_js").opera()) {
+        document.addEventListener("visibilitychange", this.document_visibilitychange = async() => {
+          console.log("document.hidden", document.hidden)
+          /**
+           * окно скрылось и сессия открыта= Надо сберегать сессию
+           */
+          if (document.hidden && this.model.user) {
+            this.log.debug("start keepAlive")
+            this.keepAliveTimer = setInterval(() => {
+              Connection.getInstance().session.call("api:pingPong", [new Date()])
+            }, 5000)
+          }
+          /**
+           * окно появилось, сессия была поставлена на сбережение и она еще не закрылась -
+           * снять сбережение чтобы не тратить серверное время
+           */
+          else if (!document.hidden && this.keepAliveTimer) {
+            this.log.debug("stop keepAlive")
+            clearInterval(this.keepAliveTimer)
+            this.keepAliveTimer = null
+          }
+        })
+      }
     },
     mounted() {
       window.addEventListener('scroll', (e) => {
@@ -224,6 +254,25 @@
 //          StateManager.getInstance().replaceState()
         }
       })
+    },
+    async beforeDestroy(){
+      /**
+       * выгрузить слушатель чтобы не иметь фантомных слушателей после хот-релоада application.vue
+       */
+      if (this.document_visibilitychange) {
+        document.removeEventListener("visibilitychange", this.document_visibilitychange)
+      }
+
+      /**
+       * избежать фантомных подписок после хотрелоада application.vue
+       * окно появилось, сессия была поставлена на сбережение и она еще не закрылась -
+       * снять сбережение чтобы не тратить серверное время
+       */
+      if (this.keepAliveTimer) {
+        this.log.debug("stop keepAlive before destroy view")
+        clearInterval(this.keepAliveTimer)
+        this.keepAliveTimer=null
+      }
     }
   }
 </script>
@@ -277,7 +326,7 @@
     color: rgb(255, 255, 255);
   }
 
-  .text-pre{
+  .text-pre {
     white-space: pre-wrap;
   }
 </style>
