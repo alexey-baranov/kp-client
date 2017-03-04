@@ -13,7 +13,7 @@
     props: ["id", "model", "target"],
     methods: {
       a_click(e) {
-        e.stopPropagation()
+//        e.stopPropagation()
         if (this.target != '_blank') {
           Application.getInstance().goTo(this.model)
           StateManager.getInstance().pushState()

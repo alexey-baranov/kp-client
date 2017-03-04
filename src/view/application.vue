@@ -3,56 +3,46 @@
     <small id="log" class="" style="z-index: 100000; position: fixed; left:0; top:0;">{{logMessage}}</small>
     <grumbler :model="grumbler"></grumbler>
     <mu-toast v-if="notifier.currentNotification" :message="notifier.currentNotification.value" @close="toast_close"/>
-    <nav class="navbar fixed-top navbar-toggleable navbar-light bg-faded"><!---->
-      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
-              data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
-              aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <a class="navbar-brand px-2" href="#">kopnik.org</a>
-      <!--<span class="navbar-brand px-2">kopnik.org</span>-->
-      <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav">
-          <li v-if="model.user" class="nav-item dropdown <!--active-->">
-            <a class="nav-link dropdown-toggle" href="http://kopnik.org" :id="id+'navbarDropdownMenuLink'"
-               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Земли
-            </a>
-            <div class="dropdown-menu" :aria-labelledby="id+'navbarDropdownMenuLink'">
-              <zemla-as-link v-for="eachUserDom of userDoma" class="dropdown-item"
-                             :model="eachUserDom"></zemla-as-link>
-            </div>
-          </li>
 
-          <a class="nav-link" href="#">asdfsd</a>
+    <mu-appbar class="fixed-top" title="kopnik.org">
+      <mu-icon-button icon='menu' @click="toggle()" slot="left"/>
+      <mu-icon-button icon='expand_more' slot="right"/>
+    </mu-appbar>
+    <div class="row no-gutters flex-nowrap container-under-navbar">
+      <div v-if="drawer" class="col-3 col-lg-2">
+          <mu-list class="list-group" @itemClick="docked ? '' : toggle()">
+            <mu-list-item v-for="eachUserDom of userDoma" @click="list_item_click(eachUserDom)">
+              <zemla-as-link :model="eachUserDom"></zemla-as-link>
+            </mu-list-item>
+            <mu-list-item v-if="model.user && model.user.registrations && model.user.registrations.length" @click.prevent="verification_click">
+              <a href="?state=verification" @click="verification_click">Регистрации</a>
+            </mu-list-item>
 
-          <li v-if="model.user && model.user.registrations && model.user.registrations.length" class="nav-item">
-            <a class="nav-link" href="/?state=verification" @click.prevent="verification_click">Регистрации</a>
-          </li>
+            <mu-list-item href="https://www.youtube.com/channel/UCJRtg8s94PTFXEfZ6sEnlGw" target="_blank" @click="">
+              Youtube
+            </mu-list-item>
 
-          <li class="nav-item">
-            <a class="nav-link" target="_blank"
-               href="https://www.youtube.com/channel/UCJRtg8s94PTFXEfZ6sEnlGw">Youtube</a>
-          </li>
-
-          <li v-if="model.user" class="nav-item">
-            <a class="nav-link" href="#" @click.prevent="close_click">Выход</a>
-          </li>
-        </ul>
+            <mu-list-item v-if="model.user" @click.prevent="close_click">
+              Выход
+            </mu-list-item>
+          </mu-list>
       </div>
-    </nav>
-    <div class="container container-under-navbar">
-      <auth v-if="!model.user && model.state!='registration'" @input="auth_input" ></auth>
-      <registration-as-form v-if="model.state=='registration'" :id="id+'_registration'" @close="registration_close"></registration-as-form>
-      <template v-if="model.user">
-        <kopnik-as-verifier v-if="model.state=='verification'" :id="id+'_verification'"
-                            :model="model.user"></kopnik-as-verifier>
-        <div v-if="model.state=='main' && model.body">
-          <h1 class="title text-truncate">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
-          <location class="breadcrumb" :model="model.body"></location>
-          <component v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
+      <div :class="{'col-9':drawer, 'col-12': !drawer, 'col-lg-10':drawer}">
+        <div class="padding-x-container">
+          <auth v-if="!model.user && model.state!='registration'" @input="auth_input"></auth>
+          <registration-as-form v-if="model.state=='registration'" :id="id+'_registration'"
+                                @close="registration_close"></registration-as-form>
+          <template v-if="model.user">
+            <kopnik-as-verifier v-if="model.state=='verification'" :id="id+'_verification'"
+                                :model="model.user"></kopnik-as-verifier>
+            <div v-if="model.state=='main' && model.body">
+              <h1 class="title text-truncate">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
+              <location class="breadcrumb" :model="model.body"></location>
+              <component v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
+            </div>
+          </template>
         </div>
-      </template>
+      </div>
     </div>
   </div>
 </template>
@@ -75,6 +65,8 @@
         userDoma: [],
         notifier: Notifier.getInstance(),
         grumbler: Grumbler.getInstance(),
+        drawer: true,
+        docked: true,
       }
     },
     props: ["id", "model"],
@@ -126,8 +118,15 @@
       }
     },
     methods: {
+      list_item_click(dom){
+        Application.getInstance().goTo(dom)
+        StateManager.getInstance().pushState()
+      },
+      toggle () {
+        this.drawer = !this.drawer
+      },
       registration_close(){
-        this.model.state= Application.State.Auth
+        this.model.state = Application.State.Auth
         StateManager.getInstance().pushState()
       },
       close_click(){
@@ -150,7 +149,7 @@
           await this.model.user.dom.joinedLoaded()
           this.model.setBody(this.model.user.dom)
           StateManager.getInstance().popState(location.search.substring(1))
-          if (this.model.state == Application.State.Auth){
+          if (this.model.state == Application.State.Auth) {
             this.model.state = Application.State.Main
             StateManager.getInstance().pushState()
           }
@@ -265,13 +264,19 @@
 </script>
 
 <style scoped>
-  .navbar-brand {
-    /*background-color: black;*/
-    /*color: white;*/
+  .padding-x-container{
+    padding-left: .5rem;
+    padding-right: .5rem;
+  }
+  @media (min-width: 576px) {
+    .padding-x-container{
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
   }
 
   .container-under-navbar {
-    margin-top: 3.5rem;
+    margin-top: 4rem;
   }
 
   .title {
@@ -280,6 +285,15 @@
 </style>
 
 <style>
+  .mu-drawer {
+    /*display: none;*/
+    /*position: static;*/
+  }
+
+  .mu-drawer.open {
+    /*display: block;*/
+  }
+
   .mu-text-field-content {
     padding-top: 0;
     padding-bottom: 0;
