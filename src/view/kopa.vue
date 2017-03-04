@@ -334,7 +334,13 @@
     },
     beforeDestroy(){
       this.model.removeListener(models.Kopa.event.slovoAdd, this.holdBottom);
-      Application.getInstance().user.removeListener(models.Kopnik.event.starshinaChange, this.user_starshinaChange)
+
+      /**
+       * возможно был совершен выход и поэтому юзера уже нет
+       */
+      if (Application.getInstance().user) {
+        Application.getInstance().user.removeListener(models.Kopnik.event.starshinaChange, this.user_starshinaChange)
+      }
 //      clearInterval(this.bottomPaddingInterval)
     }
   }

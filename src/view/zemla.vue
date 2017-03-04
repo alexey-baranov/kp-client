@@ -11,8 +11,10 @@
         <kopa-as-submit v-if="starshinaNaZemle===null" :id="id+'_new'" class="w-100" :model="model.newKopa"
                         @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
         <div v-if="starshinaNaZemle" class="alert alert-info">Ваш старшина на {{model.name}}
-          <kopnik-as-link target="_blank" :model="starshinaNaZemle"></kopnik-as-link>.
-          Если у вас есть вопросы, которые вы хотите обсудить на {{model.name}}, обратитесь к своему старшине с просьбой созвать копу.
+          <kopnik-as-link target="_blank" :model="starshinaNaZemle"></kopnik-as-link>
+          .
+          Если у вас есть вопросы, которые вы хотите обсудить на {{model.name}}, обратитесь к своему старшине с просьбой
+          созвать копу.
         </div>
       </li>
     </ul>
@@ -132,11 +134,15 @@
       await this.onModel()
     },
     beforeDestroy(){
-      Application.getInstance().user.removeListener(models.Kopnik.event.starshinaChange, this.user_starshinaChange)
+      /**
+       * возможно был совершен выход и поэтому юзера уже нет
+       */
+      if (Application.getInstance().user) {
+        Application.getInstance().user.removeListener(models.Kopnik.event.starshinaChange, this.user_starshinaChange)
+      }
     }
   }
 </script>
-
 
 <style scoped>
   a.no-color {

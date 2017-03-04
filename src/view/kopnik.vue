@@ -1,7 +1,7 @@
 <template>
   <div class="kopnik">
     <div v-if="model.dom" class="dom">
-      Дом: <zemla-as-link target="_blank" :model="model.dom"></zemla-as-link>
+      Дом: <location class="bg-none" target="_blank" full="true" :model="model.dom"></location>
     </div>
     <div v-if="model.starshina" class="starshina mt-3">
       Старшина: <kopnik-as-link target="_blank" :model="model.starshina"></kopnik-as-link>
@@ -48,7 +48,7 @@
     },
     props: ["id", "model", "short"],
     components: {
-      "zemla-as-link": require("./zemla-as-link.vue"),
+      "location": require("./location.vue"),
       "kopnik-as-link": require("./kopnik-as-link.vue"),
       "kopnik-as-druzhe": require("./kopnik-as-druzhe.vue"),
     },

@@ -168,7 +168,6 @@
         <strong>Номер вашей регистрации #{{model.id}}.</strong>
         <p class="mb-0">Копия письма отправлена на указанный адрес {{model.email}}</p>
       </div>
-
       <p>
         <button v-if="!model.id" type="submit" id="submit" @click.prevent="submit_click"
                 class="btn btn-lg btn-block btn-primary">
@@ -176,6 +175,9 @@
         </button>
       </p>
     </form>
+    <p>
+      Вернуться назад на <a href="/?state=auth" @click.prevent="close_click">страницу входа</a>
+    </p>
   </div>
 </template>
 
@@ -225,6 +227,9 @@
     props: ["id"],
     components: {},
     methods: {
+      close_click(){
+        this.$emit("close", this)
+      },
       captchaCallback(response){
         this.model.captchaResponse = response
       },

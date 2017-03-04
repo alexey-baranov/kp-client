@@ -1,13 +1,11 @@
 <template>
-  <div class="location">
-    <ol class="breadcrumb">
+    <ol class="location breadcrumb">
       <li v-for="eachNode of nodes" class="breadcrumb-item">
         <zemla-as-link v-if="modelClassName=='Zemla'" :target="target" :model="eachNode"></zemla-as-link>
         <zemla-as-link v-if="modelClassName=='Kopa'" :target="target" :model="eachNode"></zemla-as-link>
         <kopnik-as-link v-if="modelClassName=='Kopnik'" :target="target" :model="eachNode"></kopnik-as-link>
       </li>
     </ol>
-  </div>
 </template>
 
 <script>
@@ -88,6 +86,9 @@
 </script>
 
 <style scoped>
+  ol{
+    list-style: none;
+  }
 </style>
 
 <style>

@@ -42,14 +42,14 @@
       </div>
     </nav>
     <div class="container container-under-navbar">
-      <auth v-if="!model.user && model.state!='registration'" @input="auth_input"></auth>
-      <registration-as-form v-if="model.state=='registration'" :id="id+'_registration'"></registration-as-form>
+      <auth v-if="!model.user && model.state!='registration'" @input="auth_input" ></auth>
+      <registration-as-form v-if="model.state=='registration'" :id="id+'_registration'" @close="registration_close"></registration-as-form>
       <template v-if="model.user">
         <kopnik-as-verifier v-if="model.state=='verification'" :id="id+'_verification'"
                             :model="model.user"></kopnik-as-verifier>
         <div v-if="model.state=='main' && model.body">
           <h1 class="title text-truncate">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
-          <location :model="model.body"></location>
+          <location class="breadcrumb" :model="model.body"></location>
           <component v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
         </div>
       </template>
@@ -126,6 +126,10 @@
       }
     },
     methods: {
+      registration_close(){
+        this.model.state= Application.State.Auth
+        StateManager.getInstance().pushState()
+      },
       close_click(){
         this.model.logout()
       },
@@ -142,13 +146,14 @@
        */
       auth_input: async function (credentials) {
         try {
-          await
-            this.model.auth(credentials.email, credentials.password, credentials.captchaResponse)
-          await
-            this.model.user.dom.joinedLoaded()
+          await this.model.auth(credentials.email, credentials.password, credentials.captchaResponse)
+          await this.model.user.dom.joinedLoaded()
           this.model.setBody(this.model.user.dom)
-//          this.model.state = Application.State.Main
           StateManager.getInstance().popState(location.search.substring(1))
+          if (this.model.state == Application.State.Auth){
+            this.model.state = Application.State.Main
+            StateManager.getInstance().pushState()
+          }
         }
         catch (err) {
           if (err.reason == 'wamp.error.authentication_failed') {
@@ -276,8 +281,8 @@
 
 <style>
   .mu-text-field-content {
-    padding-top:0;
-    padding-bottom:0;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
   .kp-small {
