@@ -60,33 +60,31 @@ Grumbler.getInstance().addEventHandler()
  */
 let application = global.application = Application.getInstance()
 
+global.view = new Vue({
+  el: '#application',
+  template: "<application id='a' :model='application'></application>",
+  data: {
+    application
+  },
+  components: {application: applicationView}
+})
+
 /*
  пробуем авторизироваться прям с ходу куками
  */
 application.auth()
   .then(() => {
     log.getLogger("main.js").info("cookie auth")
-  },()=>{
-    log.getLogger("main.js").info("cookie auth fails")
+  }, (err) => {
+    if (err)
+      if (err.reason == "wamp.error.authentication_failed") {
+        log.getLogger("main.js").info("cookie auth fails")
+      }
+      else {
+        throw err
+      }
   })
   .then(() => {
-/*    applicationView.propsData = {
-      id: "a",
-      model: application
-    }
-    applicationView.el = "#application"
-    global.applicationView = new Vue(applicationView)*/
-
-    global.view= new Vue({
-      el: '#application',
-      template:"<application id='a' :model='application'></application>",
-      data:{
-        application
-      },
-      components: {application: applicationView}
-    })
-
-
     /**
      * State management
      */

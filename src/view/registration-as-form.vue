@@ -8,45 +8,45 @@
           <label for="email" class="col-sm-3 col-form-label text-truncate" title="Электронная почта">Электронная
             почта</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="email" v-model="model.email">
+            <input type="text" class="form-control" id="email" autocomplete="off" v-model="model.email">
           </div>
         </div>
         <div class="form-group row">
           <label for="password" class="col-sm-3 col-form-label">Пароль</label>
           <div class="col-sm-9">
-            <input type="password" class="form-control" id="password" v-model="model.password">
+            <input type="password" class="form-control" id="password" autocomplete="off" v-model="model.password">
           </div>
         </div>
         <div class="form-group row">
           <label for="password2" class="col-sm-3 col-form-label text-truncate" title="Пароль еще раз">Пароль еще
             раз</label>
           <div class="col-sm-9">
-            <input type="password" class="form-control" id="password2" v-model="model.password2">
+            <input type="password" class="form-control" id="password2" autocomplete="off" v-model="model.password2">
           </div>
         </div>
         <div class="form-group row">
           <label for="surname" class="col-sm-3 col-form-label">Фамилия</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="surname" v-model="model.surname">
+            <input type="text" class="form-control" id="surname" autocomplete="off" v-model="model.surname">
           </div>
         </div>
         <div class="form-group row">
           <label for="name" class="col-sm-3 col-form-label">Имя</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="name" v-model="model.name">
+            <input type="text" class="form-control" id="name" autocomplete="off" v-model="model.name">
           </div>
         </div>
         <div class="form-group row">
           <label for="patronymic" class="col-sm-3 col-form-label">Отчество</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="patronymic" v-model="model.patronymic">
+            <input type="text" class="form-control" id="patronymic" autocomplete="off" v-model="model.patronymic">
           </div>
         </div>
         <div class="form-group row">
           <label for="birth" class="col-sm-3 col-form-label text-truncate" title="Год рождения">Год рождения</label>
           <div class="col-sm-9">
             <select class="form-control custom-select" id="birth" v-model="model.birth">
-              <option v-for="n in 100" :value="n+1900">{{n+1900}}</option>
+              <option v-for="eachYear of years" :value="eachYear">{{eachYear}}</option>
             </select>
           </div>
         </div>
@@ -55,10 +55,10 @@
             четыре цифры паспорта</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" id="passport" v-model="model.passport">
-            <small class="form-text <!--text-muted-->">Защита от того что пользователь зарегистрирует несколько учетных
-              записей и будет голосовать несколькими голосами
-            </small>
-            <small class="form-text <!--text-muted--> mt-2">Не показывается другим участникам</small>
+            <strong class="form-text <!--text-muted-->">Защита от того что пользователь зарегистрирует несколько учетных
+              записей и будет голосовать несколькими голосами.
+            </strong>
+            <strong class="form-text <!--text-muted--> mt-2">Мы не показываем последние четыре цифры паспорта другим копникам. Это информация проверяется только во время подтверждения регистрации.</strong>
           </div>
         </div>
       </fieldset>
@@ -68,7 +68,7 @@
         <div class="form-group row">
           <label for="country" class="col-sm-3 col-form-label">Страна</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="country" autocomplete="off">
+            <input type="text" class="form-control" id="country" autocomplete="off" :disabled="!(model.name && model.surname && model.patronymic && model.birth && model.passport && model.email && model.password && model.password2)">
             <div v-if="address.country" class="form-text ml-4">Всего копников зарегистрировано:
               {{address.country.obshinaSize}}
             </div>
@@ -77,9 +77,9 @@
         </div>
 
         <div class="form-group row">
-          <label for="town" class="col-sm-3 col-form-label">Город</label>
+          <label :for="'town'" class="col-sm-3 col-form-label">Город</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="town" autocomplete="off">
+            <input type="text" class="form-control" id="town" autocomplete="off" :disabled="!this.address.country">
             <div v-if="address.town" class="form-text ml-4">Всего копников зарегистрировано в вашем городе:
               {{address.town.obshinaSize}}
             </div>
@@ -87,9 +87,9 @@
         </div>
 
         <div class="form-group row">
-          <label for="street" class="col-sm-3 col-form-label">Улица</label>
+          <label :for="random+'street'" class="col-sm-3 col-form-label">Улица</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="street" autocomplete="off">
+            <input type="text" class="form-control" id="street" autocomplete="off" :disabled="!this.address.town">
             <div v-if="address.street" class="form-text ml-4">Всего копников зарегистрировано на вашей улице:
               {{address.street.obshinaSize}}
             </div>
@@ -98,9 +98,9 @@
         </div>
 
         <div class="form-group row">
-          <label for="dom" class="col-sm-3 col-form-label">Дом</label>
+          <label :for="random+'dom'" class="col-sm-3 col-form-label">Дом</label>
           <div class="col-sm-9">
-            <input type="text" class="form-control" id="dom" autocomplete="off">
+            <input type="text" class="form-control" id="dom" autocomplete="off" :disabled="!this.address.street">
             <div v-if="model.dom" class="form-text ml-4">Всего копников зарегистрировано в вашем доме:
               {{model.dom.obshinaSize}}
               <!--model.dom:{{model.dom}}-->
@@ -115,6 +115,7 @@
           ботов</label>
         <div class="col-sm-9">
           <div id="g-recaptcha"></div>
+          <small class="text-mute">Если вы не видите  специальный элемент защиты от ботов "Я не робот", то обновите страницу и пройдите регистрацию снова</small>
         </div>
       </div>
 
@@ -152,7 +153,7 @@
           Просим отнестись с пониманием.
         </p>
         <p>
-          Вы можете сделать это прямо сейчас или в другое удобное время.
+          Вы можете сделать это прямо сейчас или в другое удобное для вас время.
           Для этого свяжитесь с заверителем по вашему региону.
           Процедура занимает 3-5 минут. Предворительно приготовьте паспорт и убедитесь, что у вас на телефоне (компьютере) работает видеокамера.
         </p>
@@ -196,6 +197,11 @@
 //    mixins: [logMixin, captcha],
     mixins: [captcha],
     data() {
+        let years= []
+      for(let eachYear= 1900; eachYear< new Date().getFullYear()-29; eachYear++){
+        years.push(eachYear)
+//        config.log(years)
+      }
       return {
         model: new models.Registration(),
         /**
@@ -212,6 +218,8 @@
          */
         submited: false,
         testValue: null,
+        years,
+        random : Math.round(Math.random()*1000000)
       }
     },
     props: ["id"],
@@ -269,13 +277,13 @@
           Connection.getAnonymousInstance().open()
         })
       }
-      await this.model.fill()
+//      await this.model.fill()
     },
     async mounted() {
       let this2 = this
 
       $("country").attr("disabled", false)
-      global.$('#country').typeahead({
+      global.$(`#country`).typeahead({
         autoSelect: false,
         delay: 500,
         source: (term, process) => {

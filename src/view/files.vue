@@ -1,8 +1,9 @@
 <template>
-  <div class="files mt-1">
-    <div v-show="mode == 'editor'" :id="id+'_drop'" class="drop">
+  <div class="files" :class="{'files-not-empty': model.length}">
+
+    <div v-show="mode == 'editor'" :id="id+'_drop'" fullWidth class="drop">
       <div :id="id+'_browse'" href="#" class="browse py-2 px-2" @click="" title="Выберите файлы или перенесите их мышкой">
-        <div class="browse--message">Выбрать файлы...</div>
+        <div class="browse--message"><i class="material-icons md-dark md-1em">attachment</i> Выбрать файлы...</div>
         <ul class="list-group flex-row row">
           <li v-for="eachFile in model" class="list-group-item border-0 bg-none  col-12 col-md-6 col-xl-4">
             <file-as-link :model="eachFile">
@@ -173,16 +174,11 @@
 </script>
 
 <style scoped>
-  .drop {
-    border: solid lightgray 1px;
+  .files-not-empty{
+    background: #f7f7f9;
   }
-
   .drop:hover {
     background: #f7f7f9;
-    /*background-image: url(/static/material-icons/ic_attachment_black_48px.svg);*/
-    background-size: contain;
-    background-position: center center;
-    background-repeat: no-repeat;
   }
 
 

@@ -1,18 +1,23 @@
 <template>
   <div :id="id" class="kopa">
     <div class="card">
-      <template v-if="(localMode||mode)=='editor'">
+      <template v-if="userMode =='editor'">
         <div class="card-header text-muted text-small d-flex kp-small">
           <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
           <div class="ml-1">{{model.invited | humanize}}</div>
         </div>
         <div class="card-block d-flex flex-column">
-          <textarea class="form-control" v-model="model.question"
-                    placeholder="Вопрос, который нужно обсудить на копе"></textarea>
+          <mu-text-field class="my-0" fullWidth multiLine hintText="Вопрос, который нужно обсудить на копе" :rows="1"
+                         :rowsMax="5"
+                         v-model="model.question" @keyup.native.ctrl.enter="save_click"/>
+          <!--
+                    <textarea class="form-control" v-model="model.question"
+                              placeholder="Вопрос, который нужно обсудить на копе"></textarea>
+          -->
           <files :id="id+'_files' " ref="attachments" mode="editor" :model="model.attachments"></files>
           <div class="d-flex flex-wrap align-self-end mt-4">
             <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
-            <button class="btn btn-success" @click="save_click">Сохранить</button>
+            <button class="btn btn-success" :disabled="!model.question" @click="save_click">Сохранить</button>
           </div>
         </div>
       </template>
@@ -64,26 +69,21 @@
     <ul class="list-group">
       <li v-for="eachResult of model.result" class="list-group-item  border-0 px-0">
         <predlozhenie-as-list-item :id="id+'_result_'+eachResult.id" class="w-100"
-                                   :model="eachResult"></predlozhenie-as-list-item>
-      </li>
-      <li class="list-group-item <!--border-0--> px-0">
-        <predlozhenie-as-submit v-if="starshinaNaKope===null" :id="id+'_result_new'" class="w-100"
-                                :model="model.newResult"
-                                @submit="predlozhenie_submit">
-        </predlozhenie-as-submit>
+                                   :model="eachResult" @modeChange="view_modeChange"></predlozhenie-as-list-item>
       </li>
     </ul>
     <ul v-if="model.invited" class="list-group">
       <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
-        <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" class="w-100" :model="eachSlovo"></slovo-as-list-item>
+        <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" class="w-100" :model="eachSlovo"
+                            @modeChange="view_modeChange"></slovo-as-list-item>
       </li>
 
     </ul>
     <!--Новое слово-->
-    <div class="border-0 px-0 py-0 fixed-bottom">
+    <div v-if="model.invited && !editors.length && userMode !='editor'"
+         class="border-0 px-0 py-0 fixed-bottom">
       <slovo-as-submit v-if="starshinaNaKope===null" :id="id+'_slovo_new'" class="w-100"
-                       :model="model.newSlovo"
-                       @submit="slovo_submit">
+                       :model="model.newSlovo" @submit="slovo_submit" @predlozhenie="slovo_predlozhenie">
       </slovo-as-submit>
       <div v-if="starshinaNaKope" class="alert alert-info mb-0">Ваш старшина на копе
         <kopnik-as-link target="_blank" :model="starshinaNaKope"></kopnik-as-link>
@@ -122,7 +122,13 @@
          * и используется для раздвигания виьюшки из short="true"
          */
         questionIntention: false,
-        starshinaNaKope: undefined
+        starshinaNaKope: undefined,
+        /**
+         * редакторы в данный момент,
+         * только если нет ни одного редактора, только в этом случае показывается слово
+         * иначе на телефонах оно налазиет на редактор и там ничего не видно
+         */
+        editors: []
       };
     },
     /**
@@ -132,7 +138,6 @@
     components: {
       "kopnik-as-link": require("./kopnik-as-link.vue"),
       "predlozhenie-as-list-item": require("./predlozhenie-as-list-item.vue"),
-      "predlozhenie-as-submit": require("./predlozhenie-as-submit.vue"),
       "slovo-as-list-item": require("./slovo-as-list-item.vue"),
       "slovo-as-submit": require("./slovo-as-submit.vue"),
       "files": require("./files.vue"),
@@ -143,6 +148,9 @@
       }
     },
     computed: {
+      userMode(){
+        return this.localMode || this.mode
+      },
       $(){
         return $
       },
@@ -163,14 +171,22 @@
       }
     },
     methods: {
+      view_modeChange(sender){
+        if (sender.userMode == "editor") {
+          this.editors.push(sender)
+        }
+        else if (this.editors.indexOf(sender) != -1) {
+          this.editors.splice(this.editors.indexOf(sender), 1)
+        }
+      },
       async onModel(cur, prev){
         if (prev) {
           this.model.removeListener(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
         }
         this.starshinaNaKope = undefined
-        if (!this.model.newResult) {
-          this.model.newResult = this.getNewResult()
-        }
+//        if (!this.model.newResult) {
+//          this.model.newResult = this.getNewResult()
+//        }
         if (!this.model.newSlovo) {
           this.model.newSlovo = this.getNewSlovo()
         }
@@ -219,23 +235,22 @@
         return result
       },
 
-      async predlozhenie_submit (sender) {
-        let newResult = this.model.newResult
-        newResult.created = new Date()
+      async slovo_predlozhenie (sender) {
+        let newResult = this.model.newSlovo
 
         /**
-         * model.newResult является моделью для вьюшки нового предложения
+         * model.newSlovo является моделью для вьюшки нового слова
          * поэтому его сначала ее переназначить а потом уже
          * упражняться с ним
          */
-        this.model.newResult = this.getNewResult()
+        this.model.newSlovo = this.getNewSlovo()
 
         newResult = await models.Predlozhenie.create(newResult)
+        console.log(0)
       },
 
       async slovo_submit () {
         let newSlovo = this.model.newSlovo
-        newSlovo.created = new Date()
 
 
         /**
@@ -251,11 +266,13 @@
       edit_click(){
         if (this.canEdit) {
           this.localMode = "editor"
+          this.$emit("modeChange", this)
         }
       },
       async save_click(){
         await this.model.save()
         this.localMode = "viewer"
+        this.$emit("modeChange", this)
       },
       async destroy_click(){
         if (this.canDestroy) {
@@ -267,6 +284,7 @@
       async cancel_click(){
         await this.model.reload()
         this.localMode = "viewer"
+        this.$emit("modeChange", this)
       },
 
       /**
@@ -300,7 +318,10 @@
     },
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
-      this.bindedHoldBottom= this.holdBottom.bind(this)
+      this.bindedHoldBottom = this.holdBottom.bind(this)
+      Application.getInstance().user.on(models.Kopnik.event.starshinaChange, this.user_starshinaChange = async() => {
+        this.starshinaNaKope = await Application.getInstance().user.getStarshinaNaKope(this.model)
+      })
       await this.onModel()
     },
     mounted(){
@@ -313,6 +334,7 @@
     },
     beforeDestroy(){
       this.model.removeListener(models.Kopa.event.slovoAdd, this.holdBottom);
+      Application.getInstance().user.removeListener(models.Kopnik.event.starshinaChange, this.user_starshinaChange)
 //      clearInterval(this.bottomPaddingInterval)
     }
   }

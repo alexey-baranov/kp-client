@@ -39,6 +39,7 @@
         четыре цифры поспорта</label>
       <div class="col-sm-9">
         <input type="text" class="form-control" id="passport" v-model="model.passport">
+        <!--{{model.getPlain()}}-->
       </div>
     </div>
 

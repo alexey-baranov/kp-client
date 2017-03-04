@@ -210,31 +210,24 @@
       }
 
       /*
-       * хак чтобы мобильные браузеры не отваливались
+       * мобильные браузеры отваливаются после сна, даже не выплюнув событие Connection.onclose
+       * поэтому тут этот момент проверяется
        */
-      if (require("is_js").opera()) {
-        document.addEventListener("visibilitychange", this.document_visibilitychange = async() => {
-          console.log("document.hidden", document.hidden)
-          /**
-           * окно скрылось и сессия открыта= Надо сберегать сессию
-           */
-          if (document.hidden && this.model.user) {
-            this.log.debug("start keepAlive")
-            this.keepAliveTimer = setInterval(() => {
-              Connection.getInstance().session.call("api:pingPong", [new Date()])
-            }, 5000)
+      document.addEventListener("visibilitychange", this.document_visibilitychange = async() => {
+        console.log("document.hidden", document.hidden)
+        /**
+         * окно появилось, session вроде активна, но в мобильных браузерах это не факт
+         * надо проверить ее любым пингом
+         */
+        if (!document.hidden && this.model.user) {
+          try {
+            await Connection.getInstance().session.call("api:pingPong", [new Date()])
           }
-          /**
-           * окно появилось, сессия была поставлена на сбережение и она еще не закрылась -
-           * снять сбережение чтобы не тратить серверное время
-           */
-          else if (!document.hidden && this.keepAliveTimer) {
-            this.log.debug("stop keepAlive")
-            clearInterval(this.keepAliveTimer)
-            this.keepAliveTimer = null
+          catch (err) {
+            this.log.error("pingPong after app resume error", err)
           }
-        })
-      }
+        }
+      })
     },
     mounted() {
       window.addEventListener('scroll', (e) => {
@@ -262,17 +255,6 @@
       if (this.document_visibilitychange) {
         document.removeEventListener("visibilitychange", this.document_visibilitychange)
       }
-
-      /**
-       * избежать фантомных подписок после хотрелоада application.vue
-       * окно появилось, сессия была поставлена на сбережение и она еще не закрылась -
-       * снять сбережение чтобы не тратить серверное время
-       */
-      if (this.keepAliveTimer) {
-        this.log.debug("stop keepAlive before destroy view")
-        clearInterval(this.keepAliveTimer)
-        this.keepAliveTimer=null
-      }
     }
   }
 </script>
@@ -293,6 +275,11 @@
 </style>
 
 <style>
+  .mu-text-field-content {
+    padding-top:0;
+    padding-bottom:0;
+  }
+
   .kp-small {
     font-size: 0.8rem;
   }

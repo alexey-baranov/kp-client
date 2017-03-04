@@ -1,6 +1,6 @@
 <template>
   <div :id="id" class="slovo-as-list-item card" >
-    <template v-if="(localMode||mode)!='editor'">
+    <template v-if="userMode !='editor'">
       <div class="card-header d-flex flex-wrap kp-small">
         <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
         <div>{{model.created|humanize}}</div>
@@ -30,12 +30,16 @@
         <span>{{model.created|humanize}}</span>
       </div>
       <div class="card-block d-flex flex-column">
+        <mu-text-field class="my-0" fullWidth multiLine hintText="Ваше слово на копе" :rows="1" :rowsMax="5"
+                       v-model="model.value" @keyup.native.ctrl.enter="save_click"/>
+<!--
       <textarea class="form-control" v-model="model.value"
                 placeholder="Ваше предложение, которое будет поставлено на голосование на копе"> </textarea>
+-->
         <files :id="id+'_attachments'" mode="editor" :model="model.attachments"></files>
         <div class="d-flex flex-wrap align-self-end mt-4">
           <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
-          <button class="btn btn-success" @click="save_click">Сохранить</button>
+          <button class="btn btn-success" :disabled="!model.value" @click="save_click">Сохранить</button>
         </div>
       </div>
     </template>
@@ -65,6 +69,9 @@
       "files": require("./files.vue")
     },
     computed:{
+      userMode(){
+        return this.localMode || this.mode
+      },
       canManage(){
         return this.model.owner == Application.getInstance().user
       },
@@ -76,13 +83,16 @@
       async save_click(){
         await this.model.save()
         this.localMode = "viewer"
+        this.$emit("modeChange", this)
       },
       async cancel_click(){
         await this.model.reload()
         this.localMode = "viewer"
+        this.$emit("modeChange", this)
       },
       edit_click(){
         this.localMode = "editor"
+        this.$emit("modeChange", this)
       },
     },
     created: async function () {

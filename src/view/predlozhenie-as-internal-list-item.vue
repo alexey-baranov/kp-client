@@ -6,7 +6,7 @@
     </div>
 
     <div class="card-block d-flex flex-column">
-      <div class="card-text">{{model.value}}</div>
+      <div class="card-text text-pre">{{model.value}}</div>
     </div>
   </div>
 </template>

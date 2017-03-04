@@ -74,6 +74,7 @@ class Registration extends RemoteModel {
     this.surname = json.surname
     this.patronymic = json.patronymic
     this.birth = json.birth
+    this.passport = json.passport
     this.note = json.note
 
     this.dom = Zemla.getReference(json.dom_id)
