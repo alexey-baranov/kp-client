@@ -1,7 +1,7 @@
 <template>
   <div :id="id" class="kopa-as-submit card" :class="{'kopa-as-submit--empty': !model.question}">
     <div class="card-block">
-      <mu-text-field class="my-0" fullWidth multiLine hintText="Вопрос, по которому вы хотите созвать копу" :rows="1" :rowsMax="5" v-model="model.question" @keyup.ctrl.enter="submit_click"/>
+      <mu-text-field class="my-0" fullWidth multiLine hintText="Вопрос, по которому вы созываете копу" :rows="1" :rowsMax="5" v-model="model.question" @keyup.ctrl.enter="submit_click"/>
       <files :id="id+'_files' " mode="editor" :model="model.attachments"></files>
       <button class="btn btn-block btn-secondary mt-2" @click="draft_click">Сохранить черновик</button>
       <button class="btn btn-block btn-primary mt-2" @click="submit_click">Созвать копу (Ctrl+Ввод)</button>
@@ -12,7 +12,7 @@
 <script>
   import Application from "../Application"
   import logMixin from "./mixin/log"
-  let models = require("../model")
+  let models = require("../model");
 
   export default {
 //    mixins:[logMixin],
@@ -63,6 +63,7 @@
   .kopa-as-submit--empty button {
     display: none;
   }
+
 
   .kopa-as-submit--empty .files {
     display: none;

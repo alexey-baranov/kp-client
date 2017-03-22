@@ -6,26 +6,29 @@
 
     <mu-appbar class="fixed-top" title="kopnik.org">
       <mu-icon-button icon='menu' @click="toggle()" slot="left"/>
-      <mu-icon-button icon='expand_more' slot="right"/>
+      <!--<mu-icon-button icon='expand_more' slot="right"/>-->
     </mu-appbar>
     <div class="row no-gutters flex-nowrap container-under-navbar">
       <div v-if="drawer" class="col-3 col-lg-2">
-          <mu-list class="list-group" @itemClick="docked ? '' : toggle()">
-            <mu-list-item v-for="eachUserDom of userDoma" @click="list_item_click(eachUserDom)">
-              <zemla-as-link :model="eachUserDom"></zemla-as-link>
-            </mu-list-item>
-            <mu-list-item v-if="model.user && model.user.registrations && model.user.registrations.length" @click.prevent="verification_click">
-              <a href="?state=verification" @click="verification_click">Регистрации</a>
-            </mu-list-item>
+        <mu-list class="list-group" @itemClick="docked ? '' : toggle()">
+          <mu-list-item v-for="eachUserDom of userDoma" :href="'?state=main&body=Zemla:'+eachUserDom.id"
+                        @click.prevent="list_item_click(eachUserDom)">
+            <!--<zemla-as-link :model="eachUserDom"></zemla-as-link>-->
+            {{eachUserDom.name}}
+          </mu-list-item>
+          <mu-list-item v-if="model.user && model.user.registrations && model.user.registrations.length"
+                        href="?state=verification" @click.prevent="verification_click">
+            Регистрации
+          </mu-list-item>
 
-            <mu-list-item href="https://www.youtube.com/channel/UCJRtg8s94PTFXEfZ6sEnlGw" target="_blank" @click="">
-              Youtube
-            </mu-list-item>
+          <mu-list-item href="https://www.youtube.com/channel/UCJRtg8s94PTFXEfZ6sEnlGw" target="_blank" @click="">
+            Youtube
+          </mu-list-item>
 
-            <mu-list-item v-if="model.user" @click.prevent="close_click">
-              Выход
-            </mu-list-item>
-          </mu-list>
+          <mu-list-item v-if="model.user" @click.prevent="close_click">
+            Выход
+          </mu-list-item>
+        </mu-list>
       </div>
       <div :class="{'col-9':drawer, 'col-12': !drawer, 'col-lg-10':drawer}">
         <div class="padding-x-container">
@@ -65,7 +68,7 @@
         userDoma: [],
         notifier: Notifier.getInstance(),
         grumbler: Grumbler.getInstance(),
-        drawer: true,
+        drawer: false,
         docked: true,
       }
     },
@@ -124,6 +127,8 @@
       },
       toggle () {
         this.drawer = !this.drawer
+//        StateManager.getInstance().replaceState()
+        StateManager.getInstance().pushState()
       },
       registration_close(){
         this.model.state = Application.State.Auth
@@ -155,35 +160,22 @@
           }
         }
         catch (err) {
-          if (err.reason == 'wamp.error.authentication_failed') {
-            if (err.message.indexOf("org.kopnik.invalid_captcha_status_code") != -1) {
-              Grumbler.getInstance().pushError("Вы не прошли Антибот-проверку - проверка временно невозможна")
-            }
-            else if (err.message.indexOf("org.kopnik.invalid_captcha") != -1) {
-              Grumbler.getInstance().pushError("Вы не прошли Антибот-проверку")
-            }
-            else if (err.message.indexOf("incorrect_username_or_password") != -1) {
-              this.grumbler.pushError("Неверное имя пользователя или пароль")
-            }
-            else {
-              this.grumbler.pushError(err)
-            }
-          }
-          else if (err.onclose_reason == 'unreachable') {
-            this.grumbler.pushError("Cервер сообщений недоступен. Попробуйте зайти позже.")
-          }
-          else {
-            this.grumbler.pushError(err)
-          }
+          this.grumbler.pushError(err)
         }
       },
       getState(){
-        return "av"
+        return {
+          drawer: this.drawer
+        }
         return {
           scrollY: window.scrollY
         }
       },
       setState(state){
+        if (!state) {
+          state = {}
+        }
+        this.drawer = state.drawer
         /**
          * такой код работает хорошо, но он не обеспечивает правильное поведение во всех случаях
          * например если из копы кнопками назад потом вперед он сработает
@@ -225,10 +217,11 @@
          */
         if (!document.hidden && this.model.user) {
           try {
+            Connection.getInstance().recheckAfterResume = true
             await Connection.getInstance().session.call("api:pingPong", [new Date()])
           }
           catch (err) {
-            this.log.error("pingPong after app resume error", err)
+            this.log.info("pingPong after app resume error", err)
           }
         }
       })
@@ -264,12 +257,13 @@
 </script>
 
 <style scoped>
-  .padding-x-container{
+  .padding-x-container {
     padding-left: .5rem;
     padding-right: .5rem;
   }
+
   @media (min-width: 576px) {
-    .padding-x-container{
+    .padding-x-container {
       padding-left: 3rem;
       padding-right: 3rem;
     }

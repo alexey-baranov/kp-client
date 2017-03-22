@@ -330,7 +330,7 @@ class RemoteModel extends EventEmitter {
     }, options);
     // this.log.debug(`${this} subscribed to "${topic}"`);
     return result;
-  };
+  }
 }
 
 RemoteModel.event = {

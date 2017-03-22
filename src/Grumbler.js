@@ -69,7 +69,7 @@ export default class Grumbler {
    *
    */
   pushError(error) {
-    if (error.message.match(/Collapse is transitioning/)){
+    if (error.message && error.message.match(/Collapse is transitioning/)){
       this.log.info(`skip bootstrap stupid "Collapse is transitioning" error`)
       return
     }

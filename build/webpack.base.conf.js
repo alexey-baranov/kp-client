@@ -2,6 +2,7 @@ var path = require('path')
 var utils = require('./utils')
 var config = require('../config')
 var vueLoaderConfig = require('./vue-loader.conf')
+var ServiceWorkerWebpackPlugin = require('serviceworker-webpack-plugin')
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -9,7 +10,7 @@ function resolve (dir) {
 
 module.exports = {
   entry: {
-    app: './src/main.js'
+    app: './src/main.js',
     // app: './src/poligon.js'
   },
   output: {
@@ -62,5 +63,12 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    // new ServiceWorkerWebpackPlugin({
+    //   entry: path.join(__dirname, 'src/sw.js'),
+    // }),
+  ],
   externals: ['bindings'],
 }
+
+

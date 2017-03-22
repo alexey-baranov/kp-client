@@ -4,7 +4,9 @@
   "description": "kopnoe pravo client side",
   "main": "index.js",
   "scripts": {
-    "crossbar": "cd ../kp-sequelizejs && export NODE_ENV=testing && crossbar start",
+    "crossbar": "/opt/crossbar/bin/crossbar start",
+    "crossbar:development": "export NODE_ENV=development && /opt/crossbar/bin/crossbar start --config config.development.json",
+    "crossbar:testing": "export NODE_ENV=testing && /opt/crossbar/bin/crossbar start --config config.development.json",
     "server": "cd ../kp-sequelizejs && export NODE_ENV=testing && ./node_modules/babel-cli/bin/babel-node.js --use-strict ./src/index.js",
     "file-server": "cd ../kp-sequelizejs && export NODE_ENV=testing && ./node_modules/babel-cli/bin/babel-node.js --use-strict ./src/file-server.index.js",
     "server:init-test": "cd ../kp-sequelizejs && export NODE_ENV=test && /usr/bin/babel-node --use-strict ./src/init.js",
@@ -49,6 +51,7 @@
     "mustache": "^2.2.1",
     "resumablejs": "^1.0.2",
     "rxjs": "^5.1.0",
+    "serviceworker-webpack-plugin": "^0.2.0",
     "vue": "^2.1.0",
     "vue-router": "^2.0.0"
   },

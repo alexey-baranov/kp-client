@@ -166,11 +166,17 @@ class Zemla extends RemoteModel {
       count
     }, {disclose_me: true})
 
-    let loadedKopi= await Promise.all(loadedKopiAsPlain.map(async eachKopaAsPlain => {
-      let eachKopa = Kopa.get(eachKopaAsPlain)
-      return eachKopa;
-    }))
+    let loadedKopi= await Promise.all(loadedKopiAsPlain.map(async eachKopaAsPlain => Kopa.get(eachKopaAsPlain)))
 
+
+    /*
+      eachKopa.on(Kopa.event.slovoAdd, (slovo)=>{
+        this.emit(Kopa.event.slovoAdd, slovo)
+      })
+      eachKopa.on(Kopa.event.predlozhenieAdd, (predlozhenie)=>{
+        this.emit(Kopa.event.slovoAdd, predlozhenie)
+      })
+    */
     if (!this.kopi){
       this.kopi= loadedKopi
     }

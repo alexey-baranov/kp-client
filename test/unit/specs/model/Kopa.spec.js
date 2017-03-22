@@ -158,6 +158,7 @@ describe('Kopa', function () {
   })
 
   describe('events', async function () {
+    this.timeout(5000);
     let kopnik,
       kopa;
 
@@ -167,7 +168,7 @@ describe('Kopa', function () {
           kopnik = await models.Kopnik.get(KOPNIK)
           kopa = await models.Kopa.get(KOPA)
 
-          kopa.dialog = []
+          kopa.dialog = [];;;;
           kopa.on(models.Kopa.event.slovoAdd, (sender, add) => {
             try {
               assert.equal(add instanceof models.Slovo, true, "add instanceof models.Slovo")

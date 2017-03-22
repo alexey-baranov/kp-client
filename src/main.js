@@ -47,6 +47,7 @@ import Application from './Application'
 import applicationView from './view/application.vue'
 let config = require("../cfg/main")[process.env.NODE_ENV]
 let models = global.models = require("./model")
+import AuthenticationError from "./AuthenticationError"
 import StateManager from './StateManager'
 import Grumbler from './Grumbler'
 
@@ -60,24 +61,40 @@ Grumbler.getInstance().addEventHandler()
  */
 let application = global.application = Application.getInstance()
 
-global.view = new Vue({
-  el: '#application',
-  template: "<application id='a' :model='application'></application>",
-  data: {
-    application
-  },
-  components: {application: applicationView}
-})
+// application.registerServiceWorker()
+  Promise.resolve()
+  .then(()=>{
+    global.view = new Vue({
+      el: '#application',
+      template: "<application id='a' :model='application'></application>",
+      data: {
+        application
+      },
+      components: {application: applicationView}
+    })
 
-/*
- пробуем авторизироваться прям с ходу куками
- */
-application.auth()
+    /**
+     * State management
+     */
+    let stateManager = StateManager.getInstance()
+    stateManager.application = application
+    stateManager.applicationView = global.view.$children[0]
+    stateManager.listen()
+
+    application.on("connectionOpen", ()=>{
+      stateManager.popState(location.search.substring(1))
+    })
+
+    /*
+     пробуем авторизироваться прям с ходу куками
+     */
+    return application.auth()
+  })
   .then(() => {
     log.getLogger("main.js").info("cookie auth")
   }, (err) => {
     if (err)
-      if (err.reason == "wamp.error.authentication_failed") {
+      if (err instanceof AuthenticationError) {
         log.getLogger("main.js").info("cookie auth fails")
       }
       else {
@@ -85,22 +102,6 @@ application.auth()
       }
   })
   .then(() => {
-    /**
-     * State management
-     */
-    let stateManager = StateManager.getInstance()
-    stateManager.application = application
-    stateManager.applicationView = global.view.$children[0]
-
-    stateManager.listen()
-
-    if (application.user) {
-      stateManager.popState(location.search.substring(1))
-    } else {
-      stateManager.popState(location.search.substring(1))
-      // application.state = Application.State.Auth
-    }
-
     if (0) {
       /**
        * временный автозаход

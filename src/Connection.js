@@ -22,6 +22,7 @@ export default class Connection extends AutobahnConnection {
 
   constructor(options) {
     let mixedOptions = Object.assign({}, Connection.defaultOptions, options)
+    console.log(mixedOptions)
     super(mixedOptions)
   }
 
