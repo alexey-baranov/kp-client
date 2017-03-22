@@ -17,6 +17,7 @@ let KOPNIK = 2,
 
 describe('Golos', function () {
   before(function () {
+    this.timeout(5000)
     models.RemoteModel.clearCache()
     return new Promise(function (res, rej) {
       connection.onopen = function (session, details) {

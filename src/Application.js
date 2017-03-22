@@ -6,12 +6,10 @@ import EventEmitter from "events"
 import Cookies from "js-cookie"
 
 import AuthenticationError from "./AuthenticationError"
-import configs from "./../cfg/main"
+import config from "./../cfg/main"
 import Connection from './Connection'
 import Grumbler from './Grumbler'
 import models from "./model"
-
-let config = configs[process.env.NODE_ENV];
 
 export default class Application extends EventEmitter {
   constructor() {

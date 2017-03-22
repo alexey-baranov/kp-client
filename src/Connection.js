@@ -4,7 +4,7 @@
 "use strict";
 let AutobahnConnection = require("autobahn").Connection
 
-let config = require("./../cfg/main")[process.env.NODE_ENV]
+import config from "./../cfg/main"
 
 export default class Connection extends AutobahnConnection {
   static defaultOptions = {
@@ -22,7 +22,7 @@ export default class Connection extends AutobahnConnection {
 
   constructor(options) {
     let mixedOptions = Object.assign({}, Connection.defaultOptions, options)
-    console.log(mixedOptions)
+    // console.log(mixedOptions)
     super(mixedOptions)
   }
 

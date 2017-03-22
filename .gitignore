@@ -2,4 +2,8 @@
 /.idea/
 /node_modules/
 /cfg/private.js
+/.crossbar/key.priv
+/.crossbar/key.pub
+/.crossbar/node.pid
+/.crossbar/cookies.dat
 /dist/

@@ -36,7 +36,7 @@ describe('Kopa', function () {
       connection.onclose = function (session, details) {
         res()
       }
-      connection.close()
+      connection.close();;;
     })
   })
 

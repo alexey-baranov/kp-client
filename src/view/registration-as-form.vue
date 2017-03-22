@@ -187,12 +187,11 @@
   import captcha from "./mixin/captcha"
   let Cookies = require("js-cookie")
 
+  import config from  "../../cfg/main"
   import Connection from "../Connection"
   import logMixin from "./mixin/log"
   import models from "../model"
   import Notifier from "../Notifier"
-
-  let config = require("../../cfg/main")[process.env.NODE_ENV]
 
   export default{
     name: "registration-as-form",

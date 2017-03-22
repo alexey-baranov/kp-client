@@ -9,7 +9,7 @@ let AutobahnConnection = require("autobahn").Connection
 let Cookies= require("js-cookie")
 
 import Connection from '../../../src/Connection'
-let config = require("../../../cfg/main")[process.env.NODE_ENV];
+let config = require("../../../cfg/main").default
 
 describe('Connection', function () {
   this.timeout(7000);
@@ -53,7 +53,7 @@ describe('Connection', function () {
   it('#open(kopnik)', function (done) {
     connection.onopen = (session, details) => {
       if (details.authrole == "kopnik") {
-        done()
+        done();;;
       }
       else {
         done(details.authrole + " != kopnik ")
@@ -78,7 +78,7 @@ describe('Connection', function () {
          * удалил куки ананимуса чтобы последующие заходы не считались сервером анонимусами
          */
         if (details.authrole == "anonymous") {
-          Cookies.remove("cbtid")
+          Cookies.remove("cbtid");;
           anonymousConnection.onclose = null
           // 3. закрыл
           anonymousConnection.close();;

@@ -5,7 +5,7 @@
 
 let _ = require("lodash")
 
-let config = require("../../../cfg/main")[process.env.NODE_ENV]
+let config = require("../../../cfg/main").default
 let connection = require("../../../src/Connection").default.getUnitTestInstance()
 import Grumbler from '../../../src/Grumbler'
 

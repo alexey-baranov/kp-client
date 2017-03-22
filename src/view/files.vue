@@ -27,6 +27,7 @@
   import Resumable from "resumablejs"
 
   import Application from "../Application"
+  import config from "../../cfg/main"
   import Connection from "../Connection"
   import Grumbler from "../Grumbler"
   import logMixin from "./mixin/log"
@@ -34,7 +35,6 @@
   import models from "../model"
 
 
-  let config = require("../../cfg/main")[process.env.NODE_ENV]
   let chunkSize = 25 * 1024 * 1024
 
   export default  {

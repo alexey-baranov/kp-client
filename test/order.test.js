@@ -5,7 +5,7 @@
 
 var assert = require('chai').assert;
 
-let config = require("../cfg/main")[process.env.NODE_ENV || 'local-db'];
+let config = require("../cfg/main").default
 require("../src/bootstrap");
 let Core = require("../src/Core");
 let _ = require("lodash");

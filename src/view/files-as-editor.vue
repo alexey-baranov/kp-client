@@ -23,13 +23,11 @@
   import Resumable from "resumablejs"
 
   import Application from "../Application"
+  import config from "../../cfg/main"
   import Connection from "../Connection"
   import logMixin from "./mixin/log"
   import StateManager from "../StateManager"
   import models from "../model"
-
-
-  let config = require("../../cfg/main")[process.env.NODE_ENV]
 
   export default  {
 //    mixins:[require("./mixin/humanize")],

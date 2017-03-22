@@ -16,10 +16,9 @@
 
 <script>
   import Application from '../Application'
+  import config from '../../cfg/main'
   import logMixin from "./mixin/log"
   import StateManager from "../StateManager"
-
-  let config = require("../../cfg/main")[process.env.NODE_ENV]
 
   export default  {
     mixins: [require("./mixin/humanize")],

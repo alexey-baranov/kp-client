@@ -13,7 +13,7 @@ let connection = require("../../../src/Connection").default.getUnitTestInstance(
 import models from '../../../src/model'
 import StateManager from '../../../src/StateManager'
 
-let config = require("../../../cfg/main")[process.env.NODE_ENV];
+let config = require("../../../cfg/main").default
 
 describe('StateManager', function () {
   let stateManager

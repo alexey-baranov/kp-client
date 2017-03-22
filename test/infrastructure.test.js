@@ -3,17 +3,10 @@
  */
 "use strict";
 
+let _ = require("lodash");
 var assert = require('chai').assert;
 
-let config = require("../cfg/main")[process.env.NODE_ENV || 'local-db'];
-require("../src/bootstrap");
-let Core = require("../src/Core");
-let _ = require("lodash");
-let WAMPFactory = require("../src/WAMPFactory");
-
-
-let WAMP = WAMPFactory.getWAMP();
-
+import config from "../cfg/main"
 
 describe('Infrastructure', function () {
     after(function () {

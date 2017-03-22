@@ -6,7 +6,7 @@
 let _ = require("lodash")
 
 import Application from '../../../src/Application'
-let config = require("../../../cfg/main")[process.env.NODE_ENV]
+let config = require("../../../cfg/main").default
 let connection = require("../../../src/Connection").default.getUnitTestInstance()
 import models from "../../../src/model"
 

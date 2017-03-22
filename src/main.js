@@ -45,11 +45,13 @@ import MuseUI from 'muse-ui'
 
 import Application from './Application'
 import applicationView from './view/application.vue'
-let config = require("../cfg/main")[process.env.NODE_ENV]
-let models = global.models = require("./model")
 import AuthenticationError from "./AuthenticationError"
-import StateManager from './StateManager'
 import Grumbler from './Grumbler'
+import config from "../cfg/main"
+import StateManager from './StateManager'
+
+let models = global.models = require("./model")
+
 
 // alert(window.innerWidth+"x"+window.innerHeight)
 
