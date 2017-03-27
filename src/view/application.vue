@@ -8,8 +8,8 @@
       <mu-icon-button icon='menu' @click="toggle()" slot="left"/>
       <!--<mu-icon-button icon='expand_more' slot="right"/>-->
     </mu-appbar>
-    <div class="row no-gutters flex-nowrap container-under-navbar">
-      <div v-if="drawer" class="col-3 col-lg-2">
+    <div class="row no-gutters flex-nowrap align-items-stretch container-under-navbar">
+      <div v-if="drawer" class="col-3 col-lg-2 sidebar">
         <mu-list class="list-group" @itemClick="docked ? '' : toggle()">
           <mu-list-item v-for="eachUserDom of userDoma" :href="'?state=main&body=Zemla:'+eachUserDom.id"
                         @click.prevent="list_item_click(eachUserDom)">
@@ -257,6 +257,11 @@
 </script>
 
 <style scoped>
+  .sidebar{
+    /*border-right: solid deepskyblue 1px;*/
+    /*border-color: rgba(100,100,255,0.5);*/
+    /*background: rgba(100,100,255,0.1);*/
+  }
   .padding-x-container {
     padding-left: .5rem;
     padding-right: .5rem;
@@ -264,8 +269,8 @@
 
   @media (min-width: 576px) {
     .padding-x-container {
-      padding-left: 3rem;
-      padding-right: 3rem;
+      padding-left: 2rem;
+      padding-right: 2rem;
     }
   }
 
@@ -279,6 +284,13 @@
 </style>
 
 <style>
+  @media (max-width: 575px) {
+    .mu-item {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+  }
+
   .mu-drawer {
     /*display: none;*/
     /*position: static;*/

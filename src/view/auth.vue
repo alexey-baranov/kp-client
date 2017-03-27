@@ -39,8 +39,8 @@
     mixins:[captcha],
     data() {
       return {
-        email: "unittest2@domain.ru",
-        password: "qwerty",
+        email: null, //"unittest2@domain.ru",
+        password: null, //"qwerty",
         captchaResponse: undefined,
       }
     },

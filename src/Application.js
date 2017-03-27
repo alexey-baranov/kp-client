@@ -40,6 +40,10 @@ export default class Application extends EventEmitter {
 
   setBody(value) {
     this.body = value
+    value.joinedLoaded()
+      .then(()=>{
+        document.title= value.name+" - kopnik.org"
+      })
   }
 
   async registerServiceWorker() {

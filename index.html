@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <script>
+      if (location.protocol != 'https:' && location.href.indexOf("localhost")==-1) {
+        location.href = 'https:' + location.href.substring(window.location.protocol.length);
+      }
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>Копное право</title>
+    <title>kopnik.org</title>
 
     <!--muse-ui-->
     <link rel="stylesheet" href="static/muse-ui/muse-ui.css">

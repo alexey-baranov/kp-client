@@ -4,7 +4,7 @@
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandel rejection in promise. Reason: ' + JSON.stringify(reason), JSON.stringify(promise));
-});
+})
 
 /**
  * прокачка логов
@@ -13,7 +13,7 @@ import log from "loglevel"
 
 let originalFactory = log.methodFactory
 log.methodFactory = function (methodName, logLevel, loggerName) {
-  let rawMethod = originalFactory(methodName, logLevel, loggerName);
+  let rawMethod = originalFactory(methodName, logLevel, loggerName)
 
   return function () {
     let originalArguments = arguments
@@ -23,7 +23,7 @@ log.methodFactory = function (methodName, logLevel, loggerName) {
       newArguments.push(eachOriginalArgument)
     }
 
-    rawMethod.apply(null, newArguments);
+    rawMethod.apply(null, newArguments)
   }
 }
 log.setLevel(log.levels.TRACE); // Be sure to call setLevel method in order to apply plugin
@@ -37,11 +37,6 @@ log.getLogger("location.vue").setLevel("info")
 import $ from "jquery"; //global.$=$;
 import Vue from 'vue'
 import MuseUI from 'muse-ui'
-// import 'muse-ui/dist/muse-ui.css'
-// import 'bootstrap/dist/css/bootstrap.css'
-// import 'bootstrap/dist/css/bootstrap-theme.css'
-// require('vue-strap/dist/vue-strap-lang.js')
-// require('vue-strap/dist/isMobileBrowser.js')
 
 import Application from './Application'
 import applicationView from './view/application.vue'
@@ -55,7 +50,7 @@ let models = global.models = require("./model")
 
 // alert(window.innerWidth+"x"+window.innerHeight)
 
-Vue.use(MuseUI);
+Vue.use(MuseUI)
 Grumbler.getInstance().addEventHandler()
 
 /**

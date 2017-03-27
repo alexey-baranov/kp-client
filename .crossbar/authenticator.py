@@ -23,13 +23,10 @@ PRIVATE_FILENAME='../../kp-sequelizejs/cfg/private.json'
 class AuthenticatorSession(ApplicationSession):
     def merge(self, a, b, path=None):
         if path is None: path = []
-        print ("before for")
-        print (a)
-        print (b)
         for key in b:
             if key in a:
                 if isinstance(a[key], dict) and isinstance(b[key], dict):
-                    merge(a[key], b[key], path + [str(key)])
+                    self.merge(a[key], b[key], path + [str(key)])
                 elif a[key] == b[key]:
                     pass # same leaf value
                 else:
@@ -55,7 +52,7 @@ class AuthenticatorSession(ApplicationSession):
                 db_conn = None
                 conf_name = os.environ.get('NODE_ENV')
                 if conf_name is None:
-                    raise Exception('Config section NODE_ENV not setted')
+                    raise Exception('NODE_ENV not setted')
                 if not os.path.exists(MAIN_FILENAME):
                     raise Exception('Config file not found')
                 mainConf =    json.loads(open(MAIN_FILENAME, 'r').read()).get(conf_name)
@@ -70,6 +67,8 @@ class AuthenticatorSession(ApplicationSession):
                     private = {}
 
                 config = self.merge(mainConf, private)
+                pprint("merged config")
+                pprint(config)
 
                 if authid == config.get("server").get("username") and ticket == config.get("server").get("password"):
                     print('Authentication successfull')

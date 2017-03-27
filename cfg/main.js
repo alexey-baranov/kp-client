@@ -40,15 +40,34 @@ let config = {
       username: "unittest2@domain.ru",
       password: "qwerty"
     },
+  },
+  "production": {
+    WAMP: {
+      schema: "wss",
+      host: "kopnik.org",
+      port: "443",
+      path: "ws"
+    },
+    "file-server": {
+      schema: "https",
+      host: "kopnik.org",
+      port: "8484",
+      "upload-path": "upload",
+      "download-path": "download"
+    },
+    unittest2: {
+      username: "unittest2@domain.ru",
+      password: "qwerty"
+    }
   }
 }
 
 if (!process.env.NODE_ENV){
-  throw new Error("NODE_ENV is not defined")
+  throw new Error("NODE_ENV is not defined");
 }
 
 let privateConfig= require("./private")
 let mergedConfig= require("lodash").merge({}, config, privateConfig)[process.env.NODE_ENV]
 
 
-export default mergedConfig
+export default mergedConfig;
