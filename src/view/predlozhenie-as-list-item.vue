@@ -1,5 +1,6 @@
 <template>
-  <div :id="id" class="predlozhenie-as-list-item card" :class="{'card-inverse': model.state, 'card-success': model.state==1, 'card-danger':model.state==-1}">
+  <div :id="id" class="predlozhenie-as-list-item card"
+       :class="{'card-inverse': model.state, 'card-success': model.state==1, 'card-danger':model.state==-1}">
     <template v-if="userMode !='editor'">
       <div class="card-header d-flex flex-wrap kp-small">
         <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
@@ -33,13 +34,14 @@
         <span>{{model.created|humanize}}</span>
       </div>
       <div class="card-block d-flex flex-column">
-        <mu-text-field class="my-0" fullWidth multiLine hintText="Предложение, которое будет поставлено на голосование на копе" :rows="1" :rowsMax="5"
+        <mu-text-field class="my-0" fullWidth multiLine
+                       hintText="Предложение, которое будет поставлено на голосование на копе" :rows="1" :rowsMax="5"
                        v-model="model.value" @keyup.native.ctrl.enter="save_click"/>
 
-<!--
-        <textarea class="form-control" v-model="model.value"
-                  placeholder="Предложение, которое будет поставлено на голосование на копе"> </textarea>
--->
+        <!--
+                <textarea class="form-control" v-model="model.value"
+                          placeholder="Предложение, которое будет поставлено на голосование на копе"> </textarea>
+        -->
         <files :id="id+'_attachments'" mode="editor" :model="model.attachments"></files>
         <div class="d-flex flex-wrap align-self-end mt-4">
           <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
@@ -62,10 +64,10 @@
       <div :id="`${id}_voted_za`" class="collapse">
         <div class="card card-block bg-none">
           <ul class="list-group">
-          <li v-for="eachZa of model.za" v-if="eachZa.owner" class="list-group-item bg-none border-0 py-1">
-            <kopnik-as-link target="_blank" :model="eachZa.owner"></kopnik-as-link>
-          </li>
-        </ul>
+            <li v-for="eachZa of model.za" v-if="eachZa.owner" class="list-group-item bg-none border-0 py-1">
+              <kopnik-as-link target="_blank" :model="eachZa.owner"></kopnik-as-link>
+            </li>
+          </ul>
         </div>
       </div>
 
@@ -82,10 +84,11 @@
       <div class="collapse" :id="`${id}_voted_protiv`">
         <div class="card card-block bg-none">
           <ul class="list-group">
-          <li v-for="eachProtiv of model.protiv" v-if="eachProtiv.owner" class="list-group-item bg-none border-0 py-1">
-            <kopnik-as-link target="_blank" :model="eachProtiv.owner"></kopnik-as-link>
-          </li>
-        </ul>
+            <li v-for="eachProtiv of model.protiv" v-if="eachProtiv.owner"
+                class="list-group-item bg-none border-0 py-1">
+              <kopnik-as-link target="_blank" :model="eachProtiv.owner"></kopnik-as-link>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -141,9 +144,11 @@
         }
       },
       async save_click(){
-        await this.model.save()
-        this.localMode = "viewer"
-        this.$emit("modeChange", this)
+        if (this.model.value) {
+          await this.model.save()
+          this.localMode = "viewer"
+          this.$emit("modeChange", this)
+        }
       },
       async cancel_click(){
         await this.model.reload()
@@ -154,18 +159,26 @@
         return this.model.place && this.model.place.place && this.model.place.place._isLoaded;
       },
       za_click: async function () {
-        if (this.model.golosa.find(eachGolos => eachGolos.owner == Application.getInstance().user && eachGolos.value == 1)) {
+        if (this.model.golosa.find(eachGolos =>
+        eachGolos.owner == Application.getInstance().user && eachGolos.value == 1
+        ))
+        {
           await Application.getInstance().user.vote(this.model, 0);
         }
-        else {
+        else
+        {
           await Application.getInstance().user.vote(this.model, 1);
         }
       },
       protiv_click: async function () {
-        if (this.model.golosa.find(eachGolos => eachGolos.owner == Application.getInstance().user && eachGolos.value == -1)) {
+        if (this.model.golosa.find(eachGolos =>
+        eachGolos.owner == Application.getInstance().user && eachGolos.value == -1
+        ))
+        {
           await Application.getInstance().user.vote(this.model, 0);
         }
-        else {
+        else
+        {
           await Application.getInstance().user.vote(this.model, -1);
         }
       }

@@ -53,6 +53,8 @@ let models = global.models = require("./model")
 Vue.use(MuseUI)
 Grumbler.getInstance().addEventHandler()
 
+Notification.requestPermission()
+
 /**
  * инициализация application
  */
@@ -61,6 +63,7 @@ let application = global.application = Application.getInstance()
 // application.registerServiceWorker()
   Promise.resolve()
   .then(()=>{
+
     global.view = new Vue({
       el: '#application',
       template: "<application id='a' :model='application'></application>",

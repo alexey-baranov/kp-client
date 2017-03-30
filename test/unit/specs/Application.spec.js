@@ -17,7 +17,7 @@ describe('Application', function () {
   before(function () {
     return new Promise(function (res, rej) {
       connection.onopen = function (session, details) {
-        session.prefix('api', 'ru.kopa')
+        session.prefix('api', 'ru.kopa');
         res()
       }
       connection.open()
@@ -34,34 +34,59 @@ describe('Application', function () {
   })
 
   describe("notifications", function () {
+    this.timeout(5000)
     let kopa
 
+    before(async ()=>{
+      kopa = await models.Kopa.create({
+        question: "unit test application.on(predlozhenieAdd, slovoAdd, ...)",
+        place: models.Zemla.getReference(2),
+        owner: models.Kopnik.getReference(2),
+      })
+      await kopa.invite()
+      await application.subscribeToNotifications()
+    })
+
     it('on(kopaAdd, ...)', function (done) {
-      application.once(models.Zemla.event.kopaAdd, (localKopa) => {
-        expect(localKopa).instanceof(models.Kopa)
-        /**
-         * задаю здесь глобальную копу для всех следующих тестов()
-         * потому что событие может ывзваться и следующий тест начаться раньше,
-         * чем выполнится await Kopa.create()
-         */
-        // kopa = localKopa
-        done()
-      });
-
-
       (async() => {
-        // await application.registerServiceWorker()
-        await application.subscribeToNotifications()
+        application.once(models.Zemla.event.kopaAdd, (local) => {
+          expect(local).instanceof(models.Kopa)
+          done();
+        })
 
-        kopa= await models.Kopa.create({
+        let kopa = await models.Kopa.create({
           question: "unit test application.on(kopaAdd, ...)",
           place: models.Zemla.getReference(2),
           owner: models.Kopnik.getReference(2),
         })
-        await kopa.invite();;;;;;;;;
+        await kopa.invite()
       })()
+    })
 
+    it('on(predlozhenieAdd, ...)', function (done) {
+      application.once(models.Kopa.event.predlozhenieAdd, (local) => {
+        expect(local).instanceof(models.Predlozhenie)
+        done()
+      })
 
+      models.Predlozhenie.create({
+        value: "unit test application.on(predlozhenieAdd, ...)",
+        place: kopa,
+        owner: models.Kopnik.getReference(2),
+      })
+    })
+
+    it('on(slovoAdd, ...)', function (done) {
+      application.once(models.Kopa.event.slovoAdd, (local) => {
+        expect(local).instanceof(models.Slovo)
+        done()
+      })
+
+      models.Slovo.create({
+        value: "unit test application.on(slovoAdd, ...)",
+        place: kopa,
+        owner: models.Kopnik.getReference(2),
+      })
     })
 
   })

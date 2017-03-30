@@ -132,7 +132,7 @@
               "type": "static",
               "directory": "../dist"
             },
-            "ws": {
+            "/ws": {
               "type": "websocket",
               "options":{
                 "enable_webstatus": true,

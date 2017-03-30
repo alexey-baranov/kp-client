@@ -8,7 +8,8 @@
       <div class="d-flex">
         <mu-raised-button style="flex-grow:1" label="Сказать" primary :disabled="!model.value" @click="submit_click"/>
         <mu-raised-button ref="button" primary label="..." :disabled="!model.value" @click="toggle"/>
-        <mu-popover :trigger="trigger" :open="open" :anchorOrigin="{vertical: 'top',horizontal: 'right'}" :targetOrigin="{vertical: 'bottom',horizontal: 'right'}" @close="handleClose">
+        <mu-popover :trigger="trigger" :open="open" :anchorOrigin="{vertical: 'top',horizontal: 'right'}"
+                    :targetOrigin="{vertical: 'bottom',horizontal: 'right'}" @close="handleClose">
           <mu-menu>
             <mu-menu-item title="Поставить на голосование" @click="predlozhenie_click"/>
           </mu-menu>
@@ -35,10 +36,12 @@
     props: ["id", "model"],
     methods: {
       submit_click(){
-        this.$emit("submit", this)
+        if (this.model.value) {
+          this.$emit("submit", this)
+        }
       },
       predlozhenie_click(){
-          this.open= false
+        this.open = false
         this.$emit("predlozhenie", this)
       },
       toggle () {

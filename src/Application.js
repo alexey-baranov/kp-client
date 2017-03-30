@@ -4,12 +4,15 @@
 "use strict";
 import EventEmitter from "events"
 import Cookies from "js-cookie"
+import serviceWorkerWebpackPluginRuntime from 'serviceworker-webpack-plugin/lib/runtime'
 
 import AuthenticationError from "./AuthenticationError"
 import config from "./../cfg/main"
 import Connection from './Connection'
 import Grumbler from './Grumbler'
 import models from "./model"
+import Notifyer from "./Notifier"
+import StateManager from "./StateManager"
 
 export default class Application extends EventEmitter {
   constructor() {
@@ -24,6 +27,10 @@ export default class Application extends EventEmitter {
      * @type {undefined}
      */
     this.startState = undefined
+
+    this.serviceWorkerRegistration = null
+    this.serviceWorker = null
+    this.registerServiceWorker()
   }
 
   static getInstance() {
@@ -41,22 +48,14 @@ export default class Application extends EventEmitter {
   setBody(value) {
     this.body = value
     value.joinedLoaded()
-      .then(()=>{
-        document.title= value.name+" - kopnik.org"
+      .then(() => {
+        document.title = value.name + " - kopnik.org"
       })
-  }
-
-  async registerServiceWorker() {
-    let registration = await navigator.serviceWorker.register('static/sw.js', {scope: './'})
-    if (!registration.active) {
-      this.log.debug("registration service worker...")
-      await navigator.serviceWorker.ready
-      this.log.debug("registration service worker done")
-    }
   }
 
   /**
    * подписка на уведомления
+   * внутри auth()
    * {
    *  eventType: "kopaAdd"
    *  data: {id, quesion, owner_id, ...}
@@ -68,14 +67,21 @@ export default class Application extends EventEmitter {
         switch (kwargs.eventType) {
           case models.Zemla.event.kopaAdd:
             this.emit(models.Zemla.event.kopaAdd, models.Kopa.getReference(kwargs.data.id))
-            if (navigator.serviceWorker.controller) {
-              navigator.serviceWorker.controller.postMessage(kwargs)
+            if (this.registration.active) {
+              this.registration.active.postMessage(kwargs)
+              Notifyer.getInstance().pushNotification("в Сервис воркер отправлено сообщение")
             }
-            ;
-            break;
-          case models.Kopa.event.slovoAdd:
+            else {
+              Notifyer.getInstance().pushNotification("Сервис воркер не установлен блять!")
+            }
             break;
           case models.Kopa.event.predlozhenieAdd:
+            this.emit(models.Kopa.event.predlozhenieAdd, models.Predlozhenie.getReference(kwargs.data.id))
+            if (this.registration.active) this.registration.active.postMessage(kwargs)
+            break;
+          case models.Kopa.event.slovoAdd:
+            this.emit(models.Kopa.event.slovoAdd, models.Slovo.getReference(kwargs.data.id))
+            if (this.registration.active) this.registration.active.postMessage(kwargs)
             break;
         }
       }
@@ -83,6 +89,66 @@ export default class Application extends EventEmitter {
         Grumbler.getInstance().pushError(err)
       }
     })
+  }
+
+
+  async registerServiceWorker() {
+    this.registration = await serviceWorkerWebpackPluginRuntime.register()
+    // await registration.update()
+
+    for (let EACH_SERVICE_WORKER of ["active", "waiting", "installing"]) {
+      let eachServiceWorker = this.registration[EACH_SERVICE_WORKER]
+      if (eachServiceWorker) {
+        this.log.info(`${EACH_SERVICE_WORKER} service worker initial state:`, eachServiceWorker.state)
+        eachServiceWorker.addEventListener('statechange', (e) => {
+          this.log.info(`${EACH_SERVICE_WORKER} service worker state changed:`, e.target.state)
+        })
+      }
+    }
+
+    this.registration.addEventListener('updatefound', () => {
+      this.registration.installing.addEventListener('statechange', (e) => {
+        this.log.info(`updatefound service worker state changed:`, e.target.state)
+      })
+    })
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      this.log.info(`navigator.ServiceWorker controller change`)
+    })
+
+    await navigator.serviceWorker.ready
+    this.serviceWorker = this.registration.active
+
+    navigator.serviceWorker.onmessage = (event) => {
+      let kopa
+      switch (event.data.eventType) {
+        case "kopaAdd":
+          kopa = models.Kopa.getReference(event.data.data.id)
+          this.goTo(kopa)
+          StateManager.getInstance().pushState()
+          break
+        case "predlozhenieAdd":
+          kopa = models.Kopa.getReference(event.data.data.place_id)
+          this.goTo(kopa)
+          StateManager.getInstance().pushState()
+          break
+        case "slovoAdd":
+          kopa = models.Kopa.getReference(event.data.data.place_id)
+          this.goTo(kopa)
+          StateManager.getInstance().pushState()
+          break
+      }
+      console.log(event.data)
+    }
+
+    /*
+     registration.showNotification('Application', {
+     body: 'фоывлад фы афыволда жфыд лаоыфв джалд офы аы вфа ыва фыдл  ыв алджфывфыа',
+     icon: '../images/touch/chrome-touch-icon-192x192.png',
+     vibrate: [200, 100, 200, 100, 200, 100, 200],
+     tag: 'application'
+     });
+     */
   }
 
   /**
@@ -150,14 +216,14 @@ export default class Application extends EventEmitter {
             rej(new AuthenticationError("Неверное имя пользователя или пароль"))
           }
           else {
-            rej(new AuthenticationError(reason+", "+details.message))
+            rej(new AuthenticationError(reason + ", " + details.message))
           }
         }
         else if (reason == 'unreachable') {
           rej(new Error("Сервер обмена данными недоступен. Попробуйте зайти позже."))
         }
         else {
-          rej(new Error((reason?(reason+", "):"")+details.message))
+          rej(new Error((reason ? (reason + ", ") : "") + details.message))
         }
 
         this.user = null
@@ -168,8 +234,8 @@ export default class Application extends EventEmitter {
          * если сессия потерялась (переключение 4g на wifi или после возвращения браузена из фона)
          * по повторое соединение
          */
-        if (reason=="lost"){
-          setImmediate(()=>{
+        if (reason == "lost") {
+          setImmediate(() => {
             connection.open()
           })
         }

@@ -19,7 +19,7 @@ export default class Notifier{
 
   /**
    *
-   * @param {Notification} notification
+   * @param {Notification|string} notification
    * @param {Number} delay ms
    *
    */
