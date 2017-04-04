@@ -94,6 +94,7 @@
 
 <script>
   import $ from "jquery"
+  import mobile from "is-mobile"
   //  import Rx from 'rxjs/Rx';
 
   import Application from "../Application"
@@ -143,8 +144,8 @@
       "files": require("./files.vue"),
     },
     watch: {
-      model(){
-        this.onModel()
+      model(cur, prev){
+        this.onModel(cur, prev)
       }
     },
     computed: {
@@ -171,6 +172,12 @@
       }
     },
     methods: {
+      playSlovoAdd() {
+        if (!mobile()) {
+          let sound = new Audio("static/kopa/snd/slovoAdd.mp3")
+          sound.play()
+        }
+      },
       view_modeChange(sender){
         if (sender.userMode == "editor") {
           this.editors.push(sender)
@@ -179,9 +186,10 @@
           this.editors.splice(this.editors.indexOf(sender), 1)
         }
       },
-      async onModel(cur, prev){
+      async onModel(current, prev){
         if (prev) {
-          this.model.removeListener(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
+          prev.removeListener(models.Kopa.event.slovoAdd, this.playSlovoAdd)
+          prev.removeListener(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
         }
         this.starshinaNaKope = undefined
 //        if (!this.model.newResult) {
@@ -190,14 +198,17 @@
         if (!this.model.newSlovo) {
           this.model.newSlovo = this.getNewSlovo()
         }
-        await this.model.joinedLoaded();
+        await this.model.joinedLoaded()
         if (!this.model.result) {
-          await this.model.loadResult();
+          await this.model.loadResult()
         }
         if (!this.model.dialog) {
-          await this.model.loadDialog();
+          await this.model.loadDialog()
         }
+
+        this.model.on(models.Kopa.event.slovoAdd, this.playSlovoAdd)
         this.model.on(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
+
         this.starshinaNaKope = await Application.getInstance().user.getStarshinaNaKope(this.model)
       },
       async invite_click(){
@@ -322,7 +333,7 @@
       Application.getInstance().user.on(models.Kopnik.event.starshinaChange, this.user_starshinaChange = async() => {
         this.starshinaNaKope = await Application.getInstance().user.getStarshinaNaKope(this.model)
       })
-      await this.onModel()
+      await this.onModel(this.model)
     },
     mounted(){
 
@@ -333,7 +344,8 @@
        },1000)*/
     },
     beforeDestroy(){
-      this.model.removeListener(models.Kopa.event.slovoAdd, this.holdBottom);
+      this.model.removeListener(models.Kopa.event.slovoAdd, this.playSlovoAdd)
+      this.model.removeListener(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
 
       /**
        * возможно был совершен выход и поэтому юзера уже нет

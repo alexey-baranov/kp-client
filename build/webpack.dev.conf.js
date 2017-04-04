@@ -15,8 +15,8 @@ module.exports = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap })
   },
-  // cheap-module-eval-source-map is faster for development
-  // devtool: '#cheap-module-eval-source-map',
+  // devtool: '#eval',// is faster for development
+  // cheap-module-eval-source-map',
   // devtool: '#cheap-module-source-map', //все строчки перепутаны
   // devtool: '#cheap-source-map', //все строчки перепутаны
   devtool: '#source-map', //медленно, зато железно

@@ -1,0 +1,12 @@
+{
+  "name": "kopnik.org: первая социальная сеть на принципах копного права",
+  "short_name": "kopnik.org",
+  "icons": [{
+    "src": "static/img/logo-small.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }],
+  "start_url": "/index.html?homescreen=1",
+  "display": "standalone",
+  "gcm_sender_id": "271584520179"
+}

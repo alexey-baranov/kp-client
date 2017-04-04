@@ -91,4 +91,7 @@ describe('Application', function () {
 
   })
 
+  it('should update push subscription', async function () {
+    await Application.getInstance().addPushSubscription()
+  })
 })

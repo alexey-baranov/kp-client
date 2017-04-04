@@ -85,8 +85,8 @@
           this.userDoma = null
         }
       },
-      "model.body": async function () {
-        if (this.model.body) {
+      "model.body": async function (current, prev) {
+        if (current) {
           if (!(this.model.body instanceof models.RemoteModel)) {
             throw new Error("Неверный тип тела")
           }
@@ -95,8 +95,6 @@
            * такой код работает хорошо всегда
            */
           if (this.model.state == Application.State.Main) {
-//          Vue.nextTick(()=>{})
-//            this.log.debug(this.model.body.toString(), this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id))
             $.scrollTop(this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id) || 0)
           }
         }
@@ -121,6 +119,7 @@
       }
     },
     methods: {
+
       list_item_click(dom){
         Application.getInstance().goTo(dom)
         StateManager.getInstance().pushState()
@@ -257,11 +256,12 @@
 </script>
 
 <style scoped>
-  .sidebar{
+  .sidebar {
     /*border-right: solid deepskyblue 1px;*/
     /*border-color: rgba(100,100,255,0.5);*/
     /*background: rgba(100,100,255,0.1);*/
   }
+
   .padding-x-container {
     padding-left: .5rem;
     padding-right: .5rem;

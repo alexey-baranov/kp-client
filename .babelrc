@@ -2,7 +2,7 @@
   "presets": [
 
   ],
-  "plugins": ["transform-class-properties"],
+//  "plugins": ["transform-class-properties"],
   "comments": false,
   "env": {
     "test": {

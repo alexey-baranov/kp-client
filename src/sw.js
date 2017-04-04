@@ -1,5 +1,5 @@
-let version = 5
-console.log(`service worker v.${version} parsing...`)
+let version =   9
+console.log(`service worker v.${version} pa    rsindsfsag....`)
 
 self.addEventListener('install', event => {
   console.log(`service worker v.${version} installing and skipping waiting...`)
@@ -11,42 +11,68 @@ self.addEventListener('activate', event => {
   event.waitUntil(self.clients.claim())
 })
 
+self.addEventListener('push', function(event) {
+  console.log('Received a push message', event)
+
+  var title = 'Yay a message.'
+  var body = 'We have received a push message.'
+  var icon = 'static/img/logo-small.png'
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: body,
+      icon: icon,
+    })
+  );
+})
+
 self.addEventListener('message', (e) => {
   switch (e.data.eventType) {
     case "kopaAdd":
-      self.registration.showNotification('Все на копу', {
+      self.registration.showNotification('Все на копу!!', {
         body: e.data.data.question,
         tag: 'kopa:' + e.data.data.id,
-        data: e.data
+        data: e.data,
+        icon: "static/sw/kopaAdd.jpg",
+        vabrate: [2000, 1000, 2000, 1000, 2000]
       })
       break
     case "predlozhenieAdd":
       self.registration.showNotification('Новое предложение', {
         body: e.data.data.value,
         tag: 'predlozhenie:' + e.data.data.id,
-        data: e.data
+        data: e.data,
+        icon: "static/sw/slovoAdd.png",
+        vabrate: [200, 200, 200, 200, 500]
       })
       break
     case "slovoAdd":
       clients.matchAll({type: "window"})
         .then(windowClients => {
-          console.log("window clients", windowClients, "message", e)
+          console.log("window clients", windowClients)
 
-          let focused
+          let focusedAndVisible
           for (let eachWindowClient of windowClients) {
-            if (eachWindowClient.focused) {
-              focused = eachWindowClient
+            if (eachWindowClient.focused && eachWindowClient.visibilityState == "visible") {
+              focusedAndVisible = eachWindowClient
               break
             }
           }
 
-          console.log("focused window client", focused)
+          console.log("focused and visible window client=", focusedAndVisible)
 
-          if (!focused || focused.url.indexOf(`Kopa:${e.data.data.place_id}`) == -1) {
-            self.registration.showNotification('Новое слово', {
+          //в мобильных браузерах свернутый браузер и даже с погашеным экраном выдает visibilityState == "visible"
+          if (0 && focusedAndVisible && focusedAndVisible.url.indexOf(`Kopa:${e.data.data.place_id}`) != -1) {
+            // targetClient.postMessage(event.notification.data, [])
+          }
+          else {
+            self.registration.showNotification('Новое слово на копе', {
               body: e.data.data.value,
-              tag: 'slovo:' + e.data.data.id,
-              data: e.data
+              renotify: true,
+              tag: 'slovo:' + e.data.data.place_id,
+              data: e.data,
+              icon: "static/sw/slovoAdd.png",
+              vabrate: [100, 100, 100, 100, 100]
             })
           }
         })
@@ -69,6 +95,7 @@ self.addEventListener('notificationclick', function (event) {
           }
         }
 
+        // console.log("targetClient", targetClient)
         targetClient.postMessage(event.notification.data, [])
         return targetClient.focus()
       }

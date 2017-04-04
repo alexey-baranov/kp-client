@@ -121,7 +121,7 @@
           "type": "web",
           "endpoint": {
             "type": "tcp",
-            "port": 443,
+            "port": 4443,
             "tls": {
               "certificate": "/etc/letsencrypt/live/kopnik.org/fullchain.pem",
               "key": "/etc/letsencrypt/live/kopnik.org/privkey.pem"
@@ -132,7 +132,7 @@
               "type": "static",
               "directory": "../dist"
             },
-            "/ws": {
+            "ws": {
               "type": "websocket",
               "options":{
                 "enable_webstatus": true,
@@ -175,6 +175,55 @@
           "endpoint": {
             "type": "tcp",
             "port": 80
+          },
+          "paths": {
+            "/": {
+              "type": "static",
+              "directory": "../dist"
+            },
+            "ws": {
+              "type": "websocket",
+              "options":{
+                "enable_webstatus": true,
+                "max_frame_size": 1048576,
+                "max_message_size": 1048576,
+                "auto_fragment_size": 65536,
+                "fail_by_drop": true,
+                "open_handshake_timeout": 2500,
+                "close_handshake_timeout": 1000,
+                "auto_ping_interval": 10000,
+                "auto_ping_timeout": 5000,
+                "auto_ping_size": 4
+              },
+              "serializers": [
+                "json"
+              ],
+              "cookie": {
+                "store": {
+                  "type": "file",
+                  "filename": "cookies.dat"
+                }
+              },
+              "auth": {
+                "ticket": {
+                  "type": "dynamic",
+                  "authenticator": "org.kopnik.authenticate"
+                },
+                "anonymous": {
+                  "type": "static",
+                  "role": "anonymous"
+                },
+                "cookie": {
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "web",
+          "endpoint": {
+            "type": "tcp",
+            "port": 8080
           },
           "paths": {
             "/": {

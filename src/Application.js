@@ -30,7 +30,6 @@ export default class Application extends EventEmitter {
 
     this.serviceWorkerRegistration = null
     this.serviceWorker = null
-    this.registerServiceWorker()
   }
 
   static getInstance() {
@@ -106,18 +105,17 @@ export default class Application extends EventEmitter {
       }
     }
 
-    this.registration.addEventListener('updatefound', () => {
+    this.registration.onupdatefound=  () => {
       this.registration.installing.addEventListener('statechange', (e) => {
         this.log.info(`updatefound service worker state changed:`, e.target.state)
       })
-    })
+    }
 
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
+    navigator.serviceWorker.oncontrollerchange= () => {
       this.log.info(`navigator.ServiceWorker controller change`)
-    })
+    }
 
     await navigator.serviceWorker.ready
-    this.serviceWorker = this.registration.active
 
     navigator.serviceWorker.onmessage = (event) => {
       let kopa
@@ -138,17 +136,22 @@ export default class Application extends EventEmitter {
           StateManager.getInstance().pushState()
           break
       }
-      console.log(event.data)
     }
 
-    /*
-     registration.showNotification('Application', {
-     body: 'фоывлад фы афыволда жфыд лаоыфв джалд офы аы вфа ыва фыдл  ыв алджфывфыа',
-     icon: '../images/touch/chrome-touch-icon-192x192.png',
-     vibrate: [200, 100, 200, 100, 200, 100, 200],
-     tag: 'application'
-     });
-     */
+    this.log.debug("push subscription")
+    this.pushSubscription= await this.registration.pushManager.getSubscription()
+    if (!this.pushSubscription){
+      this.pushSubscription= await this.registration.pushManager.subscribe({userVisibleOnly: true})
+    }
+    if (!this.pushSubscription){
+      throw new Error("Ошибка во время подписки на уведомления")
+    }
+
+    await this.addPushSubscription()
+  }
+
+  async addPushSubscription(){
+    await Connection.getInstance().session.call("api:Application.addPushSubscription", [JSON.stringify(this.pushSubscription.endpoint)])
   }
 
   /**
@@ -188,6 +191,8 @@ export default class Application extends EventEmitter {
             this.user = await models.Kopnik.getByEmail(details.authid)
             this.log.info("user", this.user)
             await this.subscribeToNotifications()
+            // registerServiceWorker() улетело в connection.onopen потому что там в конце когда подкиска на пуши должна пройти синхронизация с сервером
+            await this.registerServiceWorker()
             this.emit("connectionOpen")
             res(this.user)
           }

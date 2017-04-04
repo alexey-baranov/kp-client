@@ -46,18 +46,6 @@ class RemoteModel extends EventEmitter {
     this.created = undefined;
   }
 
-  static cache = new Map([
-    ["Zemla", new Map()],
-    ["Registration", new Map()],
-    ["Kopnik", new Map()],
-    ["Kopa", new Map()],
-    ["Predlozhenie", new Map()],
-    ["Slovo", new Map()],
-    ["Golos", new Map()],
-    ["File", new Map()]
-  ]);
-
-
   /**
    * Плоское представление объекта по правилам секвилизы для передачина на сервер
    */
@@ -335,8 +323,20 @@ class RemoteModel extends EventEmitter {
 
 RemoteModel.event = {
   change: "change"
-};
+}
 
-module.exports = RemoteModel;
+RemoteModel.cache= new Map([
+  ["Zemla", new Map()],
+  ["Registration", new Map()],
+  ["Kopnik", new Map()],
+  ["Kopa", new Map()],
+  ["Predlozhenie", new Map()],
+  ["Slovo", new Map()],
+  ["Golos", new Map()],
+  ["File", new Map()]
+]);
+
+
+module.exports = RemoteModel;;
 
 let Kopnik = require("./Kopnik")

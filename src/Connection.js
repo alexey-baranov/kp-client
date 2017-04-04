@@ -7,17 +7,19 @@ let AutobahnConnection = require("autobahn").Connection
 import config from "./../cfg/main"
 
 export default class Connection extends AutobahnConnection {
-  static defaultOptions = {
-    url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
-    realm: "kopa",
-    authmethods: ["cookie", 'ticket'],
-    "authid": "",
-    onchallenge: function (session, method, extra) {
-      throw new Error("you should overwrite connection onchallenge to return user password")
-    },
-    use_es6_promises: true,
-    max_retries: -1,
-    max_retry_delay: 5
+  static get defaultOptions() {
+    return {
+      url: `${config.WAMP.schema}://${config.WAMP.host}:${config.WAMP.port}/${config.WAMP.path}`,
+      realm: "kopa",
+      authmethods: ["cookie", 'ticket'],
+      "authid": "",
+      onchallenge: function (session, method, extra) {
+        throw new Error("you should overwrite connection onchallenge to return user password")
+      },
+      use_es6_promises: true,
+      max_retries: -1,
+      max_retry_delay: 5
+    }
   }
 
   constructor(options) {
@@ -53,7 +55,7 @@ export default class Connection extends AutobahnConnection {
       Connection._instance = new Connection({
         authid: config.unittest2.username,
         onchallenge: function (session, method, extra) {
-          return JSON.stringify({password:config.unittest2.password})
+          return JSON.stringify({password: config.unittest2.password})
         }
       })
     }
