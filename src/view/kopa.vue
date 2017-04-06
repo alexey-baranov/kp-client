@@ -68,16 +68,15 @@
     </div>
     <ul class="list-group">
       <li v-for="eachResult of model.result" class="list-group-item  border-0 px-0">
-        <predlozhenie-as-list-item :id="id+'_result_'+eachResult.id" class="w-100"
+        <predlozhenie-as-list-item :id="id+'_result_'+eachResult.id" ref="result" class="w-100"
                                    :model="eachResult" @modeChange="view_modeChange"></predlozhenie-as-list-item>
       </li>
     </ul>
     <ul v-if="model.invited" class="list-group">
       <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
-        <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" class="w-100" :model="eachSlovo"
+        <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" ref="dialog" class="w-100" :model="eachSlovo"
                             @modeChange="view_modeChange"></slovo-as-list-item>
       </li>
-
     </ul>
     <!--Новое слово-->
     <div v-if="model.invited && !editors.length && userMode !='editor'"
@@ -144,8 +143,8 @@
       "files": require("./files.vue"),
     },
     watch: {
-      model(cur, prev){
-        this.onModel(cur, prev)
+      model(current, prev){
+        this.onModel(current, prev)
       }
     },
     computed: {
@@ -172,6 +171,56 @@
       }
     },
     methods: {
+      async getState(){
+        let topModel,
+          topModelOffset = Infinity,
+          screenOffset = $(document).scrollTop(),
+          isScrolled,
+          views = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView),
+          result = {}
+
+        for (let eachChild of views) {
+          let eachChildOffset = $(eachChild.$el).offset().top
+
+          if (eachChildOffset < screenOffset) {
+            isScrolled = true
+          }
+
+          /**
+           * на 50 рх ушло вверх экрана - это норм потому что там все равно кто когда сказал да кнопки
+           * это еще не значит что пользак прочитал это слово
+           */
+          if (screenOffset < eachChildOffset && eachChildOffset < topModelOffset) {
+            topModel = eachChild.model
+            topModelOffset = eachChildOffset
+          }
+        }
+
+        if (isScrolled) {
+          this.log.debug("getState() hash", topModel)
+          result.hash = topModel.constructor.name.toLowerCase() + topModel.id
+        }
+        return result
+      },
+      async setState(state){
+        if (state.hash) {
+          if (state.hash.match(/predlozhenie|slovo/)) {
+            let HASH = +state.hash.match(/(\d+)$/)[1]
+            if (!this.model.result) {
+              await this.model.joinedLoadResult()
+            }
+            if (!this.model.dialog) {
+              await this.model.joinedLoadDialog()
+            }
+            await Promise.resolve(0)
+            let hashView = this.$refs[state.hash.match(/predlozhenie/) ? "result" : "dialog"].find(eachView => eachView.model.id == HASH)
+            if (hashView) {
+              this.log.debug("setState() hash", hashView.model, "offset", $(hashView.$el).offset().top)
+              $(document).scrollTop($(hashView.$el).offset().top)
+            }
+          }
+        }
+      },
       playSlovoAdd() {
         if (!mobile()) {
           let sound = new Audio("static/kopa/snd/slovoAdd.mp3")
@@ -188,28 +237,29 @@
       },
       async onModel(current, prev){
         if (prev) {
-          prev.removeListener(models.Kopa.event.slovoAdd, this.playSlovoAdd)
           prev.removeListener(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
+          prev.removeListener(models.Kopa.event.slovoAdd, this.playSlovoAdd)
+          prev.removeListener(models.Kopa.event.predlozhenieAdd, this.playSlovoAdd)
         }
         this.starshinaNaKope = undefined
-//        if (!this.model.newResult) {
-//          this.model.newResult = this.getNewResult()
-//        }
-        if (!this.model.newSlovo) {
-          this.model.newSlovo = this.getNewSlovo()
-        }
-        await this.model.joinedLoaded()
-        if (!this.model.result) {
-          await this.model.loadResult()
-        }
-        if (!this.model.dialog) {
-          await this.model.loadDialog()
-        }
+        if (current) {
+          if (!current.newSlovo) {
+            current.newSlovo = this.getNewSlovo()
+          }
+          await current.joinedLoaded()
+          if (!current.result) {
+            await current.loadResult()
+          }
+          if (!current.dialog) {
+            await current.loadDialog()
+          }
 
-        this.model.on(models.Kopa.event.slovoAdd, this.playSlovoAdd)
-        this.model.on(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
+          current.on(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
+          current.on(models.Kopa.event.slovoAdd, this.playSlovoAdd)
+          current.on(models.Kopa.event.predlozhenieAdd, this.playSlovoAdd)
 
-        this.starshinaNaKope = await Application.getInstance().user.getStarshinaNaKope(this.model)
+          this.starshinaNaKope = await Application.getInstance().user.getStarshinaNaKope(current)
+        }
       },
       async invite_click(){
         await this.model.invite()
@@ -343,9 +393,9 @@
        $(`#${this.id}`).css('padding-bottom', height)
        },1000)*/
     },
-    beforeDestroy(){
-      this.model.removeListener(models.Kopa.event.slovoAdd, this.playSlovoAdd)
-      this.model.removeListener(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
+    async beforeDestroy(){
+      //равносильно this.model= null и последующая отвязка всех событий от модели
+      await this.onModel(null, this.model)
 
       /**
        * возможно был совершен выход и поэтому юзера уже нет

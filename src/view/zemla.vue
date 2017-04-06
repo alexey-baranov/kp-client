@@ -1,12 +1,11 @@
 <template>
   <div :id="id" class="zemla">
     <ul class="list-group flex-column-reverse ">
-      <a v-for="eachKopa of model.kopi" class="list-group-item no-color border-0 px-0 py-0 my-3"
-         :href="`?body=Kopa:${eachKopa.id}`" @click.prevent="kopa_click(eachKopa)">
+      <li v-for="eachKopa of model.kopi" class="list-group-item no-color border-0 px-0 py-0 my-3">
         <kopa-as-list-item class="w-100" :model="eachKopa"></kopa-as-list-item>
-      </a>
+        </lia>
 
-      <!--новая копа-->
+        <!--новая копа-->
       <li class="list-group-item border-0 px-0">
         <kopa-as-submit v-if="starshinaNaZemle===null" :id="id+'_new'" class="w-100" :model="model.newKopa"
                         @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
@@ -51,6 +50,14 @@
     },
     computed: {},
     methods: {
+      getState(){
+        return {
+            hash: "not implemented"
+        }
+      },
+      async setState(state){
+
+      },
       async scroll_load(){
         if (!this.model.areAllKopiLoaded && !this.areKopiLoaded) {
           this.areKopiLoaded = true
@@ -67,11 +74,6 @@
         result.place = this.model
         result.owner = Application.getInstance().user
         return result
-      },
-
-      kopa_click(kopa){
-        Application.getInstance().goTo(kopa)
-        StateManager.getInstance().pushState()
       },
 
       async onModel () {

@@ -334,9 +334,9 @@ RemoteModel.cache= new Map([
   ["Slovo", new Map()],
   ["Golos", new Map()],
   ["File", new Map()]
-]);
+])
 
 
-module.exports = RemoteModel;;
+module.exports = RemoteModel;
 
 let Kopnik = require("./Kopnik")

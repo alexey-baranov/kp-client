@@ -41,7 +41,7 @@
             <div v-if="model.state=='main' && model.body">
               <h1 class="title text-truncate">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
               <location class="breadcrumb" :model="model.body"></location>
-              <component v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
+              <component ref="bodyView" v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
             </div>
           </template>
         </div>
@@ -93,10 +93,13 @@
           await this.model.body.joinedLoaded()
           /**
            * такой код работает хорошо всегда
-           */
-          if (this.model.state == Application.State.Main) {
+           * но что-то он мне перестал нравиться
+           * перенес в Scroller
+
+           if (this.model.state == Application.State.Main) {
             $.scrollTop(this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id) || 0)
           }
+           */
         }
       }
     },
@@ -119,7 +122,6 @@
       }
     },
     methods: {
-
       list_item_click(dom){
         Application.getInstance().goTo(dom)
         StateManager.getInstance().pushState()
@@ -162,33 +164,38 @@
           this.grumbler.pushError(err)
         }
       },
+      /**
+       * асинк потому что изменения в пользовательском интерфейсе вуи
+       * происходят на следующий тик
+       */
       getState(){
-        return {
-          drawer: this.drawer
-        }
-        return {
-          scrollY: window.scrollY
-        }
+        return new Promise((res, rej) => {
+          let result = {
+            drawer: this.drawer
+          }
+          setImmediate(async() => {
+            if (this.model.state == Application.State.Main) {
+              result.body = await this.$refs.bodyView.getState()
+            }
+            this.log.debug("state", result)
+            res(result)
+          })
+        })
       },
-      setState(state){
+      async setState(state){
+        this.log.debug("state", state)
         if (!state) {
           state = {}
         }
         this.drawer = state.drawer
-        /**
-         * такой код работает хорошо, но он не обеспечивает правильное поведение во всех случаях
-         * например если из копы кнопками назад потом вперед он сработает
-         * а из копы кнопкой назад, а потом мышкой заходим обратно, то скрол будет в начале экрана
-         *
-         */
-        /*
-         this.log.debug("#setState()", state.scrollY)
-         $.scrollTop(state.scrollY)
-         */
+        await Promise.resolve(1)
+        if (this.model.state == Application.State.Main) {
+          await this.$refs.bodyView.setState(state.body||{})
+        }
       },
       debug(){
         this.log.debug.bind(log).apply(arguments)
-      }
+      },
     },
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
@@ -197,7 +204,6 @@
       for (let each of models.RemoteModel.cache.keys()) {
         this.positions.get(Application.State.Main).set(each, new Map())
       }
-
 
       if (this.model.user) {
         this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
@@ -224,25 +230,40 @@
           }
         }
       })
+
+      /**
+       * сервис воркер перехватывается сообщение и оно отвечает за перемотки при новых словах и копах
+       */
+      /*
+       await navigator.serviceWorker.ready
+       navigator.serviceWorker.onmessage = (event) => {
+       let kopa,
+       data = event.data
+
+       switch (data.eventType) {
+       case "kopaAdd":
+       case "predlozhenieAdd":
+       $(document.body).stop().animate({scrollTop: 0}, '1000', 'swing')
+       break
+       case "slovoAdd":
+       $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing')
+       break
+       }
+       }
+       */
     },
     mounted() {
-      window.addEventListener('scroll', (e) => {
-        if (this.model.state == Application.State.Main && this.model.body) {
-          /**
-           * такой код работает хорошо всегда
-           */
-          this.positions.get(Application.State.Main).get(this.model.body.constructor.name).set(this.model.body.id, window.scrollY)
-//          this.log.debug(this.positions)
+      /**
+       * решил уйти на хэши
+       * такой метод более универсально при передаче ссылки с урстройства на устройства с разными форматами экрана
+       */
+      window.addEventListener('scroll', _.debounce(async (e) => {
+        let state= await StateManager.getInstance().replaceState()
 
-          /**
-           * такой код работает хорошо, но он не обеспечивает правильное поведение во всех случаях
-           * например если из копы кнопками назад потом вперед он сработает
-           * а из копы кнопкой назад, а потом мышкой заходим обратно, то скрол будет в начале экрана
-           *
-           */
-//          StateManager.getInstance().replaceState()
+        if (this.model.state == Application.State.Main && this.model.body && state.v.body) {
+          this.positions.get(Application.State.Main).get(this.model.body.constructor.name).set(this.model.body.id, state.v.body.hash)
         }
-      })
+      }, 1000))
     },
     async beforeDestroy(){
       /**

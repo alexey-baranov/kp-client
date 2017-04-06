@@ -5,6 +5,7 @@
  */
 "use strict";
 
+let join = require("../decorator/join").default
 var RemoteModel = require("./RemoteModel");
 let Connection = require("../Connection").default
 let _ = require("lodash");
@@ -33,6 +34,9 @@ class Kopa extends RemoteModel {
      * @type {Kopa}
      */
     this.newSlovo = null
+
+    this.joinedLoadResult = join(this.loadResult)
+    this.joinedLoadDialog = join(this.loadDialog)
   }
 
   getPlain() {

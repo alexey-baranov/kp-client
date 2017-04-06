@@ -1,53 +1,51 @@
-let version =   9
-console.log(`service worker v.${version} pa    rsindsfsag....`)
+let version = 12
+console.log(`service worker v.${version} parsindsfsag....`)
 
 self.addEventListener('install', event => {
   console.log(`service worker v.${version} installing and skipping waiting...`)
   event.waitUntil(self.skipWaiting())
 })
-
 self.addEventListener('activate', event => {
   console.log(`service worker v.${version} activating and claiming...`)
   event.waitUntil(self.clients.claim())
 })
 
-self.addEventListener('push', function(event) {
-  console.log('Received a push message', event)
+self.addEventListener('push', function (event) {
+  console.log('Received a push message', event.data.json())
+  let data = event.data.json(),
+    wait
 
-  var title = 'Yay a message.'
-  var body = 'We have received a push message.'
-  var icon = 'static/img/logo-small.png'
-
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body: body,
-      icon: icon,
-    })
-  );
-})
-
-self.addEventListener('message', (e) => {
-  switch (e.data.eventType) {
+  switch (data.eventType) {
     case "kopaAdd":
-      self.registration.showNotification('Все на копу!!', {
-        body: e.data.data.question,
-        tag: 'kopa:' + e.data.data.id,
-        data: e.data,
+      wait = self.registration.showNotification('Все на копу!!', {
+        body: data.model.question,
+        tag: 'kopa:' + data.model.id,
+        data: data,
         icon: "static/sw/kopaAdd.jpg",
-        vabrate: [2000, 1000, 2000, 1000, 2000]
+        vabrate: [5000, 1000, 5000]
       })
       break
     case "predlozhenieAdd":
-      self.registration.showNotification('Новое предложение', {
-        body: e.data.data.value,
-        tag: 'predlozhenie:' + e.data.data.id,
-        data: e.data,
-        icon: "static/sw/slovoAdd.png",
-        vabrate: [200, 200, 200, 200, 500]
+      wait = self.registration.showNotification('Новое предложение', {
+        body: data.model.value,
+        tag: 'predlozhenie:' + data.model.id,
+        data: data,
+        icon: "static/sw/predlozhenieAdd.png",
+        vabrate: [2500, 500, 2500]
+      })
+      break
+    case "predlozhenieState":
+      wait = self.registration.showNotification(data.model.state>0?'Предложение проголосовали ЗА':"Предложение отклонили", {
+        body: data.model.value,
+        renotify: true,
+        tag: 'predlozhenie:' + data.model.id,
+        data: data,
+        icon: "static/sw/predlozhenieAdd.png",
+        vabrate: [2500, 500, 2500]
       })
       break
     case "slovoAdd":
-      clients.matchAll({type: "window"})
+      wait = clients.matchAll({type: "window"})
         .then(windowClients => {
           console.log("window clients", windowClients)
 
@@ -62,15 +60,15 @@ self.addEventListener('message', (e) => {
           console.log("focused and visible window client=", focusedAndVisible)
 
           //в мобильных браузерах свернутый браузер и даже с погашеным экраном выдает visibilityState == "visible"
-          if (0 && focusedAndVisible && focusedAndVisible.url.indexOf(`Kopa:${e.data.data.place_id}`) != -1) {
+          if (0 && focusedAndVisible && focusedAndVisible.url.indexOf(`Kopa:${data.model.place_id}`) != -1) {
             // targetClient.postMessage(event.notification.data, [])
           }
           else {
             self.registration.showNotification('Новое слово на копе', {
-              body: e.data.data.value,
+              body: data.model.value,
               renotify: true,
-              tag: 'slovo:' + e.data.data.place_id,
-              data: e.data,
+              tag: 'slovo:' + data.model.place_id,
+              data: data,
               icon: "static/sw/slovoAdd.png",
               vabrate: [100, 100, 100, 100, 100]
             })
@@ -78,11 +76,13 @@ self.addEventListener('message', (e) => {
         })
       break
   }
+  event.waitUntil(wait)
 })
 
 self.addEventListener('notificationclick', function (event) {
-  console.log('On notification click: ', event.notification.tag)
+  console.log('On notification click: ', event.notification.data)
   event.notification.close()
+  let data = event.notification.data
   event.waitUntil(clients.matchAll({type: "window"})
     .then(windowClients => {
       console.log("windows", windowClients)
@@ -96,10 +96,23 @@ self.addEventListener('notificationclick', function (event) {
         }
 
         // console.log("targetClient", targetClient)
-        targetClient.postMessage(event.notification.data, [])
+        targetClient.postMessage(data, [])
         return targetClient.focus()
       }
-      //else clients.openWindow('https://kopnik.org/?state=main&body=Kopa:1')
+      else {
+        let query
+        switch (data.eventType) {
+          case "kopaAdd":
+            query = "body=Kopa:" + data.model.id
+            break
+          case "predlozhenieAdd":
+          case "predlozhenieState":
+          case "slovoAdd":
+            query = "body=Kopa:" + data.model.place_id
+            break
+        }
+        return clients.openWindow('/?' + query)
+      }
     })
   )
 })

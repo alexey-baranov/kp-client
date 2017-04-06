@@ -18,29 +18,33 @@ export default class StateManager {
     return StateManager.instance
   }
 
-  getState(){
+  async getState(){
     let result= this.application.getState()
-    result.v= this.applicationView.getState()
+    result.v= await this.applicationView.getState()
 
     return result
   }
 
 
-  getUrl(state) {
+  param(state) {
     const result = "?"+decodeURIComponent($.param(state))
     this.log.debug("url", result)
 
     return result
   }
 
-  pushState() {
-    let state= this.getState()
+  async pushState() {
+    let state= await this.getState()
     this.log.debug("pushState", state)
-    history.pushState(null, Application.getInstance().title, this.getUrl(state))
+    history.pushState(null, Application.getInstance().title, this.param(state))
+    return state
   }
 
-  replaceState() {
-    history.replaceState(null, Application.getInstance().title, this.getUrl(this.getState()))
+  async replaceState() {
+    let state= await this.getState()
+    this.log.debug("replaceState", state)
+    history.replaceState(null, Application.getInstance().title, this.param(state))
+    return state
   }
 
   /**

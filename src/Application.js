@@ -66,21 +66,12 @@ export default class Application extends EventEmitter {
         switch (kwargs.eventType) {
           case models.Zemla.event.kopaAdd:
             this.emit(models.Zemla.event.kopaAdd, models.Kopa.getReference(kwargs.data.id))
-            if (this.registration.active) {
-              this.registration.active.postMessage(kwargs)
-              Notifyer.getInstance().pushNotification("в Сервис воркер отправлено сообщение")
-            }
-            else {
-              Notifyer.getInstance().pushNotification("Сервис воркер не установлен блять!")
-            }
             break;
           case models.Kopa.event.predlozhenieAdd:
             this.emit(models.Kopa.event.predlozhenieAdd, models.Predlozhenie.getReference(kwargs.data.id))
-            if (this.registration.active) this.registration.active.postMessage(kwargs)
             break;
           case models.Kopa.event.slovoAdd:
             this.emit(models.Kopa.event.slovoAdd, models.Slovo.getReference(kwargs.data.id))
-            if (this.registration.active) this.registration.active.postMessage(kwargs)
             break;
         }
       }
@@ -89,7 +80,6 @@ export default class Application extends EventEmitter {
       }
     })
   }
-
 
   async registerServiceWorker() {
     this.registration = await serviceWorkerWebpackPluginRuntime.register()
@@ -118,20 +108,22 @@ export default class Application extends EventEmitter {
     await navigator.serviceWorker.ready
 
     navigator.serviceWorker.onmessage = (event) => {
-      let kopa
+      let kopa,
+        data = event.data
+
       switch (event.data.eventType) {
         case "kopaAdd":
-          kopa = models.Kopa.getReference(event.data.data.id)
+          kopa = models.Kopa.getReference(data.model.id)
           this.goTo(kopa)
           StateManager.getInstance().pushState()
           break
         case "predlozhenieAdd":
-          kopa = models.Kopa.getReference(event.data.data.place_id)
+          kopa = models.Kopa.getReference(data.model.place_id)
           this.goTo(kopa)
           StateManager.getInstance().pushState()
           break
         case "slovoAdd":
-          kopa = models.Kopa.getReference(event.data.data.place_id)
+          kopa = models.Kopa.getReference(data.model.place_id)
           this.goTo(kopa)
           StateManager.getInstance().pushState()
           break
@@ -144,14 +136,14 @@ export default class Application extends EventEmitter {
       this.pushSubscription= await this.registration.pushManager.subscribe({userVisibleOnly: true})
     }
     if (!this.pushSubscription){
-      throw new Error("Ошибка во время подписки на уведомления")
+      throw new Error("Ошибка во время подписки на события")
     }
 
     await this.addPushSubscription()
   }
 
   async addPushSubscription(){
-    await Connection.getInstance().session.call("api:Application.addPushSubscription", [JSON.stringify(this.pushSubscription.endpoint)])
+    await Connection.getInstance().session.call("api:Application.addPushSubscription", [this.pushSubscription])
   }
 
   /**
