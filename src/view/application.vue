@@ -91,15 +91,14 @@
             throw new Error("Неверный тип тела")
           }
           await this.model.body.joinedLoaded()
-          /**
-           * такой код работает хорошо всегда
-           * но что-то он мне перестал нравиться
-           * перенес в Scroller
 
-           if (this.model.state == Application.State.Main) {
-            $.scrollTop(this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id) || 0)
+          if (this.model.state == Application.State.Main) {
+            let SCROLL_ITEM = this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id)
+            if (SCROLL_ITEM) {
+              let scrollItem = models.RemoteModel.factory(SCROLL_ITEM)
+              await this.$refs.bodyView.setScrollItem(scrollItem)
+            }
           }
-           */
         }
       }
     },
@@ -122,6 +121,23 @@
       }
     },
     methods: {
+      async model_serviceWorkerMessage(event){
+        let data = event.data
+        switch (event.data.eventType) {
+          case "kopaAdd":
+
+            StateManager.getInstance().pushState()
+            break
+          case "predlozhenieAdd":
+          case "slovoAdd":
+            let type = event.data.eventType.match(/(.+)Add/)[1],
+              Type = type[0].toUpperCase() + type.substr(1)
+            await Promise.resolve()
+            await this.$refs.bodyView.setScrollItem(models[Type].getReference(data.model.id))
+            StateManager.getInstance().pushState()
+            break
+        }
+      },
       list_item_click(dom){
         Application.getInstance().goTo(dom)
         StateManager.getInstance().pushState()
@@ -177,7 +193,7 @@
             if (this.model.state == Application.State.Main) {
               result.body = await this.$refs.bodyView.getState()
             }
-            this.log.debug("state", result)
+//            this.log.debug("state", result)
             res(result)
           })
         })
@@ -190,7 +206,7 @@
         this.drawer = state.drawer
         await Promise.resolve(1)
         if (this.model.state == Application.State.Main) {
-          await this.$refs.bodyView.setState(state.body||{})
+          await this.$refs.bodyView.setState(state.body || {})
         }
       },
       debug(){
@@ -199,6 +215,7 @@
     },
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
+      this.model.on("serviceWorkerMessage", this.model_serviceWorkerMessage.bind(this))
       this.positions = new Map()
       this.positions.set(Application.State.Main, new Map())
       for (let each of models.RemoteModel.cache.keys()) {
@@ -257,13 +274,17 @@
        * решил уйти на хэши
        * такой метод более универсально при передаче ссылки с урстройства на устройства с разными форматами экрана
        */
-      window.addEventListener('scroll', _.debounce(async (e) => {
-        let state= await StateManager.getInstance().replaceState()
+      let deb = _.debounce(async(e) => {
+        let state = await StateManager.getInstance().replaceState()
 
         if (this.model.state == Application.State.Main && this.model.body && state.v.body) {
-          this.positions.get(Application.State.Main).get(this.model.body.constructor.name).set(this.model.body.id, state.v.body.hash)
+          this.positions.get(Application.State.Main).get(this.model.body.constructor.name).set(this.model.body.id, state.v.body.scroll)
         }
-      }, 1000))
+      }, 1000)
+
+      window.addEventListener('scroll', (e) => {
+//        deb(e)
+      })
     },
     async beforeDestroy(){
       /**

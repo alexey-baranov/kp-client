@@ -46,6 +46,14 @@ class RemoteModel extends EventEmitter {
     this.created = undefined;
   }
 
+  static factory(from){
+    let [type, id]= from.split(":"),
+      models= require("./index"),
+      result= models[type].getReference(id)
+
+    return result
+  }
+
   /**
    * Плоское представление объекта по правилам секвилизы для передачина на сервер
    */

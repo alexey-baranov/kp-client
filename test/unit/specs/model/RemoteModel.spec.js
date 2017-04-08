@@ -204,4 +204,10 @@ describe('RemoteModel', function () {
       assert.equal(zemla.attachments[0].id, 1, "zemla.attachments[0],id==1")
     })
   })
+
+  it.only('.factory()', async function () {
+    let kopnik2 = models.RemoteModel.factory("Kopnik:2")
+
+    assert.equal(kopnik2 == models.Kopnik.getReference(2), true, "kopnik2 instanceof models.Kopnik");
+  })
 })

@@ -104,7 +104,7 @@
 
   export default{
 //    mixins:[logMixin],
-    mixins: [require("./mixin/humanize")],
+    mixins: [require("./mixin/humanize"), require("./mixin/scroll")],
     name: "kopa",
     data() {
       return {
@@ -171,60 +171,46 @@
       }
     },
     methods: {
-      async getState(){
-        let topModel,
-          topModelOffset = Infinity,
-          screenOffset = $(document).scrollTop(),
-          isScrolled,
-          views = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView),
-          result = {}
-
-        for (let eachChild of views) {
-          let eachChildOffset = $(eachChild.$el).offset().top
-
-          if (eachChildOffset < screenOffset) {
-            isScrolled = true
-          }
-
-          /**
-           * на 50 рх ушло вверх экрана - это норм потому что там все равно кто когда сказал да кнопки
-           * это еще не значит что пользак прочитал это слово
-           */
-          if (screenOffset < eachChildOffset && eachChildOffset < topModelOffset) {
-            topModel = eachChild.model
-            topModelOffset = eachChildOffset
-          }
-        }
-
-        if (isScrolled) {
-          this.log.debug("getState() hash", topModel)
-          result.hash = topModel.constructor.name.toLowerCase() + topModel.id
-        }
-        return result
-      },
-      async setState(state){
-        if (state.hash) {
-          if (state.hash.match(/predlozhenie|slovo/)) {
-            let HASH = +state.hash.match(/(\d+)$/)[1]
+      getScrollItemViews(async = false){
+        if (async) {
+          return (async() => {
             if (!this.model.result) {
               await this.model.joinedLoadResult()
             }
             if (!this.model.dialog) {
               await this.model.joinedLoadDialog()
             }
-            await Promise.resolve(0)
-            let hashView = this.$refs[state.hash.match(/predlozhenie/) ? "result" : "dialog"].find(eachView => eachView.model.id == HASH)
-            if (hashView) {
-              this.log.debug("setState() hash", hashView.model, "offset", $(hashView.$el).offset().top)
-              $(document).scrollTop($(hashView.$el).offset().top)
-            }
-          }
+            await Promise.resolve()
+            let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView=>eachView)
+            return result
+          })()
+        }
+        else {
+          let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView)
+          return result
+        }
+      },
+      async getState(){
+        let scrollItem = this.getScrollItem(),
+          result = {}
+
+        if (scrollItem) {
+          result.scroll = scrollItem.constructor.name + ":" + scrollItem.id
+        }
+        return result
+      },
+      async setState(state) {
+        if (state.scroll) {
+          let scroll = models.RemoteModel.factory(state.scroll)
+
+          await this.model.joinedLoaded()
+          await this.setScrollItem(scroll)
         }
       },
       playSlovoAdd() {
         if (!mobile()) {
           let sound = new Audio("static/kopa/snd/slovoAdd.mp3")
-          sound.play()
+//          sound.play()
         }
       },
       view_modeChange(sender){
@@ -271,7 +257,7 @@
       holdBottom(){
         if (this.model.dialog[this.model.dialog.length - 1].owner == Application.getInstance().user ||
           $(document).scrollTop() + window.innerHeight + 20 >= $(document).height()) {
-          $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing')
+//          $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing')
         }
       },
       /**

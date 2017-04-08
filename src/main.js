@@ -28,7 +28,7 @@ log.methodFactory = function (methodName, logLevel, loggerName) {
 }
 log.setLevel(log.levels.TRACE); // Be sure to call setLevel method in order to apply plugin
 
-log.getLogger("StateManager").setLevel("info")
+// log.getLogger("StateManager").setLevel("info")
 log.getLogger("location.vue").setLevel("info")
 
 

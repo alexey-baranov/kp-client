@@ -18,30 +18,30 @@ export default class StateManager {
     return StateManager.instance
   }
 
-  async getState(){
-    let result= this.application.getState()
-    result.v= await this.applicationView.getState()
+  async getState() {
+    let result = this.application.getState()
+    result.v = await this.applicationView.getState()
 
     return result
   }
 
 
   param(state) {
-    const result = "?"+decodeURIComponent($.param(state))
+    const result = "?" + decodeURIComponent($.param(state))
     this.log.debug("url", result)
 
     return result
   }
 
   async pushState() {
-    let state= await this.getState()
+    let state = await this.getState()
     this.log.debug("pushState", state)
     history.pushState(null, Application.getInstance().title, this.param(state))
     return state
   }
 
   async replaceState() {
-    let state= await this.getState()
+    let state = await this.getState()
     this.log.debug("replaceState", state)
     history.replaceState(null, Application.getInstance().title, this.param(state))
     return state
@@ -51,15 +51,16 @@ export default class StateManager {
    * По урлу или объекту параметров
    * @param state
    */
-  popState(state) {
-    if (typeof state=="string"){
+  async popState(state) {
+    if (typeof state == "string") {
       state = state ? deparam(state) : {}
     }
     this.log.debug("popState", state)
 
-    let stop= this.application.setState(state)
+    let stop = this.application.setState(state)
 
     if (!stop) {
+      await Promise.resolve()
       this.applicationView.setState(state.v)
     }
   }
@@ -70,7 +71,7 @@ export default class StateManager {
    * то никаких state и title не будет
    */
   listen() {
-    window.onpopstate =  (event) =>{
+    window.onpopstate = (event) => {
       let query = location.search.substring(1)
       this.popState(query)
     }

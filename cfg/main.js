@@ -49,7 +49,7 @@ let config = {
       path: "ws"
     },
     "file-server": {
-      schema: "https",
+      schema: "http",
       host: "kopnik.org",
       port: "8484",
       "upload-path": "upload",

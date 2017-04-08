@@ -37,6 +37,8 @@ class Zemla extends RemoteModel {
      * @type {Kopa}
      */
     this.newKopa= null
+
+    this.joinedLoadKopi= join(this.loadKopi)
   }
 
   /**

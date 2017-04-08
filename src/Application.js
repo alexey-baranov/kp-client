@@ -115,19 +115,17 @@ export default class Application extends EventEmitter {
         case "kopaAdd":
           kopa = models.Kopa.getReference(data.model.id)
           this.goTo(kopa)
-          StateManager.getInstance().pushState()
           break
         case "predlozhenieAdd":
           kopa = models.Kopa.getReference(data.model.place_id)
           this.goTo(kopa)
-          StateManager.getInstance().pushState()
           break
         case "slovoAdd":
           kopa = models.Kopa.getReference(data.model.place_id)
           this.goTo(kopa)
-          StateManager.getInstance().pushState()
           break
       }
+      this.emit("serviceWorkerMessage", event)
     }
 
     this.log.debug("push subscription")

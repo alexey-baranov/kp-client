@@ -2,10 +2,10 @@
   <div :id="id" class="zemla">
     <ul class="list-group flex-column-reverse ">
       <li v-for="eachKopa of model.kopi" class="list-group-item no-color border-0 px-0 py-0 my-3">
-        <kopa-as-list-item class="w-100" :model="eachKopa"></kopa-as-list-item>
-        </lia>
+        <kopa-as-list-item :id="id+'_kopi_'+eachKopa.id" ref="kopi" class="w-100" :model="eachKopa"></kopa-as-list-item>
+      </li>
 
-        <!--новая копа-->
+      <!--новая копа-->
       <li class="list-group-item border-0 px-0">
         <kopa-as-submit v-if="starshinaNaZemle===null" :id="id+'_new'" class="w-100" :model="model.newKopa"
                         @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
@@ -28,6 +28,7 @@
   let models = require("../model")
 
   export default{
+      mixins: [require("./mixin/scroll")],
 //    mixins:[logMixin],
     name: "zemla",
     data() {
@@ -50,13 +51,38 @@
     },
     computed: {},
     methods: {
-      getState(){
-        return {
-            hash: "not implemented"
+      getScrollItemViews(async = false){
+        if (async) {
+          return (async() => {
+            if (!this.model.kopi) {
+              await this.model.joinedLoadKopi()
+            }
+            await Promise.resolve()
+            let result = [].concat(this.$refs.kopi).filter(eachView => eachView)
+            return result
+          })()
+        }
+        else {
+          let result = [].concat(this.$refs.kopi).filter(eachView => eachView)
+          return result
         }
       },
-      async setState(state){
+      getState(){
+        let scrollItem = this.getScrollItem(),
+          result = {}
 
+        if (scrollItem) {
+          result.scroll = scrollItem.constructor.name + ":" + scrollItem.id
+        }
+        return result
+      },
+      async setState(state){
+        if (state.scroll) {
+          let scroll = models.RemoteModel.factory(state.scroll)
+
+          await this.model.joinedLoaded()
+          await this.setScrollItem(scroll)
+        }
       },
       async scroll_load(){
         if (!this.model.areAllKopiLoaded && !this.areKopiLoaded) {
