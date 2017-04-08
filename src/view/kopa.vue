@@ -171,7 +171,7 @@
       }
     },
     methods: {
-      getScrollItemViews(async = false){
+      getScrollItemViews(async = false) {
         if (async) {
           return (async() => {
             if (!this.model.result) {
@@ -181,16 +181,21 @@
               await this.model.joinedLoadDialog()
             }
             await Promise.resolve()
-            let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView=>eachView)
+            let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView)
             return result
           })()
         }
         else {
-          let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView)
-          return result
+          if (this.model.result && this.model.dialog) {
+            let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView)
+            return result
+          }
+          else {
+            return undefined
+          }
         }
       },
-      async getState(){
+      getState(){
         let scrollItem = this.getScrollItem(),
           result = {}
 

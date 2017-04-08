@@ -23,6 +23,8 @@ class Zemla extends RemoteModel {
     this.parent = undefined;
     this.children = undefined;
     this.obshina = undefined;
+    this.scrollItem= null
+
 
     /**
      * Этот флаг выставвляется когда загружена самая первая копа и нет необходимости

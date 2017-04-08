@@ -18,9 +18,9 @@ export default class StateManager {
     return StateManager.instance
   }
 
-  async getState() {
+  getState() {
     let result = this.application.getState()
-    result.v = await this.applicationView.getState()
+    result.v = this.applicationView.getState()
 
     return result
   }
@@ -33,15 +33,15 @@ export default class StateManager {
     return result
   }
 
-  async pushState() {
-    let state = await this.getState()
+  pushState() {
+    let state = this.getState()
     this.log.debug("pushState", state)
     history.pushState(null, Application.getInstance().title, this.param(state))
     return state
   }
 
-  async replaceState() {
-    let state = await this.getState()
+  replaceState() {
+    let state = this.getState()
     this.log.debug("replaceState", state)
     history.replaceState(null, Application.getInstance().title, this.param(state))
     return state
@@ -60,8 +60,10 @@ export default class StateManager {
     let stop = this.application.setState(state)
 
     if (!stop) {
-      await Promise.resolve()
-      this.applicationView.setState(state.v)
+      // await Promise.resolve()
+      setImmediate(()=>{
+        this.applicationView.setState(state.v)
+      })
     }
   }
 

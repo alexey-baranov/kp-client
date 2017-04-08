@@ -107,8 +107,10 @@ self.addEventListener('notificationclick', function (event) {
             break
           case "predlozhenieAdd":
           case "predlozhenieState":
+            query = `body=Kopa:${data.model.place_id}&v[body][scroll]=Predlozhenie:${data.model.id}`
+            break
           case "slovoAdd":
-            query = "body=Kopa:" + data.model.place_id
+            query = `body=Kopa:${data.model.place_id}&v[body][scroll]=Slovo:${data.model.id}`
             break
         }
         return clients.openWindow('/?' + query)

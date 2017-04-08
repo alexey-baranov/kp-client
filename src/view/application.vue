@@ -52,6 +52,8 @@
 
 <script>
   let $ = require("jquery")(window)
+  import Vue from "vue"
+
   import Application from "../Application"
   import logMixin from "./mixin/log"
   import Notifier from "../Notifier"
@@ -91,14 +93,14 @@
             throw new Error("Неверный тип тела")
           }
           await this.model.body.joinedLoaded()
-
-          if (this.model.state == Application.State.Main) {
-            let SCROLL_ITEM = this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id)
-            if (SCROLL_ITEM) {
-              let scrollItem = models.RemoteModel.factory(SCROLL_ITEM)
-              await this.$refs.bodyView.setScrollItem(scrollItem)
-            }
-          }
+          /*
+           if (this.model.state == Application.State.Main) {
+           let SCROLL_ITEM = this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id)
+           if (SCROLL_ITEM) {
+           let scrollItem = models.RemoteModel.factory(SCROLL_ITEM)
+           await this.$refs.bodyView.setScrollItem(scrollItem)
+           }
+           }*/
         }
       }
     },
@@ -121,6 +123,11 @@
       }
     },
     methods: {
+      async model_restoreScrollItem(){
+        setImmediate(()=>{
+          this.$refs.bodyView.setScrollItem(this.model.body.scrollItem)
+        })
+      },
       async model_serviceWorkerMessage(event){
         let data = event.data
         switch (event.data.eventType) {
@@ -138,8 +145,9 @@
             break
         }
       },
-      list_item_click(dom){
-        Application.getInstance().goTo(dom)
+      async list_item_click(dom){
+        Application.getInstance().goTo(dom, true)
+        await Promise.resolve()
         StateManager.getInstance().pushState()
       },
       toggle () {
@@ -185,18 +193,13 @@
        * происходят на следующий тик
        */
       getState(){
-        return new Promise((res, rej) => {
-          let result = {
-            drawer: this.drawer
-          }
-          setImmediate(async() => {
-            if (this.model.state == Application.State.Main) {
-              result.body = await this.$refs.bodyView.getState()
-            }
-//            this.log.debug("state", result)
-            res(result)
-          })
-        })
+        let result = {
+          drawer: this.drawer
+        }
+        if (this.model.state == Application.State.Main) {
+          result.body = this.$refs.bodyView.getState()
+        }
+        return result
       },
       async setState(state){
         this.log.debug("state", state)
@@ -216,11 +219,7 @@
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
       this.model.on("serviceWorkerMessage", this.model_serviceWorkerMessage.bind(this))
-      this.positions = new Map()
-      this.positions.set(Application.State.Main, new Map())
-      for (let each of models.RemoteModel.cache.keys()) {
-        this.positions.get(Application.State.Main).set(each, new Map())
-      }
+      this.model.on("restoreScrollItem", this.model_restoreScrollItem.bind(this))
 
       if (this.model.user) {
         this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
@@ -276,14 +275,10 @@
        */
       let deb = _.debounce(async(e) => {
         let state = await StateManager.getInstance().replaceState()
-
-        if (this.model.state == Application.State.Main && this.model.body && state.v.body) {
-          this.positions.get(Application.State.Main).get(this.model.body.constructor.name).set(this.model.body.id, state.v.body.scroll)
-        }
       }, 1000)
 
       window.addEventListener('scroll', (e) => {
-//        deb(e)
+        deb(e)
       })
     },
     async beforeDestroy(){

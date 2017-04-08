@@ -20,6 +20,7 @@ class Kopa extends RemoteModel {
     this.invited = undefined;
     this.dialog = undefined;
     this.result = undefined;
+    this.scrollItem= null
 
     /**
      * Это поле нужно исключительно для нужд kopa.vue

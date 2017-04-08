@@ -39,9 +39,13 @@ export default class Application extends EventEmitter {
     return Application.instance
   }
 
-  goTo(value) {
+  goTo(value, restoreScrollItem= false) {
     this.state = Application.State.Main
     this.setBody(value)
+
+    if (restoreScrollItem){
+      this.emit("restoreScrollItem")
+    }
   }
 
   setBody(value) {

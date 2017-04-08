@@ -34,10 +34,11 @@
       "predlozhenie-as-internal-list-item": require("./predlozhenie-as-internal-list-item.vue")
     },
     methods: {
-      question_click(){
-        Application.getInstance().goTo(this.model)
+      async question_click(){
+        Application.getInstance().goTo(this.model, true)
+        await Promise.resolve()
         StateManager.getInstance().pushState()
-      },
+      }
     },
     created() {
       this.log = require("loglevel").getLogger(this.$options.name+".vue")

@@ -12,10 +12,11 @@
     name: "zemla-as-link",
     props: ["id", "model", "target"],
     methods: {
-      a_click(e) {
+      async a_click(e) {
 //        e.stopPropagation()
         if (this.target != '_blank') {
-          Application.getInstance().goTo(this.model)
+          Application.getInstance().goTo(this.model, true)
+          await Promise.resolve()
           StateManager.getInstance().pushState()
           e.preventDefault()
         }

@@ -28,7 +28,7 @@
   let models = require("../model")
 
   export default{
-      mixins: [require("./mixin/scroll")],
+    mixins: [require("./mixin/scroll")],
 //    mixins:[logMixin],
     name: "zemla",
     data() {
@@ -63,11 +63,17 @@
           })()
         }
         else {
-          let result = [].concat(this.$refs.kopi).filter(eachView => eachView)
-          return result
+          if (this.model.kopi) {
+            let result = [].concat(this.$refs.kopi).filter(eachView => eachView)
+            return result
+          }
+          else {
+            return undefined
+          }
         }
       },
-      getState(){
+
+      getState(recalculate = false){
         let scrollItem = this.getScrollItem(),
           result = {}
 
@@ -76,7 +82,7 @@
         }
         return result
       },
-      async setState(state){
+      async setState(state) {
         if (state.scroll) {
           let scroll = models.RemoteModel.factory(state.scroll)
 

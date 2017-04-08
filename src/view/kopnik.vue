@@ -1,10 +1,12 @@
 <template>
   <div class="kopnik">
     <div v-if="model.dom" class="dom">
-      Дом: <location class="bg-none" target="_blank" full="true" :model="model.dom"></location>
+      Дом:
+      <location class="bg-none" target="_blank" full="true" :model="model.dom"></location>
     </div>
     <div v-if="model.starshina" class="starshina mt-3">
-      Старшина: <kopnik-as-link target="_blank" :model="model.starshina"></kopnik-as-link>
+      Старшина:
+      <kopnik-as-link target="_blank" :model="model.starshina"></kopnik-as-link>
     </div>
     <div class="druzhina mt-3">
       <div style="cursor:pointer" @click="onDruzhinaToggle()">
@@ -13,17 +15,17 @@
         Дружина ({{model.voiskoSize}}):
       </div>
       <ul class="list-group mt-2" v-show="druzhinaDisplay">
-        <li class="list-group-item border-0 py-0" v-for="eachDruzhe of model.druzhina" >
+        <li class="list-group-item border-0 py-0" v-for="eachDruzhe of model.druzhina">
           <kopnik-as-druzhe class="w-100" :model="eachDruzhe"></kopnik-as-druzhe>
         </li>
       </ul>
     </div>
-      <template v-if="user!= model">
-        <button class="btn btn-block btn-primary mt-5" @click="starshina_click">
-          {{user.starshina != model?"Выбрать копника старшиной":"Выйти из дружины копника"}}
-        </button>
-      </template>
-    </div>
+    <template v-if="user!= model">
+      <button class="btn btn-block btn-primary mt-5" @click="starshina_click">
+        {{user.starshina != model?"Выбрать копника старшиной":"Выйти из дружины копника"}}
+      </button>
+    </template>
+  </div>
   </div>
 </template>
 
@@ -62,13 +64,16 @@
       }
     },
     created() {
-      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
       this.loadModel();
     },
-    computed: {
-
-    },
+    computed: {},
     methods: {
+      getState(){
+        return {}
+      },
+      async setState(){
+      },
       loadModel: async function () {
         await this.model.joinedLoaded();
       },
@@ -105,7 +110,7 @@
     cursor: pointer;
   }
 
-  li{
+  li {
     cursor: pointer;;
   }
 </style>
