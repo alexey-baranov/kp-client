@@ -64,6 +64,7 @@ export default class Application extends EventEmitter {
    *  data: {id, quesion, owner_id, ...}
    * }
    */
+/* заменено пушами
   async subscribeToNotifications() {
     await Connection.getInstance().session.subscribe("api:Application.notification", async(args, kwargs) => {
       try {
@@ -84,7 +85,7 @@ export default class Application extends EventEmitter {
       }
     })
   }
-
+*/
   async registerServiceWorker() {
     this.registration = await serviceWorkerWebpackPluginRuntime.register()
     // await registration.update()
@@ -184,7 +185,7 @@ export default class Application extends EventEmitter {
             session.prefix('api', 'ru.kopa')
             this.user = await models.Kopnik.getByEmail(details.authid)
             this.log.info("user", this.user)
-            await this.subscribeToNotifications()
+            // await this.subscribeToNotifications()
             // registerServiceWorker() улетело в connection.onopen потому что там в конце когда подкиска на пуши должна пройти синхронизация с сервером
             await this.registerServiceWorker()
             this.emit("connectionOpen")

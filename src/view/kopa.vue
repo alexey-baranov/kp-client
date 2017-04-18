@@ -239,10 +239,10 @@
           }
           await current.joinedLoaded()
           if (!current.result) {
-            await current.loadResult()
+            await current.joinedLoadResult()
           }
           if (!current.dialog) {
-            await current.loadDialog()
+            await current.joinedLoadDialog()
           }
 
           current.on(models.Kopa.event.slovoAdd, this.bindedHoldBottom)
@@ -260,9 +260,10 @@
        *  во всех остальных случаях только если я стою в самом низу
        */
       holdBottom(){
-        if (this.model.dialog[this.model.dialog.length - 1].owner == Application.getInstance().user ||
+          let user= Application.getInstance().user
+        if (this.model.dialog[this.model.dialog.length - 1].owner == user ||
           $(document).scrollTop() + window.innerHeight + 20 >= $(document).height()) {
-//          $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing')
+          $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing')
         }
       },
       /**

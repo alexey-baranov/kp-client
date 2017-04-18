@@ -43,7 +43,7 @@
     created() {
       this.log = require("loglevel").getLogger(this.$options.name+".vue")
       this.model.joinedLoaded()
-      if (!this.model.result) this.model.loadResult()
+      if (!this.model.result) this.model.joinedLoadResult()
     }
   }
 </script>

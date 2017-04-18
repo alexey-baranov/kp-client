@@ -73,7 +73,7 @@ describe('Kopnik', function () {
   it('#getStarshinaNaZemle()', async function () {
     let kopnik6 = await models.Kopnik.get(6);
     let starshinaNaZemle = await kopnik6.getStarshinaNaZemle(models.Zemla.getReference(4))
-    assert.equal(starshinaNaZemle===null, true, "starshinaNaZemle, null");
+    assert.equal(starshinaNaZemle === null, true, "starshinaNaZemle, null");
 
     starshinaNaZemle = await kopnik6.getStarshinaNaZemle(models.Zemla.getReference(1))
     assert.equal(starshinaNaZemle instanceof models.Kopnik, true, "starshinaNaZemle instanceof Kopnik");
@@ -337,10 +337,196 @@ describe('Kopnik', function () {
     });
   })
 
+  describe.only("#setStarshina() voting starshina", function () {
+    let starshina1,
+      starshina2,
+      druzhe,
+      predlozhenie1,
+      predlozhenie2,
+      predlozhenie3;
+
+    before(function () {
+      this.timeout(10000);
+      return new Promise(async(res, rej) => {
+        starshina1 = await models.Kopnik.create({
+          email: "unittestQ@domain.ru1" + new Date().getTime(),
+          name: "unit test setStarshina+voting predlozhenie",
+          surname: "starshina1",
+          patronymic: "temp",
+          birth: 1900,
+          passport: "1234",
+          dom: models.Zemla.getReference(1),
+        });
+        starshina2 = await models.Kopnik.create({
+          email: "unittestQ@domain.ru2" + new Date().getTime(),
+          name: "unit test setStarshina+voting predlozhenie",
+          surname: "starshina2",
+          patronymic: "temp",
+          birth: 1900,
+          passport: "1234",
+          dom: models.Zemla.getReference(1),
+        })
+        druzhe = await models.Kopnik.create({
+          email: "unittestQ@domain.rud" + new Date().getTime(),
+          name: "unit test setStarshina+voting predlozhenie",
+          surname: "druzhe",
+          patronymic: "temp",
+          birth: 1900,
+          passport: "1234",
+          dom: models.Zemla.getReference(4),
+        });
+
+        predlozhenie1 = await models.Predlozhenie.create({
+          value: "unit test setStarshina+voting predlozhenie 1",
+          place: models.Kopa.getReference(7),
+          owner: starshina1,
+        });
+        ;
+        predlozhenie1.golosa = []
+        predlozhenie2 = await models.Predlozhenie.create({
+          value: "unit test setStarshina+voting predlozhenie 2",
+          place: models.Kopa.getReference(7),
+          owner: starshina2
+        });
+        predlozhenie2.golosa = []
+        predlozhenie3 = await models.Predlozhenie.create({
+          value: "unit test setStarshina+voting predlozhenie 3",
+          place: models.Kopa.getReference(8),
+          owner: druzhe
+        });
+        predlozhenie3.golosa = [];
+
+        let i = 0
+        predlozhenie1.once(models.Predlozhenie.event.rebalance, () => {
+          if (++i == 3) {
+            console.log("very interesting")
+            res()
+          }
+        })
+        predlozhenie2.once(models.Predlozhenie.event.rebalance, () => {
+          if (++i == 3) {
+            res()
+          }
+        })
+        predlozhenie3.once(models.Predlozhenie.event.rebalance, () => {
+          if (++i == 3) {
+            res();
+          }
+        })
+
+        // predlozhenie4 = await models.Predlozhenie.get(4)
+        await starshina1.vote(predlozhenie1, 1)
+        await druzhe.vote(predlozhenie1, -1)
+
+        await starshina2.vote(predlozhenie2, 1)
+        await druzhe.vote(predlozhenie2, -1)
+
+        await druzhe.vote(predlozhenie3, -1)
+        // await druzhe.vote(predlozhenie4, -1);;
+
+        // predlozhenie4.once(models.Predlozhenie.event.rebalance, () => {
+        //   if (++i == 3) {
+        //     res()
+        //   }
+        // })
+      })
+    })
+
+    /**
+     * выбираю старшиной первого старшину
+     */
+    it('should emit rebalance on new starshina', function (done) {
+      (async() => {
+        try {
+          let i = 0;
+          //2. поймал событие что произошёл ребаланс предложения
+          predlozhenie1.once(models.Predlozhenie.event.rebalance, async() => {
+            try {
+              expect(predlozhenie1.totalZa).equal(2, "predlozhenie1.totalZa")
+              expect(predlozhenie1.golosa.length).equal(1, "predlozhenie1.golosa.length")
+              expect(predlozhenie3.totalZa).equal(1)
+            }
+            catch (err) {
+              done(err)
+            }
+            if (++i == 2) {
+              done();
+            }
+          })
+          //2. поймал событие что произошёл ребаланс предложения
+          predlozhenie2.once(models.Predlozhenie.event.rebalance, async() => {
+            try {
+              expect(predlozhenie2.totalZa).equal(1, "predlozhenie2.totalZa")
+              expect(predlozhenie2.golosa.length).equal(1, "predlozhenie2.golosa.length")
+              expect(predlozhenie3.totalZa).equal(1)
+            }
+            catch (err) {
+              done(err)
+            }
+            if (++i == 2) {
+              done();
+            }
+          })
+
+          //1. выбрал старшиной первого
+          await druzhe.setStarshina(starshina1)
+        }
+        catch (err) {
+          done(err)
+        }
+      })()
+    })
+
+    /**
+     * выбираю старшиной второго старшину
+     */
+    it('should emit rebalance prev starshina', function (done) {
+      (async() => {
+        try {
+          let i = 0;
+          //2. поймал событие что произошёл ребаланс предложения1
+          predlozhenie1.once(models.Predlozhenie.event.rebalance, async() => {
+            try {
+              expect(predlozhenie1.totalZa).equal(1, "predlozhenie1.totalZa")
+              expect(predlozhenie1.golosa.length).equal(1, "predlozhenie1.golosa.length")
+              expect(predlozhenie3.totalZa).equal(1, "predlozhenie3.totalZa")
+              if (++i == 2) {
+                done();
+              }
+            }
+            catch (err) {
+              done(err)
+            }
+          })
+          //3. поймал событие что произошёл ребаланс предложения2
+          predlozhenie2.once(models.Predlozhenie.event.rebalance, async() => {
+            try {
+              expect(predlozhenie2.totalZa).equal(2, "predlozhenie2.totalZa")
+              expect(predlozhenie2.golosa.length).equal(1, "predlozhenie2.golosa.length")
+              expect(predlozhenie3.totalZa).equal(1, "dlozhenie3.totalZa")
+              if (++i == 2) {
+                done();
+              }
+            }
+            catch (err) {
+              done(err)
+            }
+          })
+          //1. выбрал старшиной первого
+          await druzhe.setStarshina(starshina2)
+        }
+        catch (err) {
+          done(err)
+        }
+      })()
+    })
+  })
+
   describe("#vote()", function () {
     let kopnik2,
       somePredlozhenie,
       kopa3;
+    ;
 
     before(async function () {
       kopnik2 = await models.Kopnik.get(KOPNIK2);
@@ -364,25 +550,25 @@ describe('Kopnik', function () {
       (async function () {
         try {
           let listener,
-            eventNumber = -1;
+            eventNumber = 1;
 
           somePredlozhenie.on(models.Predlozhenie.event.rebalance, listener = function () {
             try {
               switch (eventNumber--) {
-                case -1:
+                case 1:
                   assert.equal(somePredlozhenie.totalZa, 3, "somePredlozhenie.totalZa, 3");
                   assert.equal(somePredlozhenie.totalProtiv, 0, "somePredlozhenie.totalProtiv, 0");
                   assert.equal(somePredlozhenie.golosa.length, 1, "somePredlozhenie.golosa.length, 1");
                   assert.equal(somePredlozhenie.golosa[0] instanceof models.Golos, true, "somePredlozhenie.golosa[0] instanceof models.Golos, true");
                   // somePredlozhenie.removeListener(listener); не работает
-                  done();
+                  done()
                   break;
                 case 0:
                   assert.equal(somePredlozhenie.totalZa, 0, "somePredlozhenie.totalZa, 0");
                   assert.equal(somePredlozhenie.totalProtiv, 0, "somePredlozhenie.totalProtiv, 0");
                   assert.equal(somePredlozhenie.golosa.length, 0, "somePredlozhenie.golosa.length, 0");
                   break;
-                case 1:
+                case -1:
                   assert.equal(somePredlozhenie.totalZa, 0, "somePredlozhenie.totalZa, 0");
                   assert.equal(somePredlozhenie.totalProtiv, 3, "somePredlozhenie.totalProtiv, 3");
                   assert.equal(somePredlozhenie.golosa.length, 1, "somePredlozhenie.golosa.length, 1");
@@ -403,9 +589,10 @@ describe('Kopnik', function () {
         catch (err) {
           done(err);
         }
-      })();;
+      })();
+      ;
     })
-  })
+  });
 
   describe("#verifyRegistration()", function () {
     this.timeout(5000)

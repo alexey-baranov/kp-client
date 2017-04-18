@@ -181,7 +181,7 @@ class Kopnik extends RemoteModel {
     await Connection.getInstance().session.call("api:model.Kopnik.setStarshina", null, {
       KOPNIK: this.id,
       STARSHINA: value ? value.id : null
-    }, {disclose_me: true});
+    }, {disclose_me: true})
     // this.starshina = value;
     this.emit(Kopnik.event.starshinaChange, this);
   }
@@ -204,8 +204,17 @@ class Kopnik extends RemoteModel {
     return this.result;
   }
 
+  /**
+   * 1 - ЗА
+   * 0 - воздержался
+   * -1  ПРОТИВ
+   * @param subject
+   * @param value
+   * @return {Promise.<*>}
+   */
   async vote(subject, value) {
     let result = await Connection.getInstance().session.call("api:model.Kopnik.vote", null, {
+      KOPNIK: this.id,
       SUBJECT: subject.id,
       value: value
     }, {disclose_me: true});

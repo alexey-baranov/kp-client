@@ -151,7 +151,7 @@ describe('RemoteModel', function () {
           place: models.Kopa.getReference(KOPA),
           owner: models.Kopnik.getReference(KOPNIK2),
           value: "temp " + new Date().getTime(),
-        })
+        });
       })()
     })
   })
@@ -205,7 +205,7 @@ describe('RemoteModel', function () {
     })
   })
 
-  it.only('.factory()', async function () {
+  it('.factory()', async function () {
     let kopnik2 = models.RemoteModel.factory("Kopnik:2")
 
     assert.equal(kopnik2 == models.Kopnik.getReference(2), true, "kopnik2 instanceof models.Kopnik");

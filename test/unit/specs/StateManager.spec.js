@@ -45,7 +45,7 @@ describe('StateManager', function () {
   })
 
   beforeEach(() => {
-    applicationView.propsDdata = {
+    applicationView.propsData = {
       id: "a",
       model: new Application()
     }
@@ -55,10 +55,11 @@ describe('StateManager', function () {
     stateManager.applicationView= new Vue(applicationView)
   })
 
-  it('#getState()', function () {
+  it('#getState()', async function () {
     stateManager.application.state = Application.State.Main
-    stateManager.application.body = models.Kopnik.getReference(1)
+    stateManager.application.goTo(models.Kopnik.getReference(1))
 
+    await Promise.resolve()
     const state = stateManager.getState()
 
     expect(state).a("object", "state")

@@ -49,9 +49,9 @@ let config = {
       path: "ws"
     },
     "file-server": {
-      schema: "http",
+      schema: "https",
       host: "kopnik.org",
-      port: "8484",
+      port: "443",
       "upload-path": "upload",
       "download-path": "download"
     },

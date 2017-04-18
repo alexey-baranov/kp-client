@@ -13,7 +13,7 @@ let _ = require("lodash");
 let connection = require("../../../../src/Connection").default.getUnitTestInstance()
 let Cleaner = require("../../../../src/Cleaner")
 
-describe('hack', function () {
+describe.skip('hack', function () {
   this.timeout(5000)
   before(function () {
     models.RemoteModel.clearCache()

@@ -204,7 +204,7 @@
       async setState(state){
         this.log.debug("state", state)
         if (!state) {
-          state = {}
+          state = {};
         }
         this.drawer = state.drawer
         await Promise.resolve(1)

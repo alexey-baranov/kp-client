@@ -33,7 +33,7 @@ describe('Application', function () {
     })
   })
 
-  describe("notifications", function () {
+  describe.skip("deprecated: notifications", function () {
     this.timeout(5000)
     let kopa
 
@@ -86,7 +86,7 @@ describe('Application', function () {
         value: "unit test application.on(slovoAdd, ...)",
         place: kopa,
         owner: models.Kopnik.getReference(2),
-      })
+      });
     })
 
   })

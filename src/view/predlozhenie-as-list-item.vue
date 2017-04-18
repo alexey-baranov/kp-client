@@ -55,7 +55,7 @@
       <div class="btn-group w-100" role="group">
         <button class="btn btn-success d-flex justify-content-between w-100" :disabled="model.state>0"
                 @click.prevent="za_click">
-          <span>{{model.totalZa}}</span><span>За</span><span v-if="zemlaLoaded">({{model.totalZa/model.place.place.obshinaSize*100}}%)</span>
+          <span>{{model.totalZa}}</span><span>За</span><span v-if="zemlaLoaded">({{model.totalZa/model.place.place.obshinaSize | percents}}%)</span>
         </button>
         <button class="btn btn-success" data-toggle="collapse" :href="`#${id}_voted_za`">
           <i class="material-icons" title="Показать голосовавших">expand_more</i>
@@ -75,7 +75,7 @@
       <div class="btn-group w-100" role="group">
         <button class="btn btn-danger d-flex justify-content-between w-100 flex-row" :disabled="model.state>0"
                 @click.prevent="protiv_click">
-          <span>{{model.totalProtiv}}</span><span>Против</span><span v-if="zemlaLoaded">({{model.totalProtiv/model.place.place.obshinaSize*100}}%)</span>
+          <span>{{model.totalProtiv}}</span><span>Против</span><span v-if="zemlaLoaded">({{model.totalProtiv/model.place.place.obshinaSize | percents}}%)</span>
         </button>
         <button class="btn btn-danger" data-toggle="collapse" :href="`#${id}_voted_protiv`">
           <i class="material-icons" title="Показать голосовавших">expand_more</i>

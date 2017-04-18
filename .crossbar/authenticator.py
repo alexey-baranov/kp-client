@@ -85,7 +85,7 @@ class AuthenticatorSession(ApplicationSession):
 
                 qs = {'secret': config.get('captcha').get('secret'), 'response': captcha}
 
-                #у unittest2 капча не проверяется для того чтобы иметь возможность подключаться внутри юниттестов
+                #unittest2 captcha does not test to be able unit test
                 if not (authid == config.get('unittest2').get('username') and captcha is None):
                     r = requests.post(captcha_url, data=qs)
                     if r.status_code == requests.codes.ok:
@@ -109,9 +109,9 @@ class AuthenticatorSession(ApplicationSession):
 
                 rowcount = cursor.rowcount
 
-                # юзвера нет в бд
+                # no user in databese
                 if rowcount == 0:
-                    raise ApplicationError("org.kopnik.incorrect_username_or_password", "Incorrect username or password {}".format(authid))
+                    raise ApplicationError(u"org.kopnik.incorrect_username_or_password", "Incorrect username or password {}".format(authid))
 
                 for item in cursor.fetchall():
                     if bcrypt.hashpw(bytes(ticket), item[0]) == item[0]:
@@ -120,7 +120,7 @@ class AuthenticatorSession(ApplicationSession):
                         return unicode(item[1])
                         #return u'kopnik'
 
-                raise ApplicationError("org.kopnik.incorrect_username_or_password", "Incorrect username or password {}".format(authid))
+                raise ApplicationError(u"org.kopnik.incorrect_username_or_password", "Incorrect username or password {}".format(authid))
 
 
             except Exception as e:
@@ -130,7 +130,8 @@ class AuthenticatorSession(ApplicationSession):
                 raise e
 
         try:
-            yield self.register(authenticate, 'org.kopnik.authenticate')
+            yield self.register(authenticate, u'org.kopnik.authenticate')
             print("WAMP-Ticket dynamic authenticator registered!")
         except Exception as e:
-            print("Failed to register dynamic authenticator: {0}".format(e))
+            self.log.failure()
+            #print(u"Failed to register dynamic authenticator: {0}".format(e))

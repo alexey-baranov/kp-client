@@ -21,7 +21,7 @@ self.addEventListener('push', function (event) {
         body: data.model.question,
         tag: 'kopa:' + data.model.id,
         data: data,
-        icon: "static/sw/kopaAdd.jpg",
+        icon: "static/sw/kopaAdd.png",
         vabrate: [5000, 1000, 5000]
       })
       break
