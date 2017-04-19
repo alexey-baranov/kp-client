@@ -47,7 +47,6 @@ import StateManager from './StateManager'
 
 let models = global.models = require("./model")
 
-
 // alert(window.innerWidth+"x"+window.innerHeight)
 
 Vue.use(MuseUI)

@@ -1,56 +1,62 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <script>
-      if (location.protocol != 'https:' && location.href.indexOf("localhost")==-1) {
-        //location.href = 'https:' + location.href.substring(window.location.protocol.length);
-      }
-    </script>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+  <script>
+    if (location.protocol != 'https:' && location.href.indexOf("localhost") == -1) {
+      let href = 'https:' + location.href.substring(window.location.protocol.length);
+      alert(href)
+      location.href = href
+    }
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>kopnik.org</title>
+  <title>kopnik.org</title>
 
-    <!--muse-ui-->
-    <link rel="stylesheet" href="static/muse-ui/muse-ui.css">
+  <!--muse-ui-->
+  <link rel="stylesheet" href="static/muse-ui/muse-ui.css">
 
-    <!--BOOTSTRAP!! Copy-paste the stylesheet <link> into your <head> before all other stylesheets to load our CSS.-->
-    <!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">-->
-    <link rel="stylesheet" href="static/bootstrap/bootstrap.min.css">
-
-
-    <!-- Latest compiled and minified CSS -->
-    <!--vue-strap requires v3.x-->
-    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">     -->
+  <!--BOOTSTRAP!! Copy-paste the stylesheet <link> into your <head> before all other stylesheets to load our CSS.-->
+  <!--<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">-->
+  <link rel="stylesheet" href="static/bootstrap/bootstrap.min.css">
 
 
-    <!--material icon http://google.github.io/material-design-icons/#getting-icons-->
-    <!--<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
-    <link href="static/material-icons/material-icons.css" rel="stylesheet">
+  <!-- Latest compiled and minified CSS -->
+  <!--vue-strap requires v3.x-->
+  <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">     -->
 
-    <!--roboto-->
-    <!--<link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic" rel="stylesheet">-->
-    <link href="static/roboto/roboto.css" rel="stylesheet">
 
-    <!--Google recaptcha-->
-    <script src="https://www.google.com/recaptcha/api.js??render=explicit" async defer></script>
+  <!--material icon http://google.github.io/material-design-icons/#getting-icons-->
+  <!--<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+  <link href="static/material-icons/material-icons.css" rel="stylesheet">
 
-    <!--FCM manifest-->
-    <link rel="manifest" href="static/manifest.json">
-  </head>
-  <body>
-    <div id="application"></div>
-    <!--BOOTSTRAP!! Add our JavaScript plugins, jQuery, and Tether near the end of your pages, right before the closing </body >-->
-    <!--<script src="http://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>-->
-    <!--<script src="http://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>-->
-    <!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>-->
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.js" crossorigin="anonymous"></script>-->
+  <!--roboto-->
+  <!--<link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic" rel="stylesheet">-->
+  <link href="static/roboto/roboto.css" rel="stylesheet">
 
-        <script src="static/bootstrap/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
-        <script src="static/bootstrap/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-        <script src="static/bootstrap/bootstrap.min.js" crossorigin="anonymous"></script>
-        <script src="static/bootstrap/bootstrap3-typeahead.js"></script>
+  <!--Google recaptcha-->
+  <script src="https://www.google.com/recaptcha/api.js??render=explicit" async defer></script>
 
-    <!-- built files will be auto injected -->
-  </body>
+  <!--FCM manifest-->
+  <link rel="manifest" href="static/manifest.json">
+</head>
+<body>
+<div id="application"></div>
+<!--BOOTSTRAP!! Add our JavaScript plugins, jQuery, and Tether near the end of your pages, right before the closing </body >-->
+<!--<script src="http://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>-->
+<!--<script src="http://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>-->
+<!--<script src="http://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.js" crossorigin="anonymous"></script>-->
+
+<script src="static/bootstrap/jquery-3.1.1.slim.min.js"
+        integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
+        crossorigin="anonymous"></script>
+<script src="static/bootstrap/tether.min.js"
+        integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+        crossorigin="anonymous"></script>
+<script src="static/bootstrap/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="static/bootstrap/bootstrap3-typeahead.js"></script>
+
+<!-- built files will be auto injected -->
+</body>
 </html>

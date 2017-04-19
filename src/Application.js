@@ -64,28 +64,6 @@ export default class Application extends EventEmitter {
    *  data: {id, quesion, owner_id, ...}
    * }
    */
-/* заменено пушами
-  async subscribeToNotifications() {
-    await Connection.getInstance().session.subscribe("api:Application.notification", async(args, kwargs) => {
-      try {
-        switch (kwargs.eventType) {
-          case models.Zemla.event.kopaAdd:
-            this.emit(models.Zemla.event.kopaAdd, models.Kopa.getReference(kwargs.data.id))
-            break;
-          case models.Kopa.event.predlozhenieAdd:
-            this.emit(models.Kopa.event.predlozhenieAdd, models.Predlozhenie.getReference(kwargs.data.id))
-            break;
-          case models.Kopa.event.slovoAdd:
-            this.emit(models.Kopa.event.slovoAdd, models.Slovo.getReference(kwargs.data.id))
-            break;
-        }
-      }
-      catch (err) {
-        Grumbler.getInstance().pushError(err)
-      }
-    })
-  }
-*/
   async registerServiceWorker() {
     this.registration = await serviceWorkerWebpackPluginRuntime.register()
     // await registration.update()
@@ -159,7 +137,7 @@ export default class Application extends EventEmitter {
      * перед авторизацией сбрасываем предыдущие конекшены, которые могут быть с пустыми логинами от куки-заходов
      */
     if (Connection._instance && Connection._instance.isOpen) {
-      throw new Error("Повторная авторизация")
+      throw new Error("Повторная авторизация. Приложение уже авторизовано")
     }
     else {
       Connection._instance = null
@@ -184,9 +162,13 @@ export default class Application extends EventEmitter {
           if (!this.user) {
             session.prefix('api', 'ru.kopa')
             this.user = await models.Kopnik.getByEmail(details.authid)
-            this.log.info("user", this.user)
+            this.log.info("user auth", this.user)
             // await this.subscribeToNotifications()
-            // registerServiceWorker() улетело в connection.onopen потому что там в конце когда подкиска на пуши должна пройти синхронизация с сервером
+            /**
+             * registerServiceWorker() прилетело сюда в connection.onopen()
+             * потому что там в конце, когда идет подкиска на пуши, должна пройти синхронизация с сервером
+             * TODO: подумать а почему нельзя оставить здесь только подписку на уведомления, а регистрацию сервис воркера делать один раз
+             */
             await this.registerServiceWorker()
             this.emit("connectionOpen")
             res(this.user)
@@ -199,12 +181,11 @@ export default class Application extends EventEmitter {
 
       connection.onclose = async(reason, details) => {
         this.log.info("connection closed. reason:", reason, ", details: ", details)
-        // alert("connection closed. reason:" + reason + " details: " + JSON.stringify(details))
-
         /**
          * fail auth
          * если auth уже прошел, то Promise завершился успешно и reject ни к чему не приведет
          */
+        //эта секция для кроссбара 0.13
         if (details.reason == 'wamp.error.authentication_failed') {
           if (details.message.indexOf("org.kopnik.invalid_captcha_status_code") != -1) {
             rej(new AuthenticationError("Вы не прошли Антибот-проверку - проверка временно невозможна"))
@@ -219,11 +200,22 @@ export default class Application extends EventEmitter {
             rej(new AuthenticationError(reason + ", " + details.message))
           }
         }
+        //эта секция для кросбара 17.3
+        else if (details.reason.indexOf("org.kopnik.invalid_captcha_status_code") != -1) {
+          rej(new AuthenticationError("Вы не прошли Антибот-проверку - проверка временно невозможна"))
+        }
+        else if (details.reason.indexOf("org.kopnik.invalid_captcha") != -1) {
+          rej(new AuthenticationError("Вы не прошли Антибот-проверку"))
+        }
+        else if (details.reason.indexOf("incorrect_username_or_password") != -1) {
+          rej(new AuthenticationError("Неверное имя пользователя или пароль"))
+        }
+        //ниже для обоих кросбаров 0.13 и 17.3
         else if (reason == 'unreachable') {
           rej(new Error("Сервер обмена данными недоступен. Попробуйте зайти позже."))
         }
         else {
-          rej(new Error((reason ? (reason + ", ") : "") + details.message))
+          rej(new Error((reason ? (reason + ", ") : "") + "reason: "+details.reason+", message: "+ details.message))
         }
 
         this.user = null
