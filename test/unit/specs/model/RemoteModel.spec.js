@@ -159,7 +159,7 @@ describe('RemoteModel', function () {
     })
   })
 
-  describe.only("#destroy", function(){
+  describe("#destroy", function(){
     let slovo,
       SLOVO
 
@@ -172,9 +172,14 @@ describe('RemoteModel', function () {
         SLOVO= slovo.id
     })
 
-    it("should destroy", async ()=>{
-      expect(RemoteModel.cache.get("Slovo").has(SLOVO)).true
-      await slovo.destroy()
+    it("should destroy",  (done)=>{
+      (async()=>{
+        slovo.once(models.RemoteModel.event.destroy, ()=>{
+          done()
+        })
+        expect(models.RemoteModel.cache.get("Slovo").has(SLOVO)).true
+        await slovo.destroy()
+      })()
     })
 
     it("should have undefined id", async ()=>{
@@ -182,13 +187,16 @@ describe('RemoteModel', function () {
     })
 
     it("should remove from RemoteModel.cache", async ()=>{
-      await slovo.destroy()
-      expect(RemoteModel.cache.get("Slovo").has(SLOVO)).false
+      expect(models.RemoteModel.cache.get("Slovo").has(SLOVO)).false
     })
 
     it("should remove from database", async ()=>{
       let error= await expect(models.Slovo.get(SLOVO)).eventually.rejected
       expect(error.args[0]).match(/not found/i)
+    })
+
+    it("should be unsubscribed from WAMP", ()=>{
+      expect(slovo.WAMPSubscription).null
     })
   })
 

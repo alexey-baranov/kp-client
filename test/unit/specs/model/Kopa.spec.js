@@ -236,7 +236,7 @@ describe('Kopa', function () {
 
     it('Predlozhenie.destroy() -> Kopa.emit(predlozhenieDestroy)', function (done) {
       (async() => {
-        let predlozhenie
+        let predlozhenie;
         try {
           kopnik = await models.Kopnik.get(KOPNIK)
           kopa = await models.Kopa.get(KOPA)
@@ -281,6 +281,8 @@ describe('Kopa', function () {
         place: models.Zemla.getReference(1)
       })
       await kopa.invite()
+      kopa.result=[]
+      kopa.dialog=[]
       slovo= await models.Slovo.create({
         value: "destroy childs unit test",
         owner: models.Kopnik.getReference(2),
@@ -291,9 +293,16 @@ describe('Kopa', function () {
         owner: models.Kopnik.getReference(2),
         place: kopa
       })
+      SLOVO= slovo.id
+      PREDLOZHENIE= predlozhenie.id
     })
-    it("should destroy", async() => {
-      await kopa.destroy()
+    it("should destroy", (done) => {
+      (async()=>{
+        kopa.once(models.RemoteModel.event.destroy, ()=>{
+          done()
+        })
+        await kopa.destroy()
+      })()
     })
     it("slovo.id=undefined ", async() => {
       expect(slovo.id).undefined
@@ -302,7 +311,17 @@ describe('Kopa', function () {
       expect(slovo.WAMPSubscription).null
     })
     it("should destroy slovo in database", async() => {
-      let error = await expect(models.Slovo.get(SLOVO)).eventualy.rejected
+      let error = await expect(models.Slovo.get(SLOVO)).eventually.rejected
+      expect(error.args[0]).match(/not found/i)
+    })
+    it("predlozhenie.id=undefined ", async() => {
+      expect(predlozhenie.id).undefined
+    })
+    it("should unsubscribe predlozhenie", async() => {
+      expect(predlozhenie.WAMPSubscription).null
+    })
+    it("should destroy predlozhenie in database", async() => {
+      let error = await expect(models.Predlozhenie.get(PREDLOZHENIE)).eventually.rejected
       expect(error.args[0]).match(/not found/i)
     })
   })

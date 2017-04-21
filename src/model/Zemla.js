@@ -78,6 +78,13 @@ class Zemla extends RemoteModel {
         else {
           kopa = await Kopa.get(KOPA);
           this.kopi.push(kopa);
+          kopa.once(RemoteModel.event.destroy, ()=>{
+            let index = this.kopi.indexOf(kopa)
+            if (index != -1) {
+              this.kopi.splice(index, 1)
+            }
+            this.emit(Zemla.event.kopaDestroy, this, kopa)
+          })
         }
         this.emit(Zemla.event.kopaAdd, this, kopa);
       }
@@ -90,7 +97,7 @@ class Zemla extends RemoteModel {
         throw new Error("дочки устарели");
       }
     }
-    else if (details.topic.match(/\.kopaDestroy$/)) {
+/*    else if (details.topic.match(/\.kopaDestroy$/)) {
       if (this.kopi) {
         let destroyed = this.kopi.find(e => e.id == args[0])
 
@@ -101,7 +108,7 @@ class Zemla extends RemoteModel {
 
         this.emit(Zemla.event.kopaDestroy, this, destroyed);
       }
-    }
+    }*/
   }
 
 

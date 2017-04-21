@@ -337,7 +337,7 @@ describe('Kopnik', function () {
     });
   })
 
-  describe.only("#setStarshina() voting starshina", function () {
+  describe("#setStarshina() voting starshina", function () {
     let starshina1,
       starshina2,
       druzhe,
@@ -526,7 +526,6 @@ describe('Kopnik', function () {
     let kopnik2,
       somePredlozhenie,
       kopa3;
-    ;
 
     before(async function () {
       kopnik2 = await models.Kopnik.get(KOPNIK2);
@@ -535,7 +534,7 @@ describe('Kopnik', function () {
       somePredlozhenie = await models.Predlozhenie.create({
         place: kopa3,
         owner: kopnik2,
-        value: "temp " + new Date(),
+        value: "temp vote " + new Date(),
         golosa: [],
         totalZa: 0,
         totalProtiv: 0,
@@ -543,7 +542,7 @@ describe('Kopnik', function () {
     })
 
     /**
-     * создаю предложение, голосую и жду когда выстрелит Predlozhenie#balanceChange
+     * создаю предложение, голосую и жду когда выстрелит Predlozhenie#rebalance
      * В этом тесте проверяется неголосуемость копника 6 (он живет в другом доме)
      */
     it('should vote', function (done) {
@@ -590,7 +589,6 @@ describe('Kopnik', function () {
           done(err);
         }
       })();
-      ;
     })
   });
 

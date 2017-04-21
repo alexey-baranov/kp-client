@@ -103,6 +103,12 @@ class RemoteModel extends EventEmitter {
           this.emit(RemoteModel.event.change, this);
         })
     }
+    else if (details.topic.match(/\.destroy$/)) {
+      return this.destroy(true)
+        .then(() => {
+          this.emit(RemoteModel.event.destroy, this)
+        })
+    }
     else {
       return Promise.resolve();
     }
@@ -150,16 +156,21 @@ class RemoteModel extends EventEmitter {
   }
 
   async destroy(soft=false) {
+    if (!this.id){
+      throw new Error("destroying unsaved model")
+    }
     if (!soft) {
       await Connection.getInstance().session.call("api:model.destroy", [], {
         type: this.constructor.name,
         id: this.id
       })
     }
-    this.constructor.cache.get(this.constructor.name).delete(this.id)
-    this.id=undefined
+    else{
+      this.constructor.cache.get(this.constructor.name).delete(this.id)
+      this.id=undefined
 
-    await this.unsubscribeFromWAMPPublications()
+      await this.unsubscribeFromWAMPPublications()
+    }
   }
 
   static getReference(id) {
@@ -270,8 +281,9 @@ class RemoteModel extends EventEmitter {
      * что две подписки произойдут одновременно в двух потоках
      */
     this._isSubscribedToWAMPPublications = false;
+    let WAMPSubscription= this.WAMPSubscription
     this.WAMPSubscription= null
-    await Connection.getInstance().session.unsubscribe(this.WAMPSubscription)
+    await Connection.getInstance().session.unsubscribe(WAMPSubscription)
   }
 
 
@@ -346,7 +358,8 @@ class RemoteModel extends EventEmitter {
 }
 
 RemoteModel.event = {
-  change: "change"
+  change: "change",
+  destroy: "destroy"
 }
 
 RemoteModel.cache= new Map([

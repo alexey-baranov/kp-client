@@ -100,17 +100,32 @@ class Kopa extends RemoteModel {
     if (details.topic.match(/\.slovoAdd$/)) {
       if (this.dialog) {
         let slovo = await Slovo.get(args[0]);
-        this.dialog.push(slovo);
-        this.emit(Kopa.event.slovoAdd, this, slovo);
+        this.dialog.push(slovo)
+        slovo.once(RemoteModel.event.destroy, ()=> {
+          let index = this.dialog.indexOf(slovo)
+          if (index != -1) {
+            this.dialog.splice(index, 1)
+          }
+          this.emit(Kopa.event.slovoDestroy, this, slovo)
+        })
+        this.emit(Kopa.event.slovoAdd, this, slovo)
       }
     }
     else if (details.topic.match(/\.predlozhenieAdd$/)) {
       if (this.result) {
         let predlozhenie = await Predlozhenie.get(args[0]);
         this.result.push(predlozhenie);
+        predlozhenie.once(RemoteModel.event.destroy, ()=>{
+          let index = this.result.indexOf(predlozhenie)
+          if (index != -1) {
+            this.result.splice(index, 1)
+          }
+          this.emit(Kopa.event.predlozhenieDestroy, this, predlozhenie)
+        })
         this.emit(Kopa.event.predlozhenieAdd, this, predlozhenie);
       }
     }
+    /*
     else if (details.topic.match(/\.predlozhenieDestroy$/)) {
       if (this.result) {
         let destroyed = this.result.find(eachResult => eachResult.id == args[0])
@@ -135,14 +150,17 @@ class Kopa extends RemoteModel {
         this.emit(Kopa.event.slovoDestroy, this, destroyed);
       }
     }
+    */
   }
 
   async destroy(soft=false) {
-    await super.destroy(soft)
-    let childs= [].concat(this.dialog, this.result).filter(eachChild=>eachChild)
-    for(let eachChild of childs){
-      await eachChild.destroy(true)
+    if (soft){
+      let childs= [].concat(this.dialog, this.result).filter(eachChild=>eachChild)
+      for(let eachChild of childs){
+        await eachChild.destroy(true)
+      }
     }
+    await super.destroy(soft)
   }
 
   async invite(value) {
