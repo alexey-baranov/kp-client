@@ -175,7 +175,7 @@
        */
       auth_input: async function (credentials) {
         try {
-          await this.model.auth(credentials.email, credentials.password, credentials.captchaResponse)
+          await this.model.authAsPromise(credentials.email, credentials.password, credentials.captchaResponse)
           await this.model.user.dom.joinedLoaded()
           this.model.setBody(this.model.user.dom)
           StateManager.getInstance().popState(location.search.substring(1))
@@ -185,7 +185,8 @@
           }
         }
         catch (err) {
-          this.grumbler.pushError(err)
+          //ошибка теперь отображается в application.on("connectionClose" ) в main.js
+          //this.grumbler.pushError(err)
         }
       },
       /**
@@ -196,7 +197,7 @@
         let result = {
           drawer: this.drawer
         }
-        if (this.model.state == Application.State.Main) {
+        if (this.model.state == Application.State.Main && this.model.body) {
           result.body = this.$refs.bodyView.getState()
         }
         return result

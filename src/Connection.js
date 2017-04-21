@@ -2,6 +2,7 @@
  * Created by alexey2baranov on 1/25/17.
  */
 "use strict";
+// import EventEmitter from "events"
 let AutobahnConnection = require("autobahn").Connection
 
 import config from "./../cfg/main"
@@ -26,6 +27,14 @@ export default class Connection extends AutobahnConnection {
     let mixedOptions = Object.assign({}, Connection.defaultOptions, options)
     console.log(mixedOptions)
     super(mixedOptions)
+
+    this.log= require("loglevel").getLogger(Connection.name)
+
+    /*
+        this.eventEmitter= new EventEmitter()
+        this.onopen= (session, details)=>this.eventEmitter.emit("open", session, details)
+        this.onclose= (reason, details)=>this.eventEmitter.emit("close", reason, details)
+    */
   }
 
   /**

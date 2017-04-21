@@ -39,11 +39,11 @@ export default class Application extends EventEmitter {
     return Application.instance
   }
 
-  goTo(value, restoreScrollItem= false) {
+  goTo(value, restoreScrollItem = false) {
     this.state = Application.State.Main
     this.setBody(value)
 
-    if (restoreScrollItem){
+    if (restoreScrollItem) {
       this.emit("restoreScrollItem")
     }
   }
@@ -78,13 +78,13 @@ export default class Application extends EventEmitter {
       }
     }
 
-    this.registration.onupdatefound=  () => {
+    this.registration.onupdatefound = () => {
       this.registration.installing.addEventListener('statechange', (e) => {
         this.log.info(`updatefound service worker state changed:`, e.target.state)
       })
     }
 
-    navigator.serviceWorker.oncontrollerchange= () => {
+    navigator.serviceWorker.oncontrollerchange = () => {
       this.log.info(`navigator.ServiceWorker controller change`)
     }
 
@@ -112,18 +112,18 @@ export default class Application extends EventEmitter {
     }
 
     this.log.debug("push subscription")
-    this.pushSubscription= await this.registration.pushManager.getSubscription()
-    if (!this.pushSubscription){
-      this.pushSubscription= await this.registration.pushManager.subscribe({userVisibleOnly: true})
+    this.pushSubscription = await this.registration.pushManager.getSubscription()
+    if (!this.pushSubscription) {
+      this.pushSubscription = await this.registration.pushManager.subscribe({userVisibleOnly: true})
     }
-    if (!this.pushSubscription){
+    if (!this.pushSubscription) {
       throw new Error("Ошибка во время подписки на события")
     }
 
     await this.addPushSubscription()
   }
 
-  async addPushSubscription(){
+  async addPushSubscription() {
     await Connection.getInstance().session.call("api:Application.addPushSubscription", [this.pushSubscription])
   }
 
@@ -137,103 +137,156 @@ export default class Application extends EventEmitter {
      * перед авторизацией сбрасываем предыдущие конекшены, которые могут быть с пустыми логинами от куки-заходов
      */
     if (Connection._instance && Connection._instance.isOpen) {
-      throw new Error("Повторная авторизация. Приложение уже авторизовано")
+      throw new Error("Повторная авторизация. Авторизованная сессия уже открыта")
     }
-    else {
+    /**
+     * такая комбинация возможно если идут повторные попытки подключения под старым логином
+     * и нажали кнопку войти под новым логином или даже тем же
+     */
+    else if (Connection._instance) {
+      let prevConnection = Connection._instance
+      prevConnection.onopen = () => {
+        this.log.info("prev connection opened and will be closed silently")
+        prevConnection.close()
+      }
+      prevConnection.onclose = () => {
+        this.log.info("prev connection closed silently")
+      }
       Connection._instance = null
     }
 
-    return new Promise((res, rej) => {
-      let connection = Connection.getInstance({
-        authid: email,
-        onchallenge: function (session, method, extra) {
-          return JSON.stringify({password: password, captchaResponse: captchaResponse})
-        },
-        captchaResponse: 12345678
-      })
+    let connection = Connection.getInstance({
+      authid: email,
+      onchallenge: function (session, method, extra) {
+        return JSON.stringify({password: password, captchaResponse: captchaResponse})
+      },
+      captchaResponse: 12345678
+    })
 
-      connection.onopen = async(session, details) => {
+    connection.onopen = async(session, details) => {
+      this.log.info("connection opened")
+      if (this.user) {
+        throw new Error("user must be null")
+      }
+      session.prefix('api', 'ru.kopa')
+
+      /**
+       * ожидание сервера хоть как необходимо
+       * потому что когда кросбар запустится,
+       * серверу нужно несколько секунд для того чтобы подключиться
+       * а это уже несколько секунд пройдет
+       *
+       * todo: подумать возможно надо пять-десять попыток предпринисать и потом говорить, что сервер недоступен
+       */
+      while (!this.user) {
+        /**
+         * пока ждали сервер, отвалился кросбар))
+         * в таком случае #onopen() просто прерываем, а событие отправит #onclose() поэтому его тут не эмитим!
+         */
+        if (!session.isOpen){
+          this.log.info("session was closed while waiting for server start")
+          return
+        }
         try {
-          this.log.info("connection opened")
-          // alert("connection opened")
-          /**
-           * success auth
-           */
-          if (!this.user) {
-            session.prefix('api', 'ru.kopa')
-            this.user = await models.Kopnik.getByEmail(details.authid)
-            this.log.info("user auth", this.user)
-            // await this.subscribeToNotifications()
-            /**
-             * registerServiceWorker() прилетело сюда в connection.onopen()
-             * потому что там в конце, когда идет подкиска на пуши, должна пройти синхронизация с сервером
-             * TODO: подумать а почему нельзя оставить здесь только подписку на уведомления, а регистрацию сервис воркера делать один раз
-             */
-            await this.registerServiceWorker()
-            this.emit("connectionOpen")
-            res(this.user)
-          }
+          this.user = await models.Kopnik.getByEmail(details.authid)
         }
         catch (err) {
-          rej(err)
-        }
-      }
-
-      connection.onclose = async(reason, details) => {
-        this.log.info("connection closed. reason:", reason, ", details: ", details)
-        /**
-         * fail auth
-         * если auth уже прошел, то Promise завершился успешно и reject ни к чему не приведет
-         */
-        //эта секция для кроссбара 0.13
-        if (details.reason == 'wamp.error.authentication_failed') {
-          if (details.message.indexOf("org.kopnik.invalid_captcha_status_code") != -1) {
-            rej(new AuthenticationError("Вы не прошли Антибот-проверку - проверка временно невозможна"))
-          }
-          else if (details.message.indexOf("org.kopnik.invalid_captcha") != -1) {
-            rej(new AuthenticationError("Вы не прошли Антибот-проверку"))
-          }
-          else if (details.message.indexOf("incorrect_username_or_password") != -1) {
-            rej(new AuthenticationError("Неверное имя пользователя или пароль"))
+          if (err.error == "wamp.error.no_such_procedure") {
+            this.log.warn("server not started")
+            await new Promise(res => setTimeout(res, 1000))
           }
           else {
-            rej(new AuthenticationError(reason + ", " + details.message))
+            throw err
           }
-        }
-        //эта секция для кросбара 17.3
-        else if (details.reason.indexOf("org.kopnik.invalid_captcha_status_code") != -1) {
-          rej(new AuthenticationError("Вы не прошли Антибот-проверку - проверка временно невозможна"))
-        }
-        else if (details.reason.indexOf("org.kopnik.invalid_captcha") != -1) {
-          rej(new AuthenticationError("Вы не прошли Антибот-проверку"))
-        }
-        else if (details.reason.indexOf("incorrect_username_or_password") != -1) {
-          rej(new AuthenticationError("Неверное имя пользователя или пароль"))
-        }
-        //ниже для обоих кросбаров 0.13 и 17.3
-        else if (reason == 'unreachable') {
-          rej(new Error("Сервер обмена данными недоступен. Попробуйте зайти позже."))
-        }
-        else {
-          rej(new Error((reason ? (reason + ", ") : "") + "reason: "+details.reason+", message: "+ details.message))
-        }
-
-        this.user = null
-        this.body = null
-        models.RemoteModel.clearCache()
-
-        /**
-         * если сессия потерялась (переключение 4g на wifi или после возвращения браузена из фона)
-         * по повторое соединение
-         */
-        if (reason == "lost") {
-          setImmediate(() => {
-            connection.open()
-          })
         }
       }
 
-      connection.open()
+      this.log.info("user", this.user)
+      // await this.subscribeToNotifications()
+      /**
+       * registerServiceWorker() прилетело сюда в connection.onopen()
+       * потому что там в конце, когда идет подкиска на пуши, должна пройти синхронизация с сервером
+       * TODO: подумать а почему нельзя оставить здесь только подписку на уведомления, а регистрацию сервис воркера делать один раз
+       */
+      await this.registerServiceWorker()
+      this.emit("connectionOpen", this.user)
+    }
+
+    connection.onclose = (reason, details) => {
+      this.log.info("connection closed. reason:", reason, ", details: ", details)
+
+      this.user = null
+      this.body = null
+      models.RemoteModel.clearCache()
+
+      //эта секция для кроссбара 0.13
+      if (details.reason == 'wamp.error.authentication_failed') {
+        if (details.message.indexOf("org.kopnik.invalid_captcha_status_code") != -1) {
+          this.emit("connectionClose", new AuthenticationError("Вы не прошли Антибот-проверку - проверка временно невозможна"))
+        }
+        else if (details.message.indexOf("org.kopnik.invalid_captcha") != -1) {
+          this.emit("connectionClose", new AuthenticationError("Вы не прошли Антибот-проверку"))
+        }
+        else if (details.message.indexOf("incorrect_username_or_password") != -1) {
+          this.emit("connectionClose", new AuthenticationError("Неверное имя пользователя или пароль"))
+        }
+        else {
+          this.emit("connectionClose", new AuthenticationError(reason + ", " + details.message))
+        }
+      }
+
+      //эта секция для кросбара 17.3
+      else if (details.reason && details.reason.indexOf("org.kopnik.invalid_captcha_status_code") != -1) {
+        this.emit("connectionClose", new AuthenticationError("Вы не прошли Антибот-проверку - проверка временно невозможна"))
+      }
+      else if (details.reason && details.reason.indexOf("org.kopnik.invalid_captcha") != -1) {
+        this.emit("connectionClose", new AuthenticationError("Вы не прошли Антибот-проверку"))
+      }
+      else if (details.reason && details.reason.indexOf("incorrect_username_or_password") != -1) {
+        this.emit("connectionClose", new AuthenticationError("Неверное имя пользователя или пароль"))
+      }
+
+      //ниже для обоих кросбаров 0.13 и 17.3
+      else if (reason == 'unreachable') {
+        this.emit("connectionClose", new Error(`"Сервер обмена данными недоступен. Неудачных попыток: ${details.retry_count}. Повторная попытка подключения через ${Math.round(details.retry_delay)}сек`))
+      }
+      else if (reason == 'lost') {
+        this.emit("connectionClose", new Error(`Нарушена связь с сервером обмена данных.  Неудачных попыток: ${details.retry_count}. Повторная попытка подключения через ${Math.round(details.retry_delay)}сек`))
+      }
+      else if (details){
+        this.emit("connectionClose", new Error("reason: " + reason + ", details: " + JSON.stringify(details).replace(/([:,{}])/g, "$1 ")+`Неудачных попыток: ${Math.round(details.retry_count)}. Повторная попытка подключения через ${details.retry_delay}сек`))
+      }
+
+      /**
+       * если сессия потерялась (переключение 4g на wifi или после возвращения браузена из фона)
+       * по повторое соединение
+       */
+      //по идее автобан сам должна реопен делать
+      /*        if (reason == "lost") {
+       setImmediate(() => {
+       connection.open()
+       })
+       }*/
+    }
+    connection.open()
+  }
+
+  authAsPromise(email, password, captchaResponse) {
+    return new Promise((res, rej) => {
+      let onConnectionOpen,
+        onConnectionClose
+
+      this.once("connectionOpen", onConnectionOpen = (user) => {
+        this.removeListener("connectionClose", onConnectionClose)
+        res(user)
+      })
+
+      this.once("connectionClose", onConnectionClose = (err) => {
+        this.removeListener("connectionOpen", onConnectionOpen)
+        rej(err)
+      })
+
+      this.auth(email, password, captchaResponse)
     })
   }
 
@@ -286,11 +339,13 @@ export default class Application extends EventEmitter {
  * больше нужно для сохранения состояния
  * @type {{Auth: string, Registration: string, Main: string}}
  */
-Application.State = {
+Application
+  .State = {
   Auth: "auth",
   Registration: "registration",
   Main: "main",
   Verification: "verification"
 }
 
-Application.SEP = "..."
+Application
+  .SEP = "..."

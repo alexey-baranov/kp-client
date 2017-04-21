@@ -49,6 +49,32 @@ describe('Grumbler', function () {
     }
   })
 
+  describe("push tag", () => {
+    let error1,error2, error3, error4
+
+    before(() => {
+      Grumbler.getInstance().errors=[]
+      error1 = new Error("1")
+      error2 = new Error("2")
+      error2.tag = "tag"
+      error3 = new Error("3")
+      error4 = new Error("4")
+      error4.tag = "tag"
+
+      Grumbler.getInstance().pushError(error1)
+      Grumbler.getInstance().pushError(error2)
+      Grumbler.getInstance().pushError(error3)
+      Grumbler.getInstance().pushError(error4)
+    })
+
+    it('#should remove prev tagged Error', function () {
+      expect(Grumbler.getInstance().errors.indexOf(error2)).equal(-1)
+    })
+    it('#should not remove other Errors', function () {
+      expect(Grumbler.getInstance().errors.length).equal(3)
+    })
+  })
+
   it('#should push AutobahnError', async function () {
     try {
       await connection.session.call("api:error", ["qwerty"])
@@ -62,18 +88,31 @@ describe('Grumbler', function () {
     }
   })
 
+  it('#should remove error', function () {
+    let error = new Error("123")
+
+    Grumbler.getInstance().pushError(error)
+    Grumbler.getInstance().removeError(error)
+    expect(Grumbler.getInstance().errors.indexOf(error)).equal(-1)
+  })
+  it('#should not throw error when remove foreign error', function () {
+    Grumbler.getInstance().removeError(new Error("123"))
+  })
+
+
   /**
    * эти ошибки не ловятся даже в карме внутри хрома
    */
   it.skip('#should handle unhandled Error', function () {
     grumbler.addEventHandler();
-    setTimeout(()=>{
+    setTimeout(() => {
       throw new Error("qwerty")
 
       expect(grumbler.currentErrorType).equal("Error", "currentErrorType")
       expect(grumbler.currentErrorMessage).equal("qwerty", "currentErrorMessage")
       expect(grumbler.currentErrorStack).ok;
-    },1)
+    }, 1)
   })
+
 
 })

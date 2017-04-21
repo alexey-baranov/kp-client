@@ -77,6 +77,10 @@ export default class Grumbler {
     if (_.isString(error)) {
       error = new Error(error)
     }
+    let prevError= this.errors.find(each=>each.tag && each.tag==error.tag )
+    if (prevError){
+      this.errors.splice(this.errors.indexOf(prevError), 1)
+    }
     this.errors.push(error)
   }
 
@@ -85,6 +89,13 @@ export default class Grumbler {
    */
   shiftError() {
     this.errors.shift()
+  }
+
+  removeError(error) {
+    let index
+    if ((index= this.errors.indexOf(error)) != -1) {
+      this.errors.splice(index, 1)
+    }
   }
 
   addEventHandler() {

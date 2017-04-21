@@ -3,6 +3,9 @@
  */
 "use strict"; //my use strict
 var assert = require('chai').assert;
+var expect = require('chai').expect;
+
+require("chai").use(require("chai-as-promised"))
 let autobahn = require("autobahn");
 let _ = require("lodash");
 
@@ -153,6 +156,39 @@ describe('RemoteModel', function () {
           value: "temp " + new Date().getTime(),
         });
       })()
+    })
+  })
+
+  describe.only("#destroy", function(){
+    let slovo,
+      SLOVO
+
+    before(async ()=>{
+        slovo= await models.Slovo.create({
+          value: "destroy unit test",
+          owner: models.Kopnik.getReference(2),
+          place: models.Kopa.getReference(1)
+        })
+        SLOVO= slovo.id
+    })
+
+    it("should destroy", async ()=>{
+      expect(RemoteModel.cache.get("Slovo").has(SLOVO)).true
+      await slovo.destroy()
+    })
+
+    it("should have undefined id", async ()=>{
+      expect(slovo.id).undefined
+    })
+
+    it("should remove from RemoteModel.cache", async ()=>{
+      await slovo.destroy()
+      expect(RemoteModel.cache.get("Slovo").has(SLOVO)).false
+    })
+
+    it("should remove from database", async ()=>{
+      let error= await expect(models.Slovo.get(SLOVO)).eventually.rejected
+      expect(error.args[0]).match(/not found/i)
     })
   })
 

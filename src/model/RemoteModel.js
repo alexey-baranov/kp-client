@@ -33,6 +33,7 @@ class RemoteModel extends EventEmitter {
 
     this._isLoaded = false;
     this._isSubscribedToWAMPPublications = false;
+    this.WAMPSubscription= null
     this.id = undefined;
     this.note = undefined;
     this.attachments = []
@@ -44,6 +45,7 @@ class RemoteModel extends EventEmitter {
      * точно так же как нет и id
      */
     this.created = undefined;
+
   }
 
   static factory(from){
@@ -147,17 +149,18 @@ class RemoteModel extends EventEmitter {
     return result;
   }
 
-  async destroy() {
-    await Connection.getInstance().session.call("api:model.destroy", [], {
-      type: this.constructor.name,
-      id: this.id
-    })
+  async destroy(soft=false) {
+    if (!soft) {
+      await Connection.getInstance().session.call("api:model.destroy", [], {
+        type: this.constructor.name,
+        id: this.id
+      })
+    }
+    this.constructor.cache.get(this.constructor.name).delete(this.id)
+    this.id=undefined
 
-    //todo: отписка
-    // await result.unsubscribeToWAMPPublications();
+    await this.unsubscribeFromWAMPPublications()
   }
-
-
 
   static getReference(id) {
     if (!id) {
@@ -255,7 +258,20 @@ class RemoteModel extends EventEmitter {
      * что две подписки произойдут одновременно в двух потоках
      */
     this._isSubscribedToWAMPPublications = true;
-    await this.subscribeHelper(`api:model.${this.constructor.name}.id${this.id}.`, this.onPublication, {match: 'wildcard'}, this);
+    this.WAMPSubscription= await this.subscribeHelper(`api:model.${this.constructor.name}.id${this.id}.`, this.onPublication, {match: 'wildcard'}, this);
+  }
+
+  async unsubscribeFromWAMPPublications() {
+    if (!this._isSubscribedToWAMPPublications) {
+      throw new Error(`${this} not subscribed to WAMP publications`);
+    }
+    /**
+     * это устанавливается до подписки потому что в противном случае возможна маленькая вероятность того
+     * что две подписки произойдут одновременно в двух потоках
+     */
+    this._isSubscribedToWAMPPublications = false;
+    this.WAMPSubscription= null
+    await Connection.getInstance().session.unsubscribe(this.WAMPSubscription)
   }
 
 

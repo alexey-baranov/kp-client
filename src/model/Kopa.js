@@ -137,6 +137,14 @@ class Kopa extends RemoteModel {
     }
   }
 
+  async destroy(soft=false) {
+    await super.destroy(soft)
+    let childs= [].concat(this.dialog, this.result).filter(eachChild=>eachChild)
+    for(let eachChild of childs){
+      await eachChild.destroy(true)
+    }
+  }
+
   async invite(value) {
     await Connection.getInstance().session.call("api:model.Kopa.invite", null, {id: this.id}, {disclose_me: true});
   }

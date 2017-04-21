@@ -59,63 +59,69 @@ Notification.requestPermission()
  */
 let application = global.application = Application.getInstance()
 
-// application.registerServiceWorker()
-  Promise.resolve()
-  .then(()=>{
+global.view = new Vue({
+  el: '#application',
+  template: "<application id='a' :model='application'></application>",
+  data: {
+    application
+  },
+  components: {application: applicationView}
+})
 
-    global.view = new Vue({
-      el: '#application',
-      template: "<application id='a' :model='application'></application>",
-      data: {
-        application
-      },
-      components: {application: applicationView}
-    })
+/**
+ * State management
+ */
+let stateManager = StateManager.getInstance()
+stateManager.application = application
+stateManager.applicationView = global.view.$children[0]
+stateManager.listen()
 
-    /**
-     * State management
-     */
-    let stateManager = StateManager.getInstance()
-    stateManager.application = application
-    stateManager.applicationView = global.view.$children[0]
-    stateManager.listen()
+/**
+ * ошибки подключения к кросбару и серверу
+ * будут удалены автоматически после того как приложение подключится
+ * @type {Array}
+ */
+let connectionErrors=[]
 
-    application.on("connectionOpen", ()=>{
-      stateManager.popState(location.search.substring(1))
-    })
+application.on("connectionOpen", () => {
+  stateManager.popState(location.search.substring(1))
+  connectionErrors.forEach(each=>Grumbler.getInstance().removeError(each))
+})
 
-    /*
-     пробуем авторизироваться прям с ходу куками
-     */
-    return application.auth()
-  })
-  .then(() => {
+application.on("connectionClose", (err) => {
+  err.tag= "connectionClose"
+  connectionErrors.push(err)
+  Grumbler.getInstance().pushError(err)
+})
+
+application.authAsPromise()
+  .then(user=>{
     log.getLogger("main.js").info("cookie auth")
-  }, (err) => {
-    if (err)
-      if (err instanceof AuthenticationError) {
-        log.getLogger("main.js").info("cookie auth fails")
-      }
-      else {
-        throw err
-      }
-  })
-  .then(() => {
-    if (0) {
-      /**
-       * временный автозаход
-       */
-      application.auth(config.unittest2.username, config.unittest2.password)
-        .then(user => {
-          application.setBody(user.dom)
-          application.state = Application.State.Verification
-        })
-        .then(() => {
-          /**
-           * попнуть первое состояние
-           * @type {*}
-           */
-          stateManager.popState(location.search.substring(1))
-        })
+  },
+  err=>{
+    if (err instanceof AuthenticationError) {
+      log.getLogger("main.js").info("cookie auth fails")
+    }
+    else {
+      //ошибка теперь отображается в application.on("connectionClose" )
+      // throw err
     }
   })
+
+if (0) {
+  /**
+   * автозаход
+   */
+  application.authAsPromise(config.unittest2.username, config.unittest2.password)
+    .then(user => {
+      application.setBody(user.dom)
+      application.state = Application.State.Verification
+    })
+    .then(() => {
+      /**
+       * попнуть первое состояние
+       * @type {*}
+       */
+      stateManager.popState(location.search.substring(1))
+    })
+}

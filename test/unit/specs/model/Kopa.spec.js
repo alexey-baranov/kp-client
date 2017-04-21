@@ -4,6 +4,9 @@
 "use strict"
 
 var assert = require('chai').assert
+var expect = require('chai').expect;
+
+require("chai").use(require("chai-as-promised"))
 let _ = require("lodash")
 
 let connection = require("../../../../src/Connection").default.getUnitTestInstance()
@@ -36,7 +39,7 @@ describe('Kopa', function () {
       connection.onclose = function (session, details) {
         res()
       }
-      connection.close();;;
+      connection.close();
     })
   })
 
@@ -65,7 +68,9 @@ describe('Kopa', function () {
     it('должен опубликовать "zemla.id2.kopaAdd"', function (done) {
       (async() => {
         try {
-          let kopnik = models.Kopnik.getReference(KOPNIK);;;
+          let kopnik = models.Kopnik.getReference(KOPNIK);
+          ;
+          ;
           let zemla = await models.Zemla.get(ZEMLA)
           let kopa
 
@@ -89,7 +94,8 @@ describe('Kopa', function () {
             owner: kopnik,
           })
           //2. созвал копу
-          kopa.invite();;
+          kopa.invite();
+          ;
         }
         catch (err) {
           done(err)
@@ -168,7 +174,10 @@ describe('Kopa', function () {
           kopnik = await models.Kopnik.get(KOPNIK)
           kopa = await models.Kopa.get(KOPA)
 
-          kopa.dialog = [];;;;
+          kopa.dialog = [];
+          ;
+          ;
+          ;
           kopa.on(models.Kopa.event.slovoAdd, (sender, add) => {
             try {
               assert.equal(add instanceof models.Slovo, true, "add instanceof models.Slovo")
@@ -256,6 +265,45 @@ describe('Kopa', function () {
           done(err);
         }
       })()
+    })
+  })
+
+  describe("#destroy", function () {
+    let kopa,
+      slovo,
+      predlozhenie,
+      SLOVO,
+      PREDLOZHENIE
+    before(async() => {
+      kopa = await models.Kopa.create({
+        question: "destroy childs unit test",
+        owner: models.Kopnik.getReference(2),
+        place: models.Zemla.getReference(1)
+      })
+      await kopa.invite()
+      slovo= await models.Slovo.create({
+        value: "destroy childs unit test",
+        owner: models.Kopnik.getReference(2),
+        place: kopa
+      })
+      predlozhenie= await models.Predlozhenie.create({
+        value: "destroy childs unit test",
+        owner: models.Kopnik.getReference(2),
+        place: kopa
+      })
+    })
+    it("should destroy", async() => {
+      await kopa.destroy()
+    })
+    it("slovo.id=undefined ", async() => {
+      expect(slovo.id).undefined
+    })
+    it("should unsubscribe slovo", async() => {
+      expect(slovo.WAMPSubscription).null
+    })
+    it("should destroy slovo in database", async() => {
+      let error = await expect(models.Slovo.get(SLOVO)).eventualy.rejected
+      expect(error.args[0]).match(/not found/i)
     })
   })
 })
