@@ -52,14 +52,20 @@ export default class Grumbler {
   }
 
   get currentErrorMessage() {
+    if (!this.errors.length)
+      return
     return Grumbler.getErrorMessage(this.errors[0])
   }
 
   get currentErrorStack() {
+    if (!this.errors.length)
+      return
     return Grumbler.getErrorStack(this.errors[0])
   }
 
   get currentErrorType() {
+    if (!this.errors.length)
+      return
     return Grumbler.getErrorType(this.errors[0])
   }
 
@@ -69,7 +75,7 @@ export default class Grumbler {
    *
    */
   pushError(error) {
-    if (error.message && error.message.match(/Collapse is transitioning/)){
+    if (error.message && error.message.match(/Collapse is transitioning/)) {
       this.log.info(`skip bootstrap stupid "Collapse is transitioning" error`)
       return
     }
@@ -77,8 +83,8 @@ export default class Grumbler {
     if (_.isString(error)) {
       error = new Error(error)
     }
-    let prevError= this.errors.find(each=>each.tag && each.tag==error.tag )
-    if (prevError){
+    let prevError = this.errors.find(each => each.tag && each.tag == error.tag)
+    if (prevError) {
       this.errors.splice(this.errors.indexOf(prevError), 1)
     }
     this.errors.push(error)
@@ -93,7 +99,7 @@ export default class Grumbler {
 
   removeError(error) {
     let index
-    if ((index= this.errors.indexOf(error)) != -1) {
+    if ((index = this.errors.indexOf(error)) != -1) {
       this.errors.splice(index, 1)
     }
   }

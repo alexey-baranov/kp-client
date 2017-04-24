@@ -12,7 +12,7 @@ let config = {
     },
     "file-server": {
       schema: "http",
-      host: "localhost",
+      host: "kopnik.org",
       port: "8484",
       "upload-path": "upload",
       "download-path": "download"

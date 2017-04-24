@@ -39,8 +39,16 @@
 
   <!--FCM manifest-->
   <link rel="manifest" href="static/manifest.json">
+
+  <!--is.js for non chrome browsers alert-->
+  <script src="https://unpkg.com/is_js@0.9.0/is.min.js"></script>
 </head>
 <body>
+<div id="need-chrome" class="alert alert-warning" style="display:none; margin-top: 5em;">
+  <h1 class="alert-heading">Внимание!</h1>
+  <p>Для работы социальной сети <strong class="text-nowrap">kopnik.org</strong> требуется браузер Google Chrome.</p>
+  <p>Скачайте браузер Google Chrome по адресу <a target="_blank" href="http://www.google.com/chrome" class="text-nowrap">www.google.com/chrome</a>, откройте его и введите в адресной строке <strong class="text-nowrap">kopnik.org</strong></p>
+</div>
 <div id="application"></div>
 <!--BOOTSTRAP!! Add our JavaScript plugins, jQuery, and Tether near the end of your pages, right before the closing </body >-->
 <!--<script src="http://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>-->
@@ -56,7 +64,11 @@
         crossorigin="anonymous"></script>
 <script src="static/bootstrap/bootstrap.min.js" crossorigin="anonymous"></script>
 <script src="static/bootstrap/bootstrap3-typeahead.js"></script>
-
+<script>
+  if (!is.chrome()){
+    document.getElementById("need-chrome").style.display= "block"
+  }
+</script>
 <!-- built files will be auto injected -->
 </body>
 </html>

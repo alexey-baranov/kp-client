@@ -1,5 +1,5 @@
 <template>
-  <div v-if="model.errors.length" class="grumbler">
+  <div v-show="model.errors.length" class="grumbler">
     <mu-dialog titleClass="alert-heading" dialogClass="alert alert-danger" scrollable :open="model.errors.length>0"
                :title="model.currentErrorType"
                @close="close_click">

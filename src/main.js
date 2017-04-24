@@ -34,7 +34,6 @@ log.getLogger("location.vue").setLevel("info")
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import $ from "jquery"; //global.$=$;
 import Vue from 'vue'
 import MuseUI from 'muse-ui'
 
@@ -46,8 +45,6 @@ import config from "../cfg/main"
 import StateManager from './StateManager'
 
 let models = global.models = require("./model")
-
-// alert(window.innerWidth+"x"+window.innerHeight)
 
 Vue.use(MuseUI)
 Grumbler.getInstance().addEventHandler()
@@ -101,6 +98,11 @@ application.authAsPromise()
   err=>{
     if (err instanceof AuthenticationError) {
       log.getLogger("main.js").info("cookie auth fails")
+      /**
+       * ошибку первого входа не надо показывать потому что это автовход по кукам,
+       *  там нет было ни имени пользователя, ни пароля, ни капчи
+       */
+      Grumbler.getInstance().removeError(err)
     }
     else {
       //ошибка теперь отображается в application.on("connectionClose" )
