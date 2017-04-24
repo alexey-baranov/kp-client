@@ -1,7 +1,7 @@
 <template>
   <div :id="id" class="kopa-as-submit card" :class="{'kopa-as-submit--empty': !model.question}">
     <div class="card-block">
-      <mu-text-field class="my-0" fullWidth multiLine hintText="Созвать всех на копу по вопросу..." :rows="1"
+      <mu-text-field class="my-0" fullWidth multiLine hintText="Созвать всех на копу по вопросу..." :rows="2"
                      :rowsMax="5" v-model="model.question" @keyup.native.ctrl.enter="submit_click"/>
       <files :id="id+'_files' " mode="editor" :model="model.attachments"></files>
       <button class="btn btn-block btn-secondary mt-2" @click="draft_click">Сохранить черновик</button>

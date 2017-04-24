@@ -1,6 +1,6 @@
 <template>
   <div :id="id" class="auth">
-    <h1>Вход</h1>
+    <!--<h1>Вход</h1>-->
     <form class="row">
       <div class="col-10 col-sm-7 col-md-5 col-lg-3 mx-auto my-auto">
         <div class="form-group w-100">
@@ -54,7 +54,7 @@
         this.captchaResponse = undefined
       },
       registration_click(event){
-        Application.getInstance().state = Application.State.Registration
+        Application.getInstance().section = Application.Section.Registration
         StateManager.getInstance().pushState()
         event.preventDefault()
       },

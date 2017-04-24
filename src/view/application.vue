@@ -4,7 +4,7 @@
     <grumbler :model="grumbler"></grumbler>
     <mu-toast v-if="notifier.currentNotification" :message="notifier.currentNotification.value" @close="toast_close"/>
 
-    <mu-appbar class="fixed-top" title="kopnik.org">
+    <mu-appbar class="fixed-top" :title="'kopnik.org '+ ((!model.user && model.section!='registration')?'Вход':model.header)">
       <mu-icon-button icon='menu' @click="toggle()" slot="left"/>
       <!--<mu-icon-button icon='expand_more' slot="right"/>-->
     </mu-appbar>
@@ -32,14 +32,14 @@
       </div>
       <div :class="{'col-9':drawer, 'col-12': !drawer, 'col-lg-10':drawer}">
         <div class="padding-x-container">
-          <auth v-if="!model.user && model.state!='registration'" @input="auth_input"></auth>
-          <registration-as-form v-if="model.state=='registration'" :id="id+'_registration'"
+          <auth v-if="!model.user && model.section!='registration'" @input="auth_input"></auth>
+          <registration-as-form v-if="model.section=='registration'" :id="id+'_registration'"
                                 @close="registration_close"></registration-as-form>
           <template v-if="model.user">
-            <kopnik-as-verifier v-if="model.state=='verification'" :id="id+'_verification'"
+            <kopnik-as-verifier v-if="model.section=='verification'" :id="id+'_verification'"
                                 :model="model.user"></kopnik-as-verifier>
-            <div v-if="model.state=='main' && model.body">
-              <h1 class="title text-truncate">{{bodyType=='kopnik'?model.body.fullName:model.body.name}}</h1>
+            <div v-if="model.section=='main' && model.body">
+              <!--<h1 class="title text-truncate">{{header}}</h1>-->
               <location class="breadcrumb" :model="model.body"></location>
               <component ref="bodyView" v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
             </div>
@@ -94,8 +94,8 @@
           }
           await this.model.body.joinedLoaded()
           /*
-           if (this.model.state == Application.State.Main) {
-           let SCROLL_ITEM = this.positions.get(Application.State.Main).get(this.model.body.constructor.name).get(this.model.body.id)
+           if (this.model.section == Application.Section.Main) {
+           let SCROLL_ITEM = this.positions.get(Application.Section.Main).get(this.model.body.constructor.name).get(this.model.body.id)
            if (SCROLL_ITEM) {
            let scrollItem = models.RemoteModel.factory(SCROLL_ITEM)
            await this.$refs.bodyView.setScrollItem(scrollItem)
@@ -120,7 +120,7 @@
         let result = this.model.body.constructor.name.toLocaleLowerCase()
 
         return result
-      }
+      },
     },
     methods: {
       async model_restoreScrollItem(){
@@ -156,7 +156,7 @@
         StateManager.getInstance().pushState()
       },
       registration_close(){
-        this.model.state = Application.State.Auth
+        this.model.setSection(Application.Section.Main)
         StateManager.getInstance().pushState()
       },
       close_click(){
@@ -166,7 +166,7 @@
 
       },
       verification_click(){
-        this.model.state = Application.State.Verification
+        this.model.setSection(Application.Section.Verification)
         StateManager.getInstance().pushState()
       },
       /**
@@ -178,9 +178,10 @@
           await this.model.authAsPromise(credentials.email, credentials.password, credentials.captchaResponse)
           await this.model.user.dom.joinedLoaded()
           this.model.setBody(this.model.user.dom)
-          StateManager.getInstance().popState(location.search.substring(1))
-          if (this.model.state == Application.State.Auth) {
-            this.model.state = Application.State.Main
+          if (this.model.section == Application.Section.Auth) {
+            this.log.warn("very strange if hire")
+            StateManager.getInstance().popState(location.search.substring(1))
+            this.model.setSection(Application.Section.Main)
             StateManager.getInstance().pushState()
           }
         }
@@ -197,7 +198,7 @@
         let result = {
           drawer: this.drawer
         }
-        if (this.model.state == Application.State.Main && this.model.body) {
+        if (this.model.section == Application.Section.Main && this.model.body) {
           result.body = this.$refs.bodyView.getState()
         }
         return result
@@ -209,7 +210,7 @@
         }
         this.drawer = state.drawer
         await Promise.resolve(1)
-        if (this.model.state == Application.State.Main) {
+        if (this.model.section == Application.Section.Main) {
           await this.$refs.bodyView.setState(state.body || {})
         }
       },
@@ -313,7 +314,7 @@
   }
 
   .container-under-navbar {
-    margin-top: 4rem;
+    margin-top: 5rem;
   }
 
   .title {

@@ -56,27 +56,27 @@ describe('StateManager', function () {
   })
 
   it('#getState()', async function () {
-    stateManager.application.state = Application.State.Main
+    stateManager.application.section = Application.Section.Main
     stateManager.application.goTo(models.Kopnik.getReference(1))
 
     await Promise.resolve()
     const state = stateManager.getState()
 
     expect(state).a("object", "state")
-    expect(state.state).equal(Application.State.Main, "state.state")
+    expect(state.section).equal(Application.Section.Main, "state.state")
     expect(state.body).equal("Kopnik:1", "state.body")
   })
 
   describe('#popState()', function () {
     it('should pop state', function () {
       stateManager.popState({
-        state: Application.State.Main,
+        section: Application.Section.Main,
         body: "Kopnik:1",
         v: "av"
       })
 
       let application = stateManager.application
-      expect(application.state).equal(Application.State.Main, "stateManager.application.state")
+      expect(application.section).equal(Application.Section.Main, "stateManager.application.state")
       expect(application.body).instanceof(models.Kopnik, "stateManager.application.body")
       expect(application.body.id).equal(1, "stateManager.application.body.id")
     })
@@ -86,13 +86,13 @@ describe('StateManager', function () {
         try {
           //2. попытался установить состояние Main
           stateManager.popState({
-            state: Application.State.Main,
+            section: Application.Section.Main,
             body: "Kopnik:1",
             v: "av"
           })
 
           let application = stateManager.application
-          expect(application.state).equal(Application.State.Auth, "stateManager.application.state")
+          expect(application.section).equal(Application.Section.Auth, "stateManager.application.state")
           done()
         }
         catch (err) {

@@ -10,8 +10,7 @@
         <kopa-as-submit v-if="starshinaNaZemle===null" :id="id+'_new'" class="w-100" :model="model.newKopa"
                         @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
         <div v-if="starshinaNaZemle" class="alert alert-info">Ваш старшина на {{model.name}}
-          <kopnik-as-link target="_blank" :model="starshinaNaZemle"></kopnik-as-link>
-          .
+          <kopnik-as-link target="_blank" :model="starshinaNaZemle"></kopnik-as-link>.
           Если у вас есть вопросы, которые вы хотите обсудить на {{model.name}}, обратитесь к своему старшине с просьбой
           созвать копу.
         </div>

@@ -18,7 +18,7 @@ export default class Application extends EventEmitter {
   constructor() {
     super()
     this.log = require("loglevel").getLogger(this.constructor.name)
-    this.state = undefined
+    this.section = undefined
     this.user = null
     this.body = null
 
@@ -30,6 +30,7 @@ export default class Application extends EventEmitter {
 
     this.serviceWorkerRegistration = null
     this.serviceWorker = null
+    this.header = ""
   }
 
   static getInstance() {
@@ -39,9 +40,32 @@ export default class Application extends EventEmitter {
     return Application.instance
   }
 
+  setSection(value) {
+    this.section = value
+    switch (this.section) {
+      case Application.Section.Main:
+        this.header ="..."
+        break
+      case Application.Section.Auth:
+        this.header = "Вход"
+        break
+      case Application.Section.Registration:
+        this.header = "Регистрация"
+        break
+      case Application.Section.Verification:
+        this.header = "Заверения"
+        break
+    }
+  }
+
   goTo(value, restoreScrollItem = false) {
-    this.state = Application.State.Main
+    this.setSection(Application.Section.Main)
     this.setBody(value)
+
+    value.joinedLoaded()
+      .then(() => {
+        this.header = value.name
+      })
 
     if (restoreScrollItem) {
       this.emit("restoreScrollItem")
@@ -183,7 +207,7 @@ export default class Application extends EventEmitter {
          * пока ждали сервер, отвалился кросбар))
          * в таком случае #onopen() просто прерываем, а событие отправит #onclose() поэтому его тут не эмитим!
          */
-        if (!session.isOpen){
+        if (!session.isOpen) {
           this.log.info("session was closed while waiting for server start")
           return
         }
@@ -253,8 +277,8 @@ export default class Application extends EventEmitter {
       else if (reason == 'lost') {
         this.emit("connectionClose", new Error(`Нарушена связь с сервером обмена данных.  Неудачных попыток: ${details.retry_count}. Повторная попытка подключения через ${Math.round(details.retry_delay)}сек`))
       }
-      else if (details){
-        this.emit("connectionClose", new Error("reason: " + reason + ", details: " + JSON.stringify(details).replace(/([:,{}])/g, "$1 ")+`Неудачных попыток: ${Math.round(details.retry_count)}. Повторная попытка подключения через ${details.retry_delay}сек`))
+      else if (details) {
+        this.emit("connectionClose", new Error("reason: " + reason + ", details: " + JSON.stringify(details).replace(/([:,{}])/g, "$1 ") + `Неудачных попыток: ${Math.round(details.retry_count)}. Повторная попытка подключения через ${details.retry_delay}сек`))
       }
 
       /**
@@ -298,7 +322,7 @@ export default class Application extends EventEmitter {
   getState() {
     const result = {}
 
-    result.state = this.state
+    result.section = this.section
     if (this.body) {
       result.body = `${this.body.constructor.name}:${this.body.id}`
     }
@@ -307,29 +331,29 @@ export default class Application extends EventEmitter {
 
 
   setState(state) {
-    if (state.state) {
-      this.state = state.state
+    if (state.section) {
+      this.section = state.section
     }
     else {
-      this.state = Application.State.Main
+      this.setSection(Application.Section.Main)
     }
 
     /**
      * если соединения нет, то на страницу Auth
      */
-    if (this.state != Application.State.Registration && this.state != Application.State.Auth && !Connection.getInstance().isOpen) {
-      this.state = Application.State.Auth
-      this.log.info("redirect to Auth")
-      require("./StateManager").default.getInstance().pushState()
+    if (this.section != Application.Section.Registration && this.section != Application.Section.Auth && !Connection.getInstance().isOpen) {
+      // this.section = Application.Section.Auth
+      // this.log.info("redirect to Auth")
+      // require("./StateManager").default.getInstance().pushState()
       return false
     }
 
     if (state.body) {
       let [bodyType, BODY]= state.body.split(":")
-      this.body = models[bodyType].getReference(BODY)
+      this.goTo(models[bodyType].getReference(BODY))
     }
-    else if (this.state == Application.State.Main) {
-      this.body = this.user.dom
+    else if (this.section == Application.Section.Main) {
+      this.goTo(this.user.dom)
     }
   }
 }
@@ -339,13 +363,11 @@ export default class Application extends EventEmitter {
  * больше нужно для сохранения состояния
  * @type {{Auth: string, Registration: string, Main: string}}
  */
-Application
-  .State = {
+Application.Section = {
   Auth: "auth",
   Registration: "registration",
   Main: "main",
   Verification: "verification"
 }
 
-Application
-  .SEP = "..."
+Application.SEP = "..."

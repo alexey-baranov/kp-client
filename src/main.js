@@ -117,7 +117,7 @@ if (0) {
   application.authAsPromise(config.unittest2.username, config.unittest2.password)
     .then(user => {
       application.setBody(user.dom)
-      application.state = Application.State.Verification
+      application.setSstate(Application.Section.Verification)
     })
     .then(() => {
       /**
