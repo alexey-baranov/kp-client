@@ -77,10 +77,11 @@
         <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" ref="dialog" class="w-100" :model="eachSlovo"
                             @modeChange="view_modeChange"></slovo-as-list-item>
       </li>
+
     </ul>
     <!--Новое слово-->
     <div v-if="model.invited && !editors.length && userMode !='editor'"
-         class="border-0 px-0 py-0 fixed-bottom">
+         class="border-0 px-0 py-0 fixed-bottomx kp-pos-sticky w-100" style="bottom: 0;">
       <slovo-as-submit v-if="starshinaNaKope===null" :id="id+'_slovo_new'" class="w-100"
                        :model="model.newSlovo" @submit="slovo_submit" @predlozhenie="slovo_predlozhenie">
       </slovo-as-submit>
@@ -403,7 +404,7 @@
 
 <style scoped>
   .kopa {
-    padding-bottom: 13em;
+    /*padding-bottom: 13em;*/
     /*padding-bottom: 1em;*/
   }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" class="slovo-as-submit card  border-right-0 border-left-0 border-bottom-0"
+  <div :id="id" class="slovo-as-submit card"
        :class="{'slovo-as-submit--empty': !model.value}">
     <div class="card-block">
       <files :id="id+'_upload'" class="mt-0" mode="editor" :model="model.attachments"></files>

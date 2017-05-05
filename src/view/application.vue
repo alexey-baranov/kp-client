@@ -4,13 +4,14 @@
     <grumbler :model="grumbler"></grumbler>
     <mu-toast v-if="notifier.currentNotification" :message="notifier.currentNotification.value" @close="toast_close"/>
 
-    <mu-appbar class="fixed-top" :title="'kopnik.org '+ ((!model.user && model.section!='registration')?'Вход':model.header)">
+    <mu-appbar class="fixed-top"
+               :title="'kopnik.org '+ ((!model.user && model.section!='registration')?'Вход':model.header)">
       <mu-icon-button icon='menu' @click="toggle()" slot="left"/>
       <!--<mu-icon-button icon='expand_more' slot="right"/>-->
     </mu-appbar>
     <div class="row no-gutters flex-nowrap align-items-stretch container-under-navbar">
-      <div v-if="drawer" class="col-3 col-lg-2 sidebar">
-        <mu-list class="list-group" @itemClick="docked ? '' : toggle()">
+      <div v-show="drawer" class="col-3 col-lg-2 sidebar">
+        <mu-list class="py-0 kp-pos-sticky">
           <mu-list-item v-for="eachUserDom of userDoma" :href="'?state=main&body=Zemla:'+eachUserDom.id"
                         @click.prevent="list_item_click(eachUserDom)">
             <!--<zemla-as-link :model="eachUserDom"></zemla-as-link>-->
@@ -51,7 +52,7 @@
 </template>
 
 <script>
-  let $ = require("jquery")(window)
+  let $ = require("jquery")
   import Vue from "vue"
 
   import Application from "../Application"
@@ -123,8 +124,13 @@
       },
     },
     methods: {
+        setSidebarHeight(){
+          let sidebarHeight = $(window).height() - $(".sidebar").offset().top
+          this.log.debug(sidebarHeight)
+          $(".sidebar > .mu-list").height(sidebarHeight)
+        },
       async model_restoreScrollItem(){
-        setImmediate(()=>{
+        setImmediate(() => {
           this.$refs.bodyView.setScrollItem(this.model.body.scrollItem)
         })
       },
@@ -152,8 +158,10 @@
       },
       toggle () {
         this.drawer = !this.drawer
+
 //        StateManager.getInstance().replaceState()
         StateManager.getInstance().pushState()
+        Promise.resolve().then(this.setSidebarHeight.bind(this))
       },
       registration_close(){
         this.model.setSection(Application.Section.Main)
@@ -282,6 +290,8 @@
       window.addEventListener('scroll', (e) => {
         deb(e)
       })
+
+      window.addEventListener('resize', this.setSidebarHeight.bind(this))
     },
     async beforeDestroy(){
       /**
@@ -317,26 +327,32 @@
     margin-top: 5rem;
   }
 
+  .sidebar > .mu-list {
+    top: 5rem;
+    overflow-y: auto;
+    /*height: 10rem;*/
+    /*border: solid black 1px;*/
+  }
+
   .title {
 
   }
 </style>
 
 <style>
+  body, html {
+    overflow: visible;
+  }
+
+  .kp-pos-sticky {
+    position: sticky;
+  }
+
   @media (max-width: 575px) {
     .mu-item {
       padding-left: 0.5rem;
       padding-right: 0.5rem;
     }
-  }
-
-  .mu-drawer {
-    /*display: none;*/
-    /*position: static;*/
-  }
-
-  .mu-drawer.open {
-    /*display: block;*/
   }
 
   .mu-text-field-content {
