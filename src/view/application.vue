@@ -340,6 +340,12 @@
 </style>
 
 <style>
+  /*fix muse-ui small fants*/
+  html {
+    font-size: 100%;
+  }
+
+  /*fix muse-ui position:sticky bug at https://github.com/museui/muse-ui/issues/453#issuecomment-298628883*/
   body, html {
     overflow: visible;
   }

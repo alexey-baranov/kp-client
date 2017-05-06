@@ -36,6 +36,11 @@ log.getLogger("location.vue").setLevel("info")
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import MuseUI from 'muse-ui'
+import 'muse-ui/dist/muse-ui.css'
+import "bootstrap/dist/css/bootstrap-reboot.css"
+import "bootstrap/dist/css/bootstrap-grid.css"
+import "bootstrap/dist/css/bootstrap.css"
+
 
 import Application from './Application'
 import applicationView from './view/application.vue'
@@ -44,9 +49,14 @@ import Grumbler from './Grumbler'
 import config from "../cfg/main"
 import StateManager from './StateManager'
 
-let models = global.models = require("./model")
+global.Tether= require('tether')
+global.jQuery= global.$= require('jquery')
+require ("bootstrap")
 
 Vue.use(MuseUI)
+
+let models = global.models = require("./model")
+
 Grumbler.getInstance().addEventHandler()
 
 Notification.requestPermission()

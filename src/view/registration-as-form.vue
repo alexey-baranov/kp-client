@@ -193,6 +193,8 @@
   import models from "../model"
   import Notifier from "../Notifier"
 
+  var Typeahead = require('typeahead');
+
   export default{
     name: "registration-as-form",
 //    mixins: [logMixin, captcha],
@@ -287,15 +289,15 @@
       let this2 = this
 
       $("country").attr("disabled", false)
-      global.$(`#country`).typeahead({
+      Typeahead($(`#country`),{
         autoSelect: false,
         delay: 500,
-        source: (term, process) => {
+        source(term, process) {
           this2.model.getCountries(term)
             .then(process)
         }
       })
-        .change(function () {
+        $(`#country`).change(function () {
           var active = global.$(this).typeahead("getActive")
           if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
             this2.address.country = active
@@ -305,6 +307,7 @@
             this2.address.country = null
           }
         })
+/*
 
       global.$('#town').typeahead({
         autoSelect: false,
@@ -362,6 +365,7 @@
             this2.model.dom = null
           }
         })
+*/
     },
     beforeDestroy(){
       if (this.connection) {
