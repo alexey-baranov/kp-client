@@ -58,55 +58,52 @@
             <strong class="form-text <!--text-muted-->">Защита от того что пользователь зарегистрирует несколько учетных
               записей и будет голосовать несколькими голосами.
             </strong>
-            <strong class="form-text <!--text-muted--> mt-2">Мы не показываем последние четыре цифры паспорта другим копникам. Это информация проверяется только во время подтверждения регистрации.</strong>
+            <strong class="form-text <!--text-muted--> mt-2">Мы не показываем последние четыре цифры паспорта другим
+              копникам. Это информация проверяется только во время подтверждения регистрации.</strong>
           </div>
         </div>
       </fieldset>
 
       <fieldset class="form-group">
         <legend>2. Ваши копы по месту проживания</legend>
-        <div class="form-group row">
-          <label for="country" class="col-sm-3 col-form-label">Страна</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" id="country" autocomplete="off" :disabled="!(model.name && model.surname && model.patronymic && model.birth && model.passport && model.email && model.password && model.password2)">
-            <div v-if="address.country" class="form-text ml-4">Всего копников зарегистрировано:
-              {{address.country.obshinaSize}}
-            </div>
-            <!--address.country:{{address.country}}-->
-          </div>
+        <mu-auto-complete :id="this.id+'_country'" v-model="country_value" :dataSource="country_dataSource"
+                          :dataSourceConfig="{text: 'name', value: 'id'}" filter="noFilter"
+                          label="Страна" labelFloat fullWidth
+                          @select="country_select"></mu-auto-complete>
+        <div v-if="address.country" class="form-text ml-4">Всего копников зарегистрировано:
+          {{address.country.obshinaSize}}
         </div>
+        <!--address.country:{{address.country}}-->
 
-        <div class="form-group row">
-          <label :for="'town'" class="col-sm-3 col-form-label">Город</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" id="town" autocomplete="off" :disabled="!this.address.country">
+        <mu-auto-complete :id="this.id+'_town'" v-model="town_value" :dataSource="town_dataSource"
+                          :dataSourceConfig="{text: 'name', value: 'id'}" filter="noFilter"
+                          label="Город" labelFloat fullWidth
+                          :disabled="!this.address.country"
+                          @select="town_select"></mu-auto-complete>
             <div v-if="address.town" class="form-text ml-4">Всего копников зарегистрировано в вашем городе:
               {{address.town.obshinaSize}}
             </div>
-          </div>
-        </div>
 
-        <div class="form-group row">
-          <label :for="random+'street'" class="col-sm-3 col-form-label">Улица</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" id="street" autocomplete="off" :disabled="!this.address.town">
-            <div v-if="address.street" class="form-text ml-4">Всего копников зарегистрировано на вашей улице:
+        <mu-auto-complete :id="this.id+'_street'" v-model="street_value" :dataSource="street_dataSource"
+                          :dataSourceConfig="{text: 'name', value: 'id'}" filter="noFilter"
+                          label="Улица" labelFloat fullWidth
+                          :disabled="!this.address.town"
+                          @select="street_select"></mu-auto-complete>
+
+        <div v-if="address.street" class="form-text ml-4">Всего копников зарегистрировано на вашей улице:
               {{address.street.obshinaSize}}
             </div>
             <!--address.street:{{address.street}}-->
-          </div>
-        </div>
 
-        <div class="form-group row">
-          <label :for="random+'dom'" class="col-sm-3 col-form-label">Дом</label>
-          <div class="col-sm-9">
-            <input type="text" class="form-control" id="dom" autocomplete="off" :disabled="!this.address.street">
+        <mu-auto-complete :id="this.id+'_dom'" v-model="dom_value" :dataSource="dom_dataSource"
+                          :dataSourceConfig="{text: 'name', value: 'id'}" filter="noFilter"
+                          label="Дом" labelFloat fullWidth
+                          :disabled="!this.address.street"
+                          @select="dom_select"></mu-auto-complete>
             <div v-if="model.dom" class="form-text ml-4">Всего копников зарегистрировано в вашем доме:
               {{model.dom.obshinaSize}}
               <!--model.dom:{{model.dom}}-->
             </div>
-          </div>
-        </div>
       </fieldset>
 
       <!--антибот -->
@@ -115,7 +112,9 @@
           ботов</label>
         <div class="col-sm-9">
           <div id="g-recaptcha"></div>
-          <small class="text-mute">Если вы не видите  специальный элемент защиты от ботов "Я не робот", то обновите страницу и пройдите регистрацию снова</small>
+          <small class="text-mute">Если вы не видите специальный элемент защиты от ботов "Я не робот", то обновите
+            страницу и пройдите регистрацию снова
+          </small>
         </div>
       </div>
 
@@ -149,13 +148,15 @@
           Или вы можете предоставить паспорт заверителю при личной встрече, если вы опасаетесь или у вас есть сомнения.
         </p>
         <p class="font-weight-bold">
-          Процедура заверения нужна для того чтобы предотвратить электронную регистрацию одним человеком нескольких учетных записей и голосование на копах несколькими голосами.
+          Процедура заверения нужна для того чтобы предотвратить электронную регистрацию одним человеком нескольких
+          учетных записей и голосование на копах несколькими голосами.
           Просим отнестись с пониманием.
         </p>
         <p>
           Вы можете сделать это прямо сейчас или в другое удобное для вас время.
           Для этого свяжитесь с заверителем по вашему региону.
-          Процедура занимает 3-5 минут. Предворительно приготовьте паспорт и убедитесь, что у вас на телефоне (компьютере) работает видеокамера.
+          Процедура занимает 3-5 минут. Предворительно приготовьте паспорт и убедитесь, что у вас на телефоне
+          (компьютере) работает видеокамера.
         </p>
         <div class="card">
           <div class="card-block">
@@ -186,6 +187,7 @@
 
   import captcha from "./mixin/captcha"
   let Cookies = require("js-cookie")
+  import Rx from "rxjs/Rx"
 
   import config from  "../../cfg/main"
   import Connection from "../Connection"
@@ -193,15 +195,13 @@
   import models from "../model"
   import Notifier from "../Notifier"
 
-  var Typeahead = require('typeahead');
-
   export default{
     name: "registration-as-form",
 //    mixins: [logMixin, captcha],
     mixins: [captcha],
     data() {
-        let years= []
-      for(let eachYear= 1900; eachYear< new Date().getFullYear()-29; eachYear++){
+      let years = []
+      for (let eachYear = 1900; eachYear < new Date().getFullYear() - 29; eachYear++) {
         years.push(eachYear)
 //        config.log(years)
       }
@@ -222,12 +222,23 @@
         submited: false,
         testValue: null,
         years,
-        random : Math.round(Math.random()*1000000)
+        random: Math.round(Math.random() * 1000000),
+        country_dataSource: [],
+        town_dataSource: [],
+        street_dataSource: [],
+        dom_dataSource: [],
+        country_value: null,
+        town_value: null,
+        street_value: null,
+        dom_value: null,
       }
     },
     props: ["id"],
     components: {},
     methods: {
+      country_input(){
+
+      },
       close_click(){
         this.$emit("close", this)
       },
@@ -259,6 +270,24 @@
           $("html, body").animate({scrollTop: $(document).height()}/*, "fast"*/);
         }
       },
+      async country_select(item, index){
+        this.address.country = item
+        this.address.town= this.address.street= this.model.dom= null
+        this.town_value= this.street_value= this.dom_value= ""
+      },
+      async town_select(item, index){
+        this.address.town = item
+        this.address.street= this.model.dom= null
+        this.street_value= this.dom_value= ""
+      },
+      async street_select(item, index){
+        this.address.street = item
+        this.model.dom= null
+        this.dom_value= ""
+      },
+      async dom_select(item, index){
+        this.model.dom = item
+      },
     },
     beforeCreate(){
     },
@@ -286,86 +315,133 @@
 //      await this.model.fill()
     },
     async mounted() {
-      let this2 = this
-
-      $("country").attr("disabled", false)
-      Typeahead($(`#country`),{
-        autoSelect: false,
-        delay: 500,
-        source(term, process) {
-          this2.model.getCountries(term)
-            .then(process)
-        }
-      })
-        $(`#country`).change(function () {
-          var active = global.$(this).typeahead("getActive")
-          if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
-            this2.address.country = active
-            $("town").attr("disabled", false)
-          }
-          else {
-            this2.address.country = null
-          }
+//        страна
+      Rx.Observable.fromEvent(document.querySelector(`#${this.id}_country input`), "input")
+        .do(() => {
+          this.country_dataSource = []
         })
-/*
-
-      global.$('#town').typeahead({
-        autoSelect: false,
-        delay: 500,
-        source: (term, process) => {
-          this2.model.getTowns(term, this2.address.country.id)
-            .then(process)
-        }
-      })
-        .change(function () {
-          var active = global.$(this).typeahead("getActive")
-          if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
-            this2.address.town = active
-            $("street").attr("disabled", false)
-          }
-          else {
-            this2.address.town = null
-          }
+        .debounceTime(300)
+        .distinctUntilChanged()
+        .switchMap(event => event.target.value ? Rx.Observable.fromPromise(this.model.getCountries(event.target.value)) : Rx.Observable.of([]))
+        .subscribe(datasource => {
+          this.country_dataSource = datasource
         })
-
-      global.$('#street').typeahead({
-        autoSelect: false,
-        delay: 500,
-        source: (term, process) => {
-          this2.model.getStreets(term, this2.address.town.id)
-            .then(process)
-        }
-      })
-        .change(function () {
-          var active = global.$(this).typeahead("getActive")
-          if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
-            this2.address.street = active
-            $("dom").attr("disabled", false)
-          }
-          else {
-            this2.address.street = null
-          }
+//      город
+      Rx.Observable.fromEvent(document.querySelector(`#${this.id}_town input`), "input")
+        .do(() => {
+          this.town_dataSource = []
+        })
+        .debounceTime(300)
+        .distinctUntilChanged()
+        .switchMap(event => event.target.value ? Rx.Observable.fromPromise(this.model.getTowns(event.target.value, this.address.country.id)) : Rx.Observable.of([]))
+        .subscribe(datasource => {
+          this.town_dataSource = datasource
+        })
+//      улица
+      Rx.Observable.fromEvent(document.querySelector(`#${this.id}_street input`), "input")
+        .do(() => {
+          this.street_dataSource = []
+        })
+        .debounceTime(300)
+        .distinctUntilChanged()
+        .switchMap(event => event.target.value ? Rx.Observable.fromPromise(this.model.getStreets(event.target.value, this.address.town.id)) : Rx.Observable.of([]))
+        .subscribe(datasource => {
+          this.street_dataSource = datasource
+        })
+//      дом
+      Rx.Observable.fromEvent(document.querySelector(`#${this.id}_dom input`), "input")
+        .do(() => {
+          this.dom_dataSource = []
+        })
+        .debounceTime(300)
+        .distinctUntilChanged()
+        .switchMap(event => event.target.value ? Rx.Observable.fromPromise(this.model.getHouses(event.target.value, this.address.street.id)) : Rx.Observable.of([]))
+        .subscribe(datasource => {
+          this.dom_dataSource = datasource
         })
 
-      global.$('#dom').typeahead({
-        autoSelect: false,
-        delay: 2000,
-        source: (term, process) => {
-          this2.model.getHouses(term, this2.address.street.id)
-            .then(process)
-        }
-      })
-        .change(function () {
-          var active = global.$(this).typeahead("getActive")
-          if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
-            this2.model.dom = models.Zemla.getReference(active.id)
-            this2.model.dom.obshinaSize = active.obshinaSize
-          }
-          else {
-            this2.model.dom = null
-          }
-        })
-*/
+
+//      let this2 = this
+
+      /*
+       Typeahead($(`#country`),{
+       autoSelect: false,
+       delay: 500,
+       source(term, process) {
+       this2.model.getCountries(term)
+       .then(process)
+       }
+       })
+       $(`#country`).change(function () {
+       var active = global.$(this).typeahead("getActive")
+       if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
+       this2.address.country = active
+       $("town").attr("disabled", false)
+       }
+       else {
+       this2.address.country = null
+       }
+       })
+       */
+      /*
+
+       global.$('#town').typeahead({
+       autoSelect: false,
+       delay: 500,
+       source: (term, process) => {
+       this2.model.getTowns(term, this2.address.country.id)
+       .then(process)
+       }
+       })
+       .change(function () {
+       var active = global.$(this).typeahead("getActive")
+       if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
+       this2.address.town = active
+       $("street").attr("disabled", false)
+       }
+       else {
+       this2.address.town = null
+       }
+       })
+
+       global.$('#street').typeahead({
+       autoSelect: false,
+       delay: 500,
+       source: (term, process) => {
+       this2.model.getStreets(term, this2.address.town.id)
+       .then(process)
+       }
+       })
+       .change(function () {
+       var active = global.$(this).typeahead("getActive")
+       if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
+       this2.address.street = active
+       $("dom").attr("disabled", false)
+       }
+       else {
+       this2.address.street = null
+       }
+       })
+
+       global.$('#dom').typeahead({
+       autoSelect: false,
+       delay: 2000,
+       source: (term, process) => {
+       this2.model.getHouses(term, this2.address.street.id)
+       .then(process)
+       }
+       })
+       .change(function () {
+       var active = global.$(this).typeahead("getActive")
+       if (active && active.name.toLowerCase() == $(this).val().toLowerCase()) {
+       this2.model.dom = models.Zemla.getReference(active.id)
+       this2.model.dom.obshinaSize = active.obshinaSize
+       }
+       else {
+       this2.model.dom = null
+       }
+       })
+       */
     },
     beforeDestroy(){
       if (this.connection) {

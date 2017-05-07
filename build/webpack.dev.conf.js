@@ -15,11 +15,11 @@ module.exports = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap })
   },
-  devtool: '#eval',// is faster for development
+  // devtool: '#eval',// is faster for development
   // cheap-module-eval-source-map',
   // devtool: '#cheap-module-source-map', //все строчки перепутаны
   // devtool: '#cheap-source-map', //все строчки перепутаны
-  // devtool: '#source-map', //медленно, зато железно
+  devtool: '#source-map', //медленно, зато железно
   plugins: [
     new webpack.DefinePlugin({
       'process.env': config.dev.env
