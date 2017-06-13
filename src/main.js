@@ -96,9 +96,11 @@ application.on("connectionOpen", () => {
 })
 
 application.on("connectionClose", (err) => {
-  err.tag= "connectionClose"
-  connectionErrors.push(err)
-  Grumbler.getInstance().pushError(err)
+  if (err.message!="connection closed") {
+    err.tag = "connectionClose"
+    connectionErrors.push(err)
+    Grumbler.getInstance().pushError(err)
+  }
 })
 
 application.authAsPromise()

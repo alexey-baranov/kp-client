@@ -70,7 +70,7 @@
                           :dataSourceConfig="{text: 'name', value: 'id'}" filter="noFilter"
                           label="Страна" labelFloat fullWidth
                           @select="country_select"></mu-auto-complete>
-        <div v-if="address.country" class="form-text ml-4">Всего копников зарегистрировано:
+        <div v-if="0 && address.country" class="form-text ml-4">Всего копников зарегистрировано:
           {{address.country.obshinaSize}}
         </div>
         <!--address.country:{{address.country}}-->
@@ -80,9 +80,9 @@
                           label="Город" labelFloat fullWidth
                           :disabled="!this.address.country"
                           @select="town_select"></mu-auto-complete>
-            <div v-if="address.town" class="form-text ml-4">Всего копников зарегистрировано в вашем городе:
-              {{address.town.obshinaSize}}
-            </div>
+        <div v-if="0 && address.town" class="form-text ml-4">Всего копников зарегистрировано в вашем городе:
+          {{address.town.obshinaSize}}
+        </div>
 
         <mu-auto-complete :id="this.id+'_street'" v-model="street_value" :dataSource="street_dataSource"
                           :dataSourceConfig="{text: 'name', value: 'id'}" filter="noFilter"
@@ -90,20 +90,20 @@
                           :disabled="!this.address.town"
                           @select="street_select"></mu-auto-complete>
 
-        <div v-if="address.street" class="form-text ml-4">Всего копников зарегистрировано на вашей улице:
-              {{address.street.obshinaSize}}
-            </div>
-            <!--address.street:{{address.street}}-->
+        <div v-if="0 && address.street" class="form-text ml-4">Всего копников зарегистрировано на вашей улице:
+          {{address.street.obshinaSize}}
+        </div>
+        <!--address.street:{{address.street}}-->
 
         <mu-auto-complete :id="this.id+'_dom'" v-model="dom_value" :dataSource="dom_dataSource"
                           :dataSourceConfig="{text: 'name', value: 'id'}" filter="noFilter"
                           label="Дом" labelFloat fullWidth
                           :disabled="!this.address.street"
                           @select="dom_select"></mu-auto-complete>
-            <div v-if="model.dom" class="form-text ml-4">Всего копников зарегистрировано в вашем доме:
-              {{model.dom.obshinaSize}}
-              <!--model.dom:{{model.dom}}-->
-            </div>
+        <div v-if="0 && model.dom" class="form-text ml-4">Всего копников зарегистрировано в вашем доме:
+          {{model.dom.obshinaSize}}
+          <!--model.dom:{{model.dom}}-->
+        </div>
       </fieldset>
 
       <!--антибот -->
@@ -272,18 +272,18 @@
       },
       async country_select(item, index){
         this.address.country = item
-        this.address.town= this.address.street= this.model.dom= null
-        this.town_value= this.street_value= this.dom_value= ""
+        this.address.town = this.address.street = this.model.dom = null
+        this.town_value = this.street_value = this.dom_value = ""
       },
       async town_select(item, index){
         this.address.town = item
-        this.address.street= this.model.dom= null
-        this.street_value= this.dom_value= ""
+        this.address.street = this.model.dom = null
+        this.street_value = this.dom_value = ""
       },
       async street_select(item, index){
         this.address.street = item
-        this.model.dom= null
-        this.dom_value= ""
+        this.model.dom = null
+        this.dom_value = ""
       },
       async dom_select(item, index){
         this.model.dom = item
@@ -297,14 +297,14 @@
         this.connection = Connection.getAnonymousInstance()
 
         await new Promise((res, rej) => {
-          Connection.getAnonymousInstance().onopen = async(session, details) => {
+          Connection.getAnonymousInstance().onopen = async (session, details) => {
             this.log.debug("anonymous session opened")
             Cookies.remove("cbtid")
             session.prefix('api', 'ru.kopa')
             res()
           }
 
-          Connection.getAnonymousInstance().onclose = async(reason, details) => {
+          Connection.getAnonymousInstance().onclose = async (reason, details) => {
             this.log.error("anonymous session open fails", reason, details)
             if (reason == "closed" || reason == "unreachable" || reason == "unsupported")
               rej(new Error(reason + " " + details.reason + " " + details.message))
@@ -446,7 +446,7 @@
     beforeDestroy(){
       if (this.connection) {
         return new Promise((res, rej) => {
-          Connection.getAnonymousInstance().onclose = async(session, details) => {
+          Connection.getAnonymousInstance().onclose = async (session, details) => {
             this.log.debug("anonymous session closed")
             res()
           }

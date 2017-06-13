@@ -1,6 +1,7 @@
 /**
  * Created by alexey2baranov on 07.02.17.
  */
+import config from "../../../cfg/main"
 import logMixin from "./log"
 
 export default {
@@ -15,7 +16,7 @@ export default {
           grecaptcha.render(
             "g-recaptcha",
             {
-              "sitekey": "6Le-9BMUAAAAAIx-D7vLPKysleUXNU6tzOlcX8Kr", "theme": "light",
+              "sitekey": config.captcha.key, "theme": "light",
               "size": $(window).width() < 500 ? "compact" : "normal",
               callback: (response) => {
                 this.log.debug(response)

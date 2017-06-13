@@ -111,6 +111,13 @@ class AuthenticatorSession(ApplicationSession):
 
                 # no user in databese
                 if rowcount == 0:
+                    # check unverified registration
+                    cursor = db_conn.cursor()
+                    cursor.execute("SELECT r.id, r.email FROM public.\"Registration\" as r WHERE r.state=0 and r.email= %s", [authid])
+                    rowcount = cursor.rowcount
+                    if rowcount > 0:
+                      raise ApplicationError(u"org.kopnik.unverified_registration", "Unverified registration {}".format(authid))
+
                     raise ApplicationError(u"org.kopnik.incorrect_username_or_password", "Incorrect username or password {}".format(authid))
 
                 for item in cursor.fetchall():

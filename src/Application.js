@@ -236,6 +236,12 @@ export default class Application extends EventEmitter {
       this.emit("connectionOpen", this.user)
     }
 
+    /**
+     * не далать этот метод асинк, поотому что если он вернет не null, то не запустится автореконнект
+     *
+     * @param reason
+     * @param details
+     */
     connection.onclose = (reason, details) => {
       this.log.info("connection closed. reason:", reason, ", details: ", details)
 
@@ -254,6 +260,9 @@ export default class Application extends EventEmitter {
         else if (details.message.indexOf("incorrect_username_or_password") != -1) {
           this.emit("connectionClose", new AuthenticationError("Неверное имя пользователя или пароль"))
         }
+        else if (details.message.indexOf("unverified_registration") != -1) {
+          this.emit("connectionClose", new AuthenticationError(`Ваша регистрация еще не заверена. Вероятно вы забыли обратиться к заверителю по вашему региону. Следуйте информационному письму, которое вы получили после регистрации на почту ${email}`))
+        }
         else {
           this.emit("connectionClose", new AuthenticationError(reason + ", " + details.message))
         }
@@ -267,7 +276,10 @@ export default class Application extends EventEmitter {
         this.emit("connectionClose", new AuthenticationError("Вы не прошли Антибот-проверку"))
       }
       else if (details.reason && details.reason.indexOf("incorrect_username_or_password") != -1) {
-        this.emit("connectionClose", new AuthenticationError("Неверное имя пользователя или пароль"))
+        this.emit("connectionClose", new AuthenticationError("Неверное имя пользователя или пароль. "))
+      }
+      else if (details.reason && details.reason.indexOf("unverified_registration") != -1) {
+        this.emit("connectionClose", new AuthenticationError(`Ваша регистрация еще не заверена. Вероятно вы забыли обратиться к заверителю по вашему региону. Следуйте информационному письму, которое вы получили после регистрации на почту ${email}`))
       }
 
       //ниже для обоих кросбаров 0.13 и 17.3
@@ -276,6 +288,9 @@ export default class Application extends EventEmitter {
       }
       else if (reason == 'lost') {
         this.emit("connectionClose", new Error(`Нарушена связь с сервером обмена данных.  Неудачных попыток: ${details.retry_count}. Повторная попытка подключения через ${Math.round(details.retry_delay)}сек`))
+      }
+      else if (reason == 'closed') {
+        this.emit("connectionClose", new Error(`connection closed`))
       }
       else if (details) {
         this.emit("connectionClose", new Error("reason: " + reason + ", details: " + JSON.stringify(details).replace(/([:,{}])/g, "$1 ") + `Неудачных попыток: ${Math.round(details.retry_count)}. Повторная попытка подключения через ${details.retry_delay}сек`))

@@ -13,7 +13,7 @@
           <div id="g-recaptcha"></div>
         </div>
         <div class="form-group w-100">
-          <input type="submit" class="btn btn-primary btn-block mt-3" value="Войти" :disabledX="!captchaResponse"
+          <input type="submit" class="btn btn-primary btn-block mt-3" value="Войти" :disabled="!((captchaResponse || email==unittest2Username) && email && password )"
                  @click.prevent="submit_click">
         </div>
         <div>
@@ -29,6 +29,7 @@
 
   import Application from "../Application"
   import captcha from './mixin/captcha'
+  import config from "../../cfg/main"
   import logMixin from "./mixin/log"
   import Notifier from "../Notifier"
   import StateManager from "../StateManager"
@@ -42,6 +43,7 @@
         email: null, //"unittest2@domain.ru",
         password: null, //"qwerty",
         captchaResponse: undefined,
+        unittest2Username: config.unittest2.username,
       }
     },
     props: ["id"],
@@ -60,6 +62,7 @@
       },
       submit_click() {
         this.$emit("input", this.$data)
+        this.captchaResponse= undefined
         global.grecaptcha.reset()
       }
     },

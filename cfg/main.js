@@ -21,6 +21,9 @@ let config = {
       username: "unittest2@domain.ru",
       password: "qwerty"
     },
+    "captcha": {
+      "key": "6Lf78hkUAAAAALDWSItQ9OdDXfM2ZM7JunDSQMuK",
+    },
   },
   "testing": {
     WAMP: {
@@ -40,6 +43,9 @@ let config = {
       username: "unittest2@domain.ru",
       password: "qwerty"
     },
+    "captcha": {
+      "key": "6Lf78hkUAAAAALDWSItQ9OdDXfM2ZM7JunDSQMuK",
+    },
   },
   "production": {
     WAMP: {
@@ -58,7 +64,10 @@ let config = {
     unittest2: {
       username: "unittest2@domain.ru",
       password: "qwerty"
-    }
+    },
+    "captcha": {
+      "key": "6Le-9BMUAAAAAIx-D7vLPKysleUXNU6tzOlcX8Kr",
+    },
   }
 }
 

@@ -15,17 +15,18 @@
           <mu-list-item v-for="eachUserDom of userDoma" :href="'?state=main&body=Zemla:'+eachUserDom.id"
                         @click.prevent="list_item_click(eachUserDom)">
             <!--<zemla-as-link :model="eachUserDom"></zemla-as-link>-->
-            {{eachUserDom.name}}
+            {{eachUserDom.name}} <small>({{eachUserDom.obshinaSize}})</small>
           </mu-list-item>
           <mu-list-item v-if="model.user && model.user.registrations && model.user.registrations.length"
                         href="?state=verification" @click.prevent="verification_click">
             Регистрации
           </mu-list-item>
-
           <mu-list-item href="https://www.youtube.com/channel/UCJRtg8s94PTFXEfZ6sEnlGw" target="_blank" @click="">
             Youtube
           </mu-list-item>
-
+          <mu-list-item href="https://github.com/alexey-baranov/kp-client-issues/issues" target="_blank" @click="">
+            Техподдержка
+          </mu-list-item>
           <mu-list-item v-if="model.user" @click.prevent="close_click">
             Выход
           </mu-list-item>

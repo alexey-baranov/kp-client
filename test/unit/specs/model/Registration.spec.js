@@ -96,7 +96,7 @@ describe('Registration', function () {
     expect (registration.isReady()).ok
   })
 
-  describe("#create()", function() {
+  describe.only("#create()", function() {
     this.timeout(5000)
     it('registrationAdd', function (done) {
       (async() => {
