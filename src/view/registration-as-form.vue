@@ -179,6 +179,14 @@
     <p>
       Вернуться назад на <a href="/?state=auth" @click.prevent="close_click">страницу входа</a>
     </p>
+    <div class="row">
+      <div class="col-12 col-sm-6">
+        <iframe width="100%" height="auto" src="https://www.youtube.com/embed/lAG5AX_t1B4?list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR" frameborder="0" allowfullscreen></iframe>
+      </div>
+      <div class="col-12 col-sm-6">
+        <iframe width="100%" height="auto" src="https://www.youtube.com/embed/Vb7GUzRP1vU?list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR" frameborder="0" allowfullscreen></iframe>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -459,4 +467,7 @@
 </script>
 
 <style scoped>
+  iframe{
+    margin-top: 2rem;
+  }
 </style>

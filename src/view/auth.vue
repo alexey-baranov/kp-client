@@ -1,26 +1,27 @@
 <template>
   <div :id="id" class="auth">
-    <!--<h1>Вход</h1>-->
-    <form class="row">
-      <div class="col-10 col-sm-7 col-md-5 col-lg-3 mx-auto my-auto">
-        <div class="form-group w-100">
-          <input type="text" class="form-control" required placeholder="Электронная почта" v-model="email">
+      <form class="row">
+        <div class="col-10 col-sm-7 col-md-5 col-lg-3 mx-auto my-auto">
+          <div class="form-group w-100">
+            <input type="text" class="form-control" required placeholder="Электронная почта" v-model="email">
+          </div>
+          <div class="form-group w-100">
+            <input type="password" class="form-control" required placeholder="Пароль" v-model="password">
+          </div>
+          <div class="form-group w-100">
+            <div id="g-recaptcha"></div>
+          </div>
+          <div class="form-group w-100">
+            <input type="submit" class="btn btn-primary btn-block mt-3" value="Войти" :disabled="!((captchaResponse || email==unittest2Username) && email && password )"
+                   @click.prevent="submit_click">
+          </div>
+          <div>
+            Или перейдите на <a href="/?state=registration" @click.prevent="registration_click">страницу регистрации</a>
+          </div>
+
+          <!--<iframe width="100%" height="auto" src="https://www.youtube.com/embed/Zo77aWoW_vc?list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR" frameborder="0" allowfullscreen></iframe>-->
         </div>
-        <div class="form-group w-100">
-          <input type="password" class="form-control" required placeholder="Пароль" v-model="password">
-        </div>
-        <div class="form-group w-100">
-          <div id="g-recaptcha"></div>
-        </div>
-        <div class="form-group w-100">
-          <input type="submit" class="btn btn-primary btn-block mt-3" value="Войти" :disabled="!((captchaResponse || email==unittest2Username) && email && password )"
-                 @click.prevent="submit_click">
-        </div>
-        <div>
-          Или перейдите на <a href="/?state=registration" @click.prevent="registration_click">страницу регистрации</a>
-        </div>
-      </div>
-    </form>
+      </form>
   </div>
 </template>
 
@@ -81,5 +82,9 @@
   .auth form {
     min-height: 70vh;
     /*width: 17rem*/
+  }
+
+  iframe{
+    margin-top: 2rem;
   }
 </style>

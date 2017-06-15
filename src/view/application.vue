@@ -84,6 +84,7 @@
           await this.model.user.joinedLoaded()
           this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
           await this.model.user.reloadRegistrations()
+          this.setSidebarHeight()
         }
         else {
           this.userDoma = null
@@ -217,7 +218,15 @@
         if (!state) {
           state = {};
         }
+/*
+        let prevDrawer= this.drawer
+*/
         this.drawer = state.drawer
+/*
+        if (this.drawer && !prevDrawer){
+            this.setSidebarHeight()
+        }
+*/
         await Promise.resolve(1)
         if (this.model.section == Application.Section.Main) {
           await this.$refs.bodyView.setState(state.body || {})

@@ -227,13 +227,19 @@ export default class Application extends EventEmitter {
 
       this.log.info("user", this.user)
       // await this.subscribeToNotifications()
+
+      /**
+       * эта строчка должна быть синхронна с this.user= ...
+       * иначе внутри application.vue не сработает первый setSidebarHeight()
+       */
+      this.emit("connectionOpen", this.user)
+
       /**
        * registerServiceWorker() прилетело сюда в connection.onopen()
-       * потому что там в конце, когда идет подкиска на пуши, должна пройти синхронизация с сервером
+       * потому что внутри registerServiceWorker(), когда идет подкиска на пуши, должна пройти синхронизация с сервером
        * TODO: подумать а почему нельзя оставить здесь только подписку на уведомления, а регистрацию сервис воркера делать один раз
        */
       await this.registerServiceWorker()
-      this.emit("connectionOpen", this.user)
     }
 
     /**
