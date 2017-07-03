@@ -166,7 +166,6 @@
             <p>skype: <a :href="'skype:'+model.verifier.skype+'?call'">{{model.verifier.skype}}</a></p>
           </div>
         </div>
-        <strong>Номер вашей регистрации #{{model.id}}.</strong>
         <p class="mb-0">Копия письма отправлена на указанный адрес {{model.email}}</p>
       </div>
       <p>

@@ -31,6 +31,12 @@ export default class Application extends EventEmitter {
     this.serviceWorkerRegistration = null
     this.serviceWorker = null
     this.header = ""
+    /**
+     * идентификатор пуш-подписки.
+     * null значит что был отказ подписки
+     * @type {undefined}
+     */
+    this.pushSubscription= undefined
   }
 
   static getInstance() {
@@ -138,7 +144,12 @@ export default class Application extends EventEmitter {
     this.log.debug("push subscription")
     this.pushSubscription = await this.registration.pushManager.getSubscription()
     if (!this.pushSubscription) {
-      this.pushSubscription = await this.registration.pushManager.subscribe({userVisibleOnly: true})
+      try {
+        this.pushSubscription = await this.registration.pushManager.subscribe({userVisibleOnly: true})
+      }
+      catch(err){
+        this.pushSubscription= null
+      }
     }
     if (!this.pushSubscription) {
       throw new Error("Ошибка во время подписки на события")

@@ -195,7 +195,7 @@ class Kopa extends RemoteModel {
   }
 
   get name() {
-    return this.question ? this.question.substring(0, 50) : undefined
+    return this.question ? this.question.substring(0, 25) : undefined
   }
 
   toString() {

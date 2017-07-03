@@ -1,7 +1,6 @@
 <template>
   <div :id="id" class="kopa-as-list-item card" >
       <div class="card-header d-flex flex-wrap kp-small">
-        <a :href="'#'+model.id">#{{model.id}}</a>
         <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
         <div>{{(model.invited || null) | humanize}}</div>
       </div>

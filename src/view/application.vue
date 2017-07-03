@@ -15,7 +15,8 @@
           <mu-list-item v-for="eachUserDom of userDoma" :href="'?state=main&body=Zemla:'+eachUserDom.id"
                         @click.prevent="list_item_click(eachUserDom)">
             <!--<zemla-as-link :model="eachUserDom"></zemla-as-link>-->
-            {{eachUserDom.name}} <small>({{eachUserDom.obshinaSize}})</small>
+            {{eachUserDom.name}}
+            <small>({{eachUserDom.obshinaSize}})</small>
           </mu-list-item>
           <mu-list-item v-if="model.user && model.user.registrations && model.user.registrations.length"
                         href="?state=verification" @click.prevent="verification_click">
@@ -34,6 +35,9 @@
       </div>
       <div :class="{'col-9':drawer, 'col-12': !drawer, 'col-lg-10':drawer}">
         <div class="padding-x-container">
+          <div v-if="model.pushSubscription===null">
+            Вы заблокировали всплывающие оповещения. Все подробности <a href="https://www.youtube.com/watch?v=Zo77aWoW_vc&index=4&list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR">здесь</a>
+          </div>
           <auth v-if="!model.user && model.section!='registration'" @input="auth_input"></auth>
           <registration-as-form v-if="model.section=='registration'" :id="id+'_registration'"
                                 @close="registration_close"></registration-as-form>
@@ -42,7 +46,7 @@
                                 :model="model.user"></kopnik-as-verifier>
             <div v-if="model.section=='main' && model.body">
               <!--<h1 class="title text-truncate">{{header}}</h1>-->
-              <location class="breadcrumb" :model="model.body"></location>
+              <location class="breadcrumb" :model="model.body" full="true"></location>
               <component ref="bodyView" v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
             </div>
           </template>
@@ -126,11 +130,11 @@
       },
     },
     methods: {
-        setSidebarHeight(){
-          let sidebarHeight = $(window).height() - $(".sidebar").offset().top
-          this.log.debug(sidebarHeight)
-          $(".sidebar > .mu-list").height(sidebarHeight)
-        },
+      setSidebarHeight(){
+        let sidebarHeight = $(window).height() - $(".sidebar").offset().top
+        this.log.debug(sidebarHeight)
+        $(".sidebar > .mu-list").height(sidebarHeight)
+      },
       async model_restoreScrollItem(){
         setImmediate(() => {
           this.$refs.bodyView.setScrollItem(this.model.body.scrollItem)
@@ -162,7 +166,7 @@
         this.drawer = !this.drawer
 
 //        StateManager.getInstance().replaceState()
-        StateManager.getInstance().pushState()
+//        StateManager.getInstance().pushState()
         Promise.resolve().then(this.setSidebarHeight.bind(this))
       },
       registration_close(){
@@ -218,15 +222,19 @@
         if (!state) {
           state = {};
         }
-/*
-        let prevDrawer= this.drawer
-*/
-        this.drawer = state.drawer
-/*
-        if (this.drawer && !prevDrawer){
-            this.setSidebarHeight()
-        }
-*/
+        /*
+         let prevDrawer= this.drawer
+         */
+
+        /*
+         чтобы во время перехода назад панелька не выскакивала
+         */
+//        this.drawer = state.drawer
+        /*
+         if (this.drawer && !prevDrawer){
+         this.setSidebarHeight()
+         }
+         */
         await Promise.resolve(1)
         if (this.model.section == Application.Section.Main) {
           await this.$refs.bodyView.setState(state.body || {})
@@ -250,7 +258,7 @@
        * мобильные браузеры отваливаются после сна, даже не выплюнув событие Connection.onclose
        * поэтому тут этот момент проверяется
        */
-      document.addEventListener("visibilitychange", this.document_visibilitychange = async() => {
+      document.addEventListener("visibilitychange", this.document_visibilitychange = async () => {
         console.log("document.hidden", document.hidden)
         /**
          * окно появилось, session вроде активна, но в мобильных браузерах это не факт
@@ -293,7 +301,7 @@
        * решил уйти на хэши
        * такой метод более универсально при передаче ссылки с урстройства на устройства с разными форматами экрана
        */
-      let deb = _.debounce(async(e) => {
+      let deb = _.debounce(async (e) => {
         let state = await StateManager.getInstance().replaceState()
       }, 1000)
 

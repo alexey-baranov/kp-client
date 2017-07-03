@@ -1,9 +1,9 @@
 <template>
     <ol class="location breadcrumb">
       <li v-for="eachNode of nodes" class="breadcrumb-item">
-        <zemla-as-link v-if="modelClassName=='Zemla'" :target="target" :model="eachNode"></zemla-as-link>
-        <zemla-as-link v-if="modelClassName=='Kopa'" :target="target" :model="eachNode"></zemla-as-link>
-        <kopnik-as-link v-if="modelClassName=='Kopnik'" :target="target" :model="eachNode"></kopnik-as-link>
+        <zemla-as-link v-if="eachNode.constructor.name=='Zemla'" :target="target" :model="eachNode"></zemla-as-link>
+        <kopa-as-link v-if="eachNode.constructor.name=='Kopa'" :target="target" :model="eachNode"></kopa-as-link>
+        <kopnik-as-link v-if="eachNode.constructor.name=='Kopnik'" :target="target" :model="eachNode"></kopnik-as-link>
       </li>
     </ol>
 </template>
@@ -28,6 +28,7 @@
     },
     components: {
       "zemla-as-link": require('./zemla-as-link.vue'),
+      "kopa-as-link": require('./kopa-as-link.vue'),
       "kopnik-as-link": require('./kopnik-as-link.vue'),
     },
     computed: {
@@ -47,7 +48,7 @@
          */
         let localModel= this.model
         this.nodes = []
-        if (this.full=="true" && (this.model instanceof models.Zemla || this.model instanceof models.Kopnik)){
+        if (this.full=="true" /*&& (this.model instanceof models.Zemla || this.model instanceof models.Kopnik)*/){
             this.nodes.push(this.model)
         }
         await this.model.joinedLoaded()
@@ -74,6 +75,9 @@
           }
         }
       },
+      getClassName: function(instance){
+        return instance.constructor.name
+      }
     },
     created() {
       this.log = require("loglevel").getLogger(this.$options.name+".vue")
