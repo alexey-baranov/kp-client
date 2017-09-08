@@ -145,17 +145,16 @@ export default class Application extends EventEmitter {
     this.pushSubscription = await this.registration.pushManager.getSubscription()
     if (!this.pushSubscription) {
       try {
+        this.pushSubscription = undefined //это чтобы сообщение о неподписке не вылезло по условию === null
         this.pushSubscription = await this.registration.pushManager.subscribe({userVisibleOnly: true})
       }
       catch(err){
         this.pushSubscription= null
       }
     }
-    if (!this.pushSubscription) {
-      throw new Error("Ошибка во время подписки на события")
+    if (this.pushSubscription) {
+      await this.addPushSubscription()
     }
-
-    await this.addPushSubscription()
   }
 
   async addPushSubscription() {

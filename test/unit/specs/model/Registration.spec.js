@@ -23,7 +23,7 @@ describe('Registration', function () {
     STREET
 
   before(function () {
-    models.RemoteModel.clearCache()
+    models.RemoteModel.clearCache();
     return new Promise(function (res, rej) {
       anonymousConnection.onopen = function (session, details) {
         Cookies.remove("cbtid")
@@ -96,7 +96,7 @@ describe('Registration', function () {
     expect (registration.isReady()).ok
   })
 
-  describe.only("#create()", function() {
+  describe("#create()", function() {
     this.timeout(5000)
     it('registrationAdd', function (done) {
       (async() => {

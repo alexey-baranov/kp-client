@@ -2,9 +2,9 @@
  * Created by alexey2baranov on 9/25/16.
  */
 
-process.on('unhandledRejection', (reason, promise) => {
+/*process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandel rejection in promise. Reason: ' + JSON.stringify(reason), JSON.stringify(promise));
-})
+})*/
 
 /**
  * прокачка логов
@@ -51,6 +51,7 @@ import StateManager from './StateManager'
 
 global.Tether= require('tether')
 global.jQuery= global.$= require('jquery')
+global.Popper= require("popper.js")
 require ("bootstrap")
 
 Vue.use(MuseUI)

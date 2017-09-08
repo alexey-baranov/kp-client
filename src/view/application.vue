@@ -35,8 +35,8 @@
       </div>
       <div :class="{'col-9':drawer, 'col-12': !drawer, 'col-lg-10':drawer}">
         <div class="padding-x-container">
-          <div v-if="model.pushSubscription===null">
-            Вы заблокировали всплывающие оповещения. Все подробности <a href="https://www.youtube.com/watch?v=Zo77aWoW_vc&index=4&list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR">здесь</a>
+          <div v-if="model.pushSubscription===null" class="alert alert-warning">
+            Вы заблокировали оповещения. Все подробности <a href="https://www.youtube.com/watch?v=Zo77aWoW_vc&index=4&list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR">здесь</a>
           </div>
           <auth v-if="!model.user && model.section!='registration'" @input="auth_input"></auth>
           <registration-as-form v-if="model.section=='registration'" :id="id+'_registration'"
@@ -303,7 +303,7 @@
        */
       let deb = _.debounce(async (e) => {
         let state = await StateManager.getInstance().replaceState()
-      }, 1000)
+      }, 500, {maxWait:500})
 
       window.addEventListener('scroll', (e) => {
         deb(e)
