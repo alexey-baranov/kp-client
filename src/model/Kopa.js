@@ -20,7 +20,14 @@ class Kopa extends RemoteModel {
     this.invited = undefined;
     this.dialog = undefined;
     this.result = undefined;
-    this.scrollItem= null
+    this.scrollItem = null
+
+    /**
+     * самое первое слово на копе, перед которым не надо уже загружать предыдущие слова
+     * null - если первого слова еще нет. не путать с undefined - не известно какое оно
+     * @type {null}
+     */
+    this.firstSlovo = undefined
 
     /**
      * Это поле нужно исключительно для нужд kopa.vue
@@ -101,7 +108,7 @@ class Kopa extends RemoteModel {
       if (this.dialog) {
         let slovo = await Slovo.get(args[0]);
         this.dialog.push(slovo)
-        slovo.once(RemoteModel.event.destroy, ()=> {
+        slovo.once(RemoteModel.event.destroy, () => {
           let index = this.dialog.indexOf(slovo)
           if (index != -1) {
             this.dialog.splice(index, 1)
@@ -115,7 +122,7 @@ class Kopa extends RemoteModel {
       if (this.result) {
         let predlozhenie = await Predlozhenie.get(args[0]);
         this.result.push(predlozhenie);
-        predlozhenie.once(RemoteModel.event.destroy, ()=>{
+        predlozhenie.once(RemoteModel.event.destroy, () => {
           let index = this.result.indexOf(predlozhenie)
           if (index != -1) {
             this.result.splice(index, 1)
@@ -125,38 +132,12 @@ class Kopa extends RemoteModel {
         this.emit(Kopa.event.predlozhenieAdd, this, predlozhenie);
       }
     }
-    /*
-    else if (details.topic.match(/\.predlozhenieDestroy$/)) {
-      if (this.result) {
-        let destroyed = this.result.find(eachResult => eachResult.id == args[0])
-
-        let index = this.result.indexOf(destroyed)
-        if (index != -1) {
-          this.result.splice(index, 1)
-        }
-
-        this.emit(Kopa.event.predlozhenieDestroy, this, destroyed);
-      }
-    }
-    else if (details.topic.match(/\.slovoDestroy$/)) {
-      if (this.dialog) {
-        let destroyed = this.dialog.find(e => e.id == args[0])
-
-        let index = this.dialog.indexOf(destroyed)
-        if (index != -1) {
-          this.dialog.splice(index, 1)
-        }
-
-        this.emit(Kopa.event.slovoDestroy, this, destroyed);
-      }
-    }
-    */
   }
 
-  async destroy(soft=false) {
-    if (soft){
-      let childs= [].concat(this.dialog, this.result).filter(eachChild=>eachChild)
-      for(let eachChild of childs){
+  async destroy(soft = false) {
+    if (soft) {
+      let childs = [].concat(this.dialog, this.result).filter(eachChild => eachChild)
+      for (let eachChild of childs) {
         await eachChild.destroy(true)
       }
     }
@@ -168,60 +149,38 @@ class Kopa extends RemoteModel {
   }
 
   /**
-   * подгружает диалог
-   * или предыдущую порцию, если он уже начат загружаться
+   * подгружает очередную порцию диалога
+   * предыдущий - это теперь id
+   * потому что если по created, то два слова внутри одной секунды создались - они одну таймстампу имеют и не разлечимы
+   * и тогда тот который на долю секунды раньше создался, не попадет в диалог
    */
-  async loadDialog(count=10) {
-    let dialogAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getDialog", [this.id], null, {disclose_me: true})
-
-    let dialog = await Promise.all(dialogAsPlain.map(async eachSlovoAsPlain => Slovo.get(eachSlovoAsPlain)))
-    this.dialog = dialog
-    this.emit(Kopa.event.dialogLoad, this)
-
-    return this.dialog;
-  }
-
-  async loadKopi(count=25) {
+  async loadDialog(count = 1) {
     let BEFORE
-    if (this.kopi && this.kopi.length){
-      BEFORE= this.kopi[0].invited?this.kopi[0].invited.getTime():Date.getTime()+3600*1000 //запас на неправильное время на телефоне пользователя
+    if (this.dialog && this.dialog.length) {
+      BEFORE = this.dialog[0].id
     }
 
-    let loadedKopiAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Zemla.promiseKopi", [], {
+    let loadedDialogAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Kopa.getDialog", [], {
       PLACE: this.id,
       BEFORE,
       count
     }, {disclose_me: true})
 
-    let loadedKopi= await Promise.all(loadedKopiAsPlain.map(async eachKopaAsPlain => Kopa.get(eachKopaAsPlain)))
+    let loadedDialog = await Promise.all(loadedDialogAsPlain.map(async eachKopaAsPlain => Slovo.get(eachKopaAsPlain)))
 
-
-    /*
-     eachKopa.on(Kopa.event.slovoAdd, (slovo)=>{
-     this.emit(Kopa.event.slovoAdd, slovo)
-     })
-     eachKopa.on(Kopa.event.predlozhenieAdd, (predlozhenie)=>{
-     this.emit(Kopa.event.slovoAdd, predlozhenie)
-     })
-     */
-    if (!this.kopi){
-      this.kopi= loadedKopi
+    if (!this.dialog) {
+      this.dialog = loadedDialog
     }
-    else{
-      this.kopi = loadedKopi.concat(this.kopi)
-    }
+    else {
+      this.dialog = loadedDialog.concat(this.dialog)
+    };
 
-    if (loadedKopi.length<count){
-      this.areAllKopiLoaded=true
-    }
+    if (loadedDialog.length< count) {
+      this.firstSlovo = this.dialog.length?this.dialog[0]:null
+    };
 
-    /*    await new Promise((res)=>{
-     setTimeout(res, 2000)
-     })*/
-
-    // console.log(this.kopi.map(eachKopa=>eachKopa.id))
-
-    this.emit(Zemla.event.kopiReload, this);
+    this.emit(Kopa.event.dialogLoad, this)
+    return this.dialog
   }
 
   /**

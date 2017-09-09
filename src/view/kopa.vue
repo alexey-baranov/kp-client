@@ -72,12 +72,12 @@
                                    :model="eachResult" @modeChange="view_modeChange"></predlozhenie-as-list-item>
       </li>
     </ul>
+    <mu-raised-button v-if="model.firstSlovo===undefined || model.firstSlovo!==null && (!model.dialog || model.dialog[0]!=model.firstSlovo)" secondary label="Показать предыдущие 10" @click="prev10_click"></mu-raised-button>
     <ul v-if="model.invited" class="list-group">
       <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
         <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" ref="dialog" class="w-100" :model="eachSlovo"
                             @modeChange="view_modeChange"></slovo-as-list-item>
       </li>
-
     </ul>
     <!--Новое слово-->
     <div v-if="model.invited && !editors.length && userMode !='editor'"
@@ -172,6 +172,9 @@
       }
     },
     methods: {
+      async prev10_click(){
+        await this.model.loadDialog()
+      },
       getScrollItemViews(async = false) {
         if (async) {
           return (async() => {
