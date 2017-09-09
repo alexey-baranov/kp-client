@@ -5,7 +5,7 @@
       <span>{{model.created|humanize}}</span>
     </div>
 
-    <div class="card-block d-flex flex-column">
+    <div class="card-body d-flex flex-column">
       <div class="card-text text-pre">{{model.value}}</div>
     </div>
   </div>

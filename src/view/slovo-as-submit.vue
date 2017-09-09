@@ -1,7 +1,7 @@
 <template>
   <div :id="id" class="slovo-as-submit card"
        :class="{'slovo-as-submit--empty': !model.value}">
-    <div class="card-block">
+    <div class="card-body">
       <files :id="id+'_upload'" class="mt-0" mode="editor" :model="model.attachments"></files>
       <mu-text-field class="my-0" fullWidth multiLine hintText="Говорите..." :rows="1" :rowsMax="5"
                      v-model="model.value" @keyup.native.ctrl.enter="submit_click"/>

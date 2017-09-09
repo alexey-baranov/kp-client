@@ -593,7 +593,7 @@ describe('Kopnik', function () {
   });
 
   describe("#verifyRegistration()", function () {
-    this.timeout(5000)
+    this.timeout(5000);
     it('should verify', function (done) {
       (async() => {
         try {

@@ -159,7 +159,7 @@
           (компьютере) работает видеокамера.
         </p>
         <div class="card">
-          <div class="card-block">
+          <div class="card-body">
             <h4 class="card-title">Заверителем по вашему региону выбран копник</h4>
             <p>{{model.verifier.surname}} {{model.verifier.name}} {{model.verifier.patronymic}}</p>
             <p>email: <a :href="'mailto:'+model.verifier.email">{{model.verifier.email}}</a></p>

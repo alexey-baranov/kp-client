@@ -34,7 +34,7 @@
         </mu-list>
       </div>
       <div :class="{'col-9':drawer, 'col-12': !drawer, 'col-lg-10':drawer}">
-        <div class="padding-x-container">
+        <div class="container-fluid">
           <div v-if="model.pushSubscription===null" class="alert alert-warning">
             Вы заблокировали оповещения. Все подробности <a href="https://www.youtube.com/watch?v=Zo77aWoW_vc&index=4&list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR">здесь</a>
           </div>
@@ -183,6 +183,7 @@
         this.model.setSection(Application.Section.Verification)
         StateManager.getInstance().pushState()
       },
+
       /**
        *
        * @param credentials {email, password, captchaResponse}
@@ -190,14 +191,6 @@
       auth_input: async function (credentials) {
         try {
           await this.model.authAsPromise(credentials.email, credentials.password, credentials.captchaResponse)
-          await this.model.user.dom.joinedLoaded()
-          this.model.setBody(this.model.user.dom)
-          if (this.model.section == Application.Section.Auth) {
-            this.log.warn("very strange if hire")
-            StateManager.getInstance().popState(location.search.substring(1))
-            this.model.setSection(Application.Section.Main)
-            StateManager.getInstance().pushState()
-          }
         }
         catch (err) {
           //ошибка теперь отображается в application.on("connectionClose" ) в main.js

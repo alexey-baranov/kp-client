@@ -16,7 +16,7 @@
         </div>
       </li>
     </ul>
-    <mu-infinite-scroll :loading="areKopiLoaded" loadingText="Подождите..." @load="scroll_load"/>
+    <!--<mu-infinite-scroll :loading="areKopiLoaded" loadingText="Подождите..." @load="scroll_load"/>-->
   </div>
 </template>
 

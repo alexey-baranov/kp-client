@@ -1,6 +1,6 @@
 <template>
   <div :id="id" class="kopa-as-submit card" :class="{'kopa-as-submit--empty': !model.question}">
-    <div class="card-block">
+    <div class="card-body">
       <mu-text-field class="my-0" fullWidth multiLine hintText="Созвать всех на копу по вопросу..." :rows="2"
                      :rowsMax="5" v-model="model.question" @keyup.native.ctrl.enter="submit_click"/>
       <files :id="id+'_files' " mode="editor" :model="model.attachments"></files>

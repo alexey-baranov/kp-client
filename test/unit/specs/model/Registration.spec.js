@@ -6,7 +6,10 @@
 let _ = require("lodash")
 let Cookies = require("js-cookie")
 
+import log from "../../../../src/log"
 import models from "../../../../src/model"
+
+
 let Registration = require('../../../../src/model/Registration')
 let Cleaner = require("../../../../src/Cleaner")
 let connection = require("../../../../src/Connection").default.getUnitTestInstance()

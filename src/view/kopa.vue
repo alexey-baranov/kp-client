@@ -6,7 +6,7 @@
           <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
           <div class="ml-1">{{model.invited | humanize}}</div>
         </div>
-        <div class="card-block d-flex flex-column">
+        <div class="card-body d-flex flex-column">
           <mu-text-field class="my-0" fullWidth multiLine hintText="Вопрос, который нужно обсудить на копе" :rows="1"
                          :rowsMax="5"
                          v-model="model.question" @keyup.native.ctrl.enter="save_click"/>
@@ -57,7 +57,7 @@
                     </div>
                     -->
         </div>
-        <div :id="id+'_card_block'" class="card-block">
+        <div :id="id+'_card_block'" class="card-body">
           <div class="card-text text-pre">{{model.question}}</div>
           <files :id="id+'_files' " :model="model.attachments" :drop="id+'_card_block'"></files>
           <button v-if="!model.invited" class="btn btn-block btn-primary mt-2" @click="invite_click">Созвать копу

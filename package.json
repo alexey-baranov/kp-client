@@ -52,6 +52,7 @@
     "lodash": "^4.15.0",
     "log4js": "^0.6.38",
     "loglevel": "^1.4.1",
+    "loglevel-plugin-prefix": "^0.5.3",
     "muse-ui": "^2.0.0-rc.5",
     "mustache": "^2.2.1",
     "popper.js": "^1.12.5",

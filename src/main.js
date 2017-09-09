@@ -9,27 +9,7 @@
 /**
  * прокачка логов
  */
-import log from "loglevel"
-
-let originalFactory = log.methodFactory
-log.methodFactory = function (methodName, logLevel, loggerName) {
-  let rawMethod = originalFactory(methodName, logLevel, loggerName)
-
-  return function () {
-    let originalArguments = arguments
-    let newArguments = [`[${methodName}]`, `${loggerName ? loggerName : "root"} - `,]
-
-    for (let eachOriginalArgument of originalArguments) {
-      newArguments.push(eachOriginalArgument)
-    }
-
-    rawMethod.apply(null, newArguments)
-  }
-}
-log.setLevel(log.levels.TRACE); // Be sure to call setLevel method in order to apply plugin
-
-// log.getLogger("StateManager").setLevel("info")
-log.getLogger("location.vue").setLevel("info")
+import log from "log"
 
 
 // The Vue build version to load with the `import` command
@@ -51,7 +31,7 @@ import StateManager from './StateManager'
 
 global.Tether= require('tether')
 global.jQuery= global.$= require('jquery')
-global.Popper= require("popper.js")
+global.Popper= require("popper.js").default
 require ("bootstrap")
 
 Vue.use(MuseUI)

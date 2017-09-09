@@ -4,7 +4,7 @@
         <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
         <div>{{(model.invited || null) | humanize}}</div>
       </div>
-      <div class="card-block">
+      <div class="card-body">
         <div class="card-text text-pre" @click.prevent="question_click">{{model.question}}</div>
         <ul class="list-group">
           <li v-for="eachResult in model.result" v-if="eachResult.state>0" class="list-group-item border-0 mx-0 my-0 pb-0">

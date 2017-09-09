@@ -23,7 +23,7 @@
           </div>
         </div>
       </div>
-      <div class="card-block">
+      <div class="card-body">
         <div class="card-text text-pre">{{model.value}}</div>
         <files :id="id+'_attachments'" :model="model.attachments"></files>
       </div>
@@ -33,7 +33,7 @@
         <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
         <span>{{model.created|humanize}}</span>
       </div>
-      <div class="card-block d-flex flex-column">
+      <div class="card-body d-flex flex-column">
         <mu-text-field class="my-0" fullWidth multiLine
                        hintText="Предложение, которое будет поставлено на голосование на копе" :rows="1" :rowsMax="5"
                        v-model="model.value" @keyup.native.ctrl.enter="save_click"/>
@@ -50,7 +50,7 @@
       </div>
     </template>
     <!--golosa-->
-    <div class="card-block">
+    <div class="card-body">
       <!--za-->
       <div class="btn-group w-100" role="group">
         <button class="btn btn-success d-flex justify-content-between w-100" :disabled="model.state>0"
@@ -62,7 +62,7 @@
         </button>
       </div>
       <div :id="`${id}_voted_za`" class="collapse">
-        <div class="card card-block bg-none">
+        <div class="card card-body bg-none">
           <ul class="list-group">
             <li v-for="eachZa of model.za" v-if="eachZa.owner" class="list-group-item bg-none border-0 py-1">
               <kopnik-as-link target="_blank" :model="eachZa.owner"></kopnik-as-link>
@@ -82,7 +82,7 @@
         </button>
       </div>
       <div class="collapse" :id="`${id}_voted_protiv`">
-        <div class="card card-block bg-none">
+        <div class="card card-body bg-none">
           <ul class="list-group">
             <li v-for="eachProtiv of model.protiv" v-if="eachProtiv.owner"
                 class="list-group-item bg-none border-0 py-1">

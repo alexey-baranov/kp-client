@@ -171,7 +171,7 @@ class Kopa extends RemoteModel {
    * подгружает диалог
    * или предыдущую порцию, если он уже начат загружаться
    */
-  async loadDialog() {
+  async loadDialog(count=10) {
     let dialogAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getDialog", [this.id], null, {disclose_me: true})
 
     let dialog = await Promise.all(dialogAsPlain.map(async eachSlovoAsPlain => Slovo.get(eachSlovoAsPlain)))
@@ -179,6 +179,49 @@ class Kopa extends RemoteModel {
     this.emit(Kopa.event.dialogLoad, this)
 
     return this.dialog;
+  }
+
+  async loadKopi(count=25) {
+    let BEFORE
+    if (this.kopi && this.kopi.length){
+      BEFORE= this.kopi[0].invited?this.kopi[0].invited.getTime():Date.getTime()+3600*1000 //запас на неправильное время на телефоне пользователя
+    }
+
+    let loadedKopiAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Zemla.promiseKopi", [], {
+      PLACE: this.id,
+      BEFORE,
+      count
+    }, {disclose_me: true})
+
+    let loadedKopi= await Promise.all(loadedKopiAsPlain.map(async eachKopaAsPlain => Kopa.get(eachKopaAsPlain)))
+
+
+    /*
+     eachKopa.on(Kopa.event.slovoAdd, (slovo)=>{
+     this.emit(Kopa.event.slovoAdd, slovo)
+     })
+     eachKopa.on(Kopa.event.predlozhenieAdd, (predlozhenie)=>{
+     this.emit(Kopa.event.slovoAdd, predlozhenie)
+     })
+     */
+    if (!this.kopi){
+      this.kopi= loadedKopi
+    }
+    else{
+      this.kopi = loadedKopi.concat(this.kopi)
+    }
+
+    if (loadedKopi.length<count){
+      this.areAllKopiLoaded=true
+    }
+
+    /*    await new Promise((res)=>{
+     setTimeout(res, 2000)
+     })*/
+
+    // console.log(this.kopi.map(eachKopa=>eachKopa.id))
+
+    this.emit(Zemla.event.kopiReload, this);
   }
 
   /**
@@ -196,10 +239,6 @@ class Kopa extends RemoteModel {
 
   get name() {
     return this.question ? this.question.substring(0, 25) : undefined
-  }
-
-  toString() {
-    return `${this.constructor.name} {${this.id}, "${this.name}"}`;
   }
 }
 
