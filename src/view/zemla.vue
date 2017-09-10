@@ -10,7 +10,8 @@
         <kopa-as-submit v-if="starshinaNaZemle===null" :id="id+'_new'" class="w-100" :model="model.newKopa"
                         @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
         <div v-if="starshinaNaZemle" class="alert alert-info">Ваш старшина на {{model.name}}
-          <kopnik-as-link target="_blank" :model="starshinaNaZemle"></kopnik-as-link>.
+          <kopnik-as-link target="_blank" :model="starshinaNaZemle"></kopnik-as-link>
+          .
           Если у вас есть вопросы, которые вы хотите обсудить на {{model.name}}, обратитесь к своему старшине с просьбой
           созвать копу.
         </div>
@@ -50,26 +51,19 @@
     },
     computed: {},
     methods: {
+      async waitUntilScrollReady(value){
+        await this.model.joinedLoaded()
+        if (!this.model.kopi) {
+          await this.model.joinedLoadKopi()
+        }
+        if (this.model.kopi.indexOf(value) < 0) {
+          await this.model.joinedLoadKopi(null, value)
+        }
+      },
+
       getScrollItemViews(async = false){
-        if (async) {
-          return (async() => {
-            if (!this.model.kopi) {
-              await this.model.joinedLoadKopi()
-            }
-            await Promise.resolve()
-            let result = [].concat(this.$refs.kopi).filter(eachView => eachView)
-            return result
-          })()
-        }
-        else {
-          if (this.model.kopi) {
-            let result = [].concat(this.$refs.kopi).filter(eachView => eachView)
-            return result
-          }
-          else {
-            return undefined
-          }
-        }
+        let result = [].concat(this.$refs.kopi).filter(eachView => eachView)
+        return result
       },
 
       getState(recalculate = false){
@@ -92,7 +86,7 @@
       async scroll_load(){
         if (!this.model.areAllKopiLoaded && !this.areKopiLoaded) {
           this.areKopiLoaded = true
-          await this.model.loadKopi()
+          await this.model.joinedLoadKopi()
           this.areKopiLoaded = false
         }
       },
@@ -119,7 +113,7 @@
         await this.model.joinedLoaded()
 
         if (!this.model.kopi) {
-          await this.model.loadKopi();
+          await this.model.joinedLoadKopi();
         }
 
         this.starshinaNaZemle = await Application.getInstance().user.getStarshinaNaZemle(this.model)
@@ -161,7 +155,7 @@
     },
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
-      Application.getInstance().user.on(models.Kopnik.event.starshinaChange, this.user_starshinaChange = async() => {
+      Application.getInstance().user.on(models.Kopnik.event.starshinaChange, this.user_starshinaChange = async () => {
         this.starshinaNaZemle = await Application.getInstance().user.getStarshinaNaZemle(this.model)
       })
       await this.onModel()

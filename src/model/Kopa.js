@@ -153,17 +153,20 @@ class Kopa extends RemoteModel {
    * предыдущий - это теперь id
    * потому что если по created, то два слова внутри одной секунды создались - они одну таймстампу имеют и не разлечимы
    * и тогда тот который на долю секунды раньше создался, не попадет в диалог
+   *
    */
-  async loadDialog(count = 1) {
+  async loadDialog(count = Kopa.loadPrevSize, until= null) {
     let BEFORE
     if (this.dialog && this.dialog.length) {
       BEFORE = this.dialog[0].id
     }
 
+
     let loadedDialogAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Kopa.getDialog", [], {
       PLACE: this.id,
       BEFORE,
-      count
+      UNTIL: until?until.id:null,
+      count: count||Kopa.loadPrevSize,
     }, {disclose_me: true})
 
     let loadedDialog = await Promise.all(loadedDialogAsPlain.map(async eachKopaAsPlain => Slovo.get(eachKopaAsPlain)))
@@ -200,6 +203,7 @@ class Kopa extends RemoteModel {
     return this.question ? this.question.substring(0, 25) : undefined
   }
 }
+Kopa.loadPrevSize=10
 
 Kopa.event = {
   slovoAdd: "slovoAdd",

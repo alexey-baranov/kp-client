@@ -24,7 +24,7 @@ export default function (decoratee) {
 
   function decorated() {
     if (arguments.length) {
-      return Promise.reject(new Error("Joined function could not have arguments"))
+      // return Promise.reject(new Error("Joined function could not have arguments"))
     }
     var result = new Promise(function (resolve, reject) {
       results.push({resolve, reject})

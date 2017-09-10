@@ -16,7 +16,7 @@ export default class {
     //если массив
     if (typeof value == "object" && value.constructor == Array) {
       return value.map(eachElement => {
-        LogLevelPluginToString.toString(eachElement)
+        return this.toString(eachElement)
       })
     }
     //объект кроме массива

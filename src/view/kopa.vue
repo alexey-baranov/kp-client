@@ -72,7 +72,7 @@
                                    :model="eachResult" @modeChange="view_modeChange"></predlozhenie-as-list-item>
       </li>
     </ul>
-    <mu-raised-button v-if="model.firstSlovo===undefined || model.firstSlovo!==null && (!model.dialog || model.dialog[0]!=model.firstSlovo)" secondary label="Показать предыдущие 10" @click="prev10_click"></mu-raised-button>
+    <mu-raised-button v-if="model.firstSlovo===undefined || model.firstSlovo!==null && (!model.dialog || model.dialog[0]!=model.firstSlovo)" secondary :label="`Предыдущие ${model.constructor.loadPrevSize}`" @click="prev10_click"></mu-raised-button>
     <ul v-if="model.invited" class="list-group">
       <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
         <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" ref="dialog" class="w-100" :model="eachSlovo"
@@ -175,29 +175,29 @@
       async prev10_click(){
         await this.model.loadDialog()
       },
-      getScrollItemViews(async = false) {
-        if (async) {
-          return (async() => {
-            if (!this.model.result) {
-              await this.model.joinedLoadResult()
-            }
-            if (!this.model.dialog) {
-              await this.model.joinedLoadDialog()
-            }
-            await Promise.resolve()
+      async waitUntilScrollReady(value){
+        await this.model.joinedLoaded()
+        if (!this.model.result) {
+          await this.model.joinedLoadResult()
+        }
+        /**
+         * последнее по счету предложение без диалога не поднимится,
+         * потому что помешает пустой экран внизу.
+         * чтобы экран под предложение заполнить подгружаем хоть одну порцейку диалога
+         */
+        if (!this.model.dialog){
+          await this.model.joinedLoadDialog()
+        }
+        if (value instanceof models.Predlozhenie){
+          return
+        }
+        if (this.model.dialog.indexOf(value)<0){
+          await this.model.joinedLoadDialog(null, value)
+        }
+      },
+      getScrollItemViews() {
             let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView)
             return result
-          })()
-        }
-        else {
-          if (this.model.result && this.model.dialog) {
-            let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView)
-            return result
-          }
-          else {
-            return undefined
-          }
-        }
       },
       getState(){
         let scrollItem = this.getScrollItem(),

@@ -4,8 +4,10 @@
 "use strict";
 
 var assert = require('chai').assert;
+var log = require("../../../../src/log");
 var models = require("../../../../src/model");
 let _ = require("lodash");
+
 
 let KOPNIK = 2,
   KOPNIK2 = 2,
@@ -178,6 +180,82 @@ describe('Zemla', function () {
           done(err);
         }
       })()
+    })
+  })
+
+  describe('#loadKopi()', function () {
+    let result,
+      zemla
+
+    before(async ()=>{
+      zemla = await models.Zemla.get(2);
+    })
+
+    it("should return array of Kopa", async function () {
+      result = await zemla.loadKopi(2)
+      assert.equal(_.isArray(result), true, "_.isArray(result)")
+      for (var eachResult of result) {
+        assert.equal(eachResult instanceof models.Kopa, true, "eachResult instanceof models.Kopa")
+      };
+    })
+
+    it('size should be 2', async function () {
+      zemla.kopi= undefined
+      result = await zemla.loadKopi(2)
+      assert.equal(result.length, 2, "result.length, 2")
+    })
+
+    it('should be ordered by invited null first, then created', async function () {
+      zemla.kopi= undefined
+      result = await zemla.loadKopi(3)
+
+      assert.equal(result[2].invited==null, true, "first invited==null")
+      assert.equal(result[0].invited < result[1].invited, true, "by invited")
+    })
+
+    it("should append +1 Kopa", async function () {
+      zemla.kopi= undefined
+      result = await zemla.loadKopi(2)
+      result = await zemla.loadKopi(1)
+      assert.equal(result.length, 3, "result.length, 3")
+    })
+
+    it('should prepend to begining after self kopa', async function () {
+      zemla.kopi= undefined
+      result = await zemla.loadKopi(1)
+      result = await zemla.loadKopi(2)
+      assert.equal(result[0].invited < result[1].invited, true)
+    })
+
+    it('should prepend to begining after foreign kopa', async function () {
+      zemla.kopi= undefined
+      result = await zemla.loadKopi(2)
+      result = await zemla.loadKopi(1)
+      assert.equal(result[0].invited < result[1].invited, true)
+    })
+
+    it('should setup firstKopa after fullKopi load', async function () {
+      zemla.kopi= undefined
+      result = await zemla.loadKopi(200)
+      assert.equal(zemla.firstKopa.id, 5, "zemla.firstKopa.id, 5")
+    });
+
+    it("should load until Kopa:3", async function () {
+      zemla.kopi=undefined
+      result = await zemla.loadKopi(null, models.Kopa.getReference(3))
+      assert.equal(result.length,2, "result.length, 2")
+      assert.equal(result[0].id, 3, "result[0].id, 3")
+      assert.equal(result[1].id, 1, "result[1].id, 1")
+    })
+
+    it.only("should load after self kopa until Kopa:4", async function () {
+      zemla.kopi=undefined
+      await zemla.loadKopi(1)
+      result = await zemla.loadKopi(null, models.Kopa.getReference(4))
+      assert.equal(result.length,3, "result.length, 3")
+      assert.equal(result[0].id, 4, "result[0].id, 4")
+      assert.equal(result[1].id, 3, "result[0].id, 3")
+      assert.equal(result[2].id, 1, "result[1].id, 1")
     })
   })
 })

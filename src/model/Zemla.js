@@ -34,6 +34,13 @@ class Zemla extends RemoteModel {
     this.areAllKopiLoaded= false
 
     /**
+     * самая первая копа на земле, перед которым не надо уже загружать предыдущие копы
+     * null - если первой копы еще нет. не путать с undefined - не известно какое оно
+     * @type {null}
+     */
+    this.firstKopa = undefined
+
+    /**
      * Это поле нужно исключительно для нужд zemla.vue
      * и входящей в нее kopa-as-list-item.vue
      * @type {Kopa}
@@ -165,16 +172,17 @@ class Zemla extends RemoteModel {
     return result
   }
 
-  async loadKopi(count=25) {
+  async loadKopi(count=Zemla.loadPrevSize, until=null) {
     let BEFORE
     if (this.kopi && this.kopi.length){
-      BEFORE= this.kopi[0].invited?this.kopi[0].invited.getTime():Date.getTime()+3600*1000 //запас на неправильное время на телефоне пользователя
+      BEFORE= this.kopi[0]?this.kopi[0].id:null //запас на неправильное время на телефоне пользователя
     }
 
     let loadedKopiAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Zemla.promiseKopi", [], {
       PLACE: this.id,
       BEFORE,
-      count
+      count:count||Zemla.loadPrevSize,
+      UNTIL: until?until.id:null,
     }, {disclose_me: true})
 
     let loadedKopi= await Promise.all(loadedKopiAsPlain.map(async eachKopaAsPlain => Kopa.get(eachKopaAsPlain)))
@@ -197,6 +205,7 @@ class Zemla extends RemoteModel {
 
     if (loadedKopi.length<count){
       this.areAllKopiLoaded=true
+      this.firstKopa = this.kopi.length?this.kopi[0]:null
     }
 
 /*    await new Promise((res)=>{
@@ -206,9 +215,10 @@ class Zemla extends RemoteModel {
     // console.log(this.kopi.map(eachKopa=>eachKopa.id))
 
     this.emit(Zemla.event.kopiReload, this);
+    return this.kopi
   }
 }
-
+Zemla.loadPrevSize= 50
 Zemla.event = {
   kopiReload: "kopiReload",
   kopaAdd: "kopaAdd",

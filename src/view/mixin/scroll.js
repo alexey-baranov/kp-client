@@ -21,6 +21,13 @@ module.exports = {
     model: this.model_change
   },
   methods: {
+    /**
+     * ожидает до тех пор, когда можно выполнить скрол
+     * например подгрузить диалог, список коп, подгрузить другие поля и т.д.
+     */
+    waitUntilScrollReady(value){
+      throw new Error("waitUntilScrollReady() not implemented")
+    },
     model_change(current, prev){
       if (prev) {
         window.removeEventListener("scroll", this.window_scroll)
@@ -32,6 +39,7 @@ module.exports = {
         })
       }
     },
+
     getScrollItem(){
       if (!this.scrolled) {
         this.log.debug("window is not scrolled. return persisted scroll item", this.model.scrollItem)
@@ -75,30 +83,24 @@ module.exports = {
       return result
 
     },
+
     async setScrollItem(value){
       if (!value) {
         $(document).scrollTop(0)
       }
       else {
-        let itemViews = await this.getScrollItemViews(true)
+        await this.waitUntilScrollReady(value)
+        let itemViews = await this.getScrollItemViews()
         valueView = itemViews.find(eachView => eachView.model == value)
         if (valueView) {
           let offset = $(valueView.$el).offset().top - 1
           this.log.debug("scroll item", value, "scroll offset", offset)
           $(document).scrollTop(offset)
-
         }
       }
     },
-    getScrollItemViews(async = false){
-      if (async) {
-        return (async() => {
-          throw new Error("getItemViews() not implemented")
-        })()
-      }
-      else {
-        throw new Error("getItemViews() not implemented")
-      }
+    getScrollItemViews(){
+      throw new Error("getItemViews() not implemented")
     }
   },
   mounted(){

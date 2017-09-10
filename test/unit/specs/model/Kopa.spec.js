@@ -104,40 +104,66 @@ describe('Kopa', function () {
     })
   })
 
-  describe.only('#loadDialog()', function () {
+  describe('#loadDialog()', function () {
     let result,
       kopa
 
-    it("should return array of Slovo", async function () {
-      kopa = await models.Kopa.get(KOPA)
-      result = await kopa.loadDialog(2)
+    before(async ()=>{
+      kopa = await models.Kopa.get(KOPA);
+    });
 
+    it("should return array of Slovo", async function () {
+      result = await kopa.loadDialog(2)
       assert.equal(_.isArray(result), true, "_.isArray(result)")
       for (var eachResult of result) {
         assert.equal(eachResult instanceof models.Slovo, true, "eachResult instanceof models.Slovo")
       };
     })
 
-    it('size should be 2', function () {
+    it('size should be 2', async function (){
+      kopa.dialog= undefined
+      result = await kopa.loadDialog(2)
       assert.equal(result.length, 2, "result.length, 1")
     })
 
-    it('should be ordered by created', function () {
+    it('should be ordered by created', async function () {
+      kopa.dialog= undefined
+      result = await kopa.loadDialog(2)
       assert.equal(result[0].created < result[1].created, true)
     })
 
     it("should prepend +1 Slovo", async function () {
-      result = await kopa.loadDialog()
+      kopa.dialog= undefined
+      result = await kopa.loadDialog(2)
+      result = await kopa.loadDialog(2)
       assert.equal(result.length, 3, "result.length, 3")
     })
 
-    it('should prepend to begining', function () {
+    it('should prepend to begining', async function () {
+      kopa.dialog= undefined
+      result = await kopa.loadDialog(2)
+      result = await kopa.loadDialog(2)
       assert.equal(result[0].created < result[1].created, true)
       assert.equal(result[1].created < result[2].created, true)
     })
 
-    it('should setup firstSlovo after fullDialog load', function () {
+    it('should setup firstSlovo after fullDialog load', async function () {
+      result = await kopa.loadDialog(555)
       assert.equal(kopa.firstSlovo.id, 1, "kopa.firstSlovo.id, 1")
+    });
+
+    it("should load until Slovo:2", async function () {
+      kopa.dialog=undefined
+      result = await kopa.loadDialog(null, models.Slovo.getReference(2))
+      assert.equal(result[0].id, 2, "result[0].id, 2")
+      assert.equal(result[1].id, 3, "result[1].id, 3")
+    })
+
+    it("should load until Slovo:1", async function () {
+      result = await kopa.loadDialog(null, models.Slovo.getReference(1))
+      assert.equal(result[0].id, 1, "result[0].id, 1")
+      assert.equal(result[1].id, 2, "result[0].id, 2")
+      assert.equal(result[2].id, 3, "result[1].id, 3")
     })
   })
 
