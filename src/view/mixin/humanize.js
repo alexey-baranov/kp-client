@@ -10,6 +10,9 @@ module.exports= {
       if (value instanceof Date) {
         return value.toLocaleString()
       }
+      else {
+        return value
+      }
     },
 
     humanizeDiskSpase: function (diskSpaceInBytes) {

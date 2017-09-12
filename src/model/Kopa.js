@@ -176,11 +176,11 @@ class Kopa extends RemoteModel {
     }
     else {
       this.dialog = loadedDialog.concat(this.dialog)
-    };
+    }
 
     if (loadedDialog.length< count) {
       this.firstSlovo = this.dialog.length?this.dialog[0]:null
-    };
+    }
 
     this.emit(Kopa.event.dialogLoad, this)
     return this.dialog

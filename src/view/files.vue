@@ -14,7 +14,7 @@
       </div>
     </div>
     <template v-if="mode != 'editor' ">
-      <ul v-if="model.length" class="list-group flex-row row">
+      <ul v-if="model.length" class="list-group flex-row row justify-content-start">
         <li v-for="eachFile in model" class="list-group-item border-0 bg-none col-12 col-md-6 col-xl-4">
           <file-as-link :model="eachFile"></file-as-link>
         </li>

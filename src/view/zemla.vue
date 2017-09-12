@@ -1,24 +1,19 @@
 <template>
-  <div :id="id" class="zemla">
-    <ul class="list-group flex-column-reverse ">
-      <li v-for="eachKopa of model.kopi" class="list-group-item no-color border-0 px-0 py-0 my-3">
-        <kopa-as-list-item :id="id+'_kopi_'+eachKopa.id" ref="kopi" class="w-100" :model="eachKopa"></kopa-as-list-item>
-      </li>
+  <div class="d-flex flex-column-reverse">
+    <kopa-as-list-item v-for="eachKopa of model.kopi" :id="id+'_kopi_'+eachKopa.id" ref="kopi" class="mb-3"
+                       :model="eachKopa"></kopa-as-list-item>
 
-      <!--новая копа-->
-      <li class="list-group-item border-0 px-0">
-        <kopa-as-submit v-if="starshinaNaZemle===null" :id="id+'_new'" class="w-100" :model="model.newKopa"
-                        @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
-        <div v-if="starshinaNaZemle" class="alert alert-info">Ваш старшина на {{model.name}}
-          <kopnik-as-link target="_blank" :model="starshinaNaZemle"></kopnik-as-link>
-          .
-          Если у вас есть вопросы, которые вы хотите обсудить на {{model.name}}, обратитесь к своему старшине с просьбой
-          созвать копу.
-        </div>
-      </li>
-    </ul>
-    <!--<mu-infinite-scroll :loading="areKopiLoaded" loadingText="Подождите..." @load="scroll_load"/>-->
+    <!--новая копа-->
+    <kopa-as-submit v-if="starshinaNaZemle===null" :id="id+'_new'" class="w-100 mb-3" :model="model.newKopa"
+                    @submit="kopa_submit" @draft="kopa_draft"></kopa-as-submit>
+    <div v-if="starshinaNaZemle" class="alert alert-info">Ваш старшина на {{model.name}}
+      <kopnik-as-link target="_blank" :model="starshinaNaZemle"></kopnik-as-link>
+      .
+      Если у вас есть вопросы, которые вы хотите обсудить на {{model.name}}, обратитесь к своему старшине с просьбой
+      созвать копу.
+    </div>
   </div>
+  <!--<mu-infinite-scroll :loading="areKopiLoaded" loadingText="Подождите..." @load="scroll_load"/>-->
 </template>
 
 <script>

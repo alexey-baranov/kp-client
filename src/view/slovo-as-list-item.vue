@@ -1,49 +1,35 @@
 <template>
-  <div :id="id" class="slovo-as-list-item card" >
-    <template v-if="userMode !='editor'">
-      <div class="card-header d-flex flex-wrap kp-small">
-        <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
-        <div>{{model.created|humanize}}</div>
-
-        <div v-if="canManage" class="dropdown ml-auto">
-          <a :id="id+'_actions'" class="btn btn-secondary btn-sm dropdown-toggle" href="#" data-toggle="dropdown"
-             aria-haspopup="true" aria-expanded="false">
-            ...
-          </a>
-
-          <div class="dropdown-menu dropdown-menu-right" :aria-labelledby="id+'_actions'">
-            <a href="#" class="dropdown-item" :class="{disabled: !canEdit}" @click.prevent="edit_click">
-              <span class="material-icons md-dark md-1em">edit</span>
-              Править
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="card-text text-pre">{{model.value}}</div>
+  <slovo-as-item-abstract :id="id" :model="model">
+    <template slot="middle">
+      <template v-if="userMode !='editor'">
+        <div class="text-pre">{{model.value}}</div>
         <files :id="id+'_attachments'" :model="model.attachments"></files>
-      </div>
-    </template>
-    <template v-else>
-      <div class="card-header d-flex kp-small">
-        <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
-        <span>{{model.created|humanize}}</span>
-      </div>
-      <div class="card-body d-flex flex-column">
-        <mu-text-field class="my-0" fullWidth multiLine hintText="Ваше слово на копе" :rows="1" :rowsMax="5"
+      </template>
+      <template v-else>
+        <mu-text-field class="my-0" fullWidth multiLine
+                       hintText="Ваше слово..." :rows="1" :rowsMax="5"
                        v-model="model.value" @keyup.native.ctrl.enter="save_click"/>
-<!--
-      <textarea class="form-control" v-model="model.value"
-                placeholder="Ваше предложение, которое будет поставлено на голосование на копе"> </textarea>
--->
         <files :id="id+'_attachments'" mode="editor" :model="model.attachments"></files>
-        <div class="d-flex flex-wrap align-self-end mt-4">
-          <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
-          <button class="btn btn-success" :disabled="!model.value" @click="save_click">Сохранить</button>
-        </div>
-      </div>
+        <mu-row gutter>
+
+          <mu-col width="100" tablet="50">
+            <mu-raised-button fullWidth primary icon="save" :disabled="!model.value" @click="save_click"
+                              label="Сохранить"></mu-raised-button>
+          </mu-col>
+          <mu-col width="100" tablet="50">
+            <mu-raised-button fullWidth secondary icon="cancel" @click="cancel_click"
+                              label="Отменить"></mu-raised-button>
+          </mu-col>
+        </mu-row>
+      </template>
     </template>
-  </div>
+    <mu-icon-menu v-if="canManage" slot="right" icon="more_vert"
+                  :anchorOrigin="{horizontal: 'right', vertical: 'bottom'}"
+                  :targetOrigin="{horizontal: 'right', vertical: 'top'}">
+      <mu-menu-item title="Править" icon="edit" :disabled="!canEdit" @click.prevent="edit_click"/>
+      <mu-menu-item title="Удалить" icon="close" :disabled="false" @click.prevent="destroy_click"/>
+    </mu-icon-menu>
+  </slovo-as-item-abstract>
 </template>
 
 <script>
@@ -53,7 +39,7 @@
 
   export default  {
 //    mixins:[logMixin],
-    name:"slovo-as-list-item",
+    name: "slovo-as-list-item",
     data() {
       return {
         /**
@@ -63,12 +49,12 @@
       }
     },
     props: ["id", "model", "mode"],
-    mixins:[require("./mixin/humanize")],
+    mixins: [require("./mixin/humanize")],
     components: {
-      "kopnik-as-link": require("./kopnik-as-link.vue"),
-      "files": require("./files.vue")
+      "files": require("./files.vue"),
+      "slovo-as-item-abstract": require("./slovo-as-list-item-abstract.vue"),
     },
-    computed:{
+    computed: {
       userMode(){
         return this.localMode || this.mode
       },
@@ -76,7 +62,7 @@
         return this.model.owner == Application.getInstance().user
       },
       canEdit(){
-          return this.model.owner==Application.getInstance().user
+        return this.model.owner == Application.getInstance().user
       }
     },
     methods: {
@@ -96,7 +82,7 @@
       },
     },
     created: async function () {
-      this.log = require("loglevel").getLogger(this.$options.name+".vue")
+      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
       if (this.model.id) {
         await this.model.joinedLoaded();
       }

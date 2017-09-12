@@ -1,103 +1,76 @@
 <template>
-  <div :id="id" class="predlozhenie-as-list-item card"
-       :class="{'card-inverse': model.state, 'card-success': model.state==1, 'card-danger':model.state==-1}">
-    <template v-if="userMode !='editor'">
-      <div class="card-header d-flex flex-wrap kp-small">
-        <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
-        <div>{{model.created|humanize}}</div>
-        <div v-if="canManage" class="dropdown ml-auto">
-          <a :id="id+'_actions'" class="btn btn-secondary btn-sm dropdown-toggle" href="#" data-toggle="dropdown"
-             aria-haspopup="true" aria-expanded="false">
-            ...
-          </a>
-          <div class="dropdown-menu dropdown-menu-right" :aria-labelledby="id+'_actions'">
-            <a href="#" class="dropdown-item" :class="{disabled: !canEdit}" @click.prevent="edit_click">
-              <span class="material-icons md-dark md-1em">edit</span>
-              Править
-            </a>
-            <!--<div class="dropdown-divider"></div>-->
-            <a href="#" class="dropdown-item" :class="{disabled: !canDestroy}" @click.prevent="destroy_click">
-              <span class="material-icons md-dark md-1em">close</span>
-              Снять с голосования
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="card-text text-pre">{{model.value}}</div>
+  <slovo-as-item-abstract :id="id" :model="model">
+    <template slot="middle">
+      <template v-if="userMode !='editor'">
+        <div class="text-pre">{{model.value}}</div>
         <files :id="id+'_attachments'" :model="model.attachments"></files>
-      </div>
-    </template>
-    <template v-else>
-      <div class="card-header d-flex kp-small">
-        <kopnik-as-link v-if="model.owner" class="mr-1" target="_blank" :model="model.owner"></kopnik-as-link>
-        <span>{{model.created|humanize}}</span>
-      </div>
-      <div class="card-body d-flex flex-column">
+        <!--golosa-->
+        <mu-row gutter class="mt-1">
+          <mu-col width="100" tablet="50">
+            <!--za-->
+            <div class="d-flex flex-nowrap w-100">
+              <mu-raised-button primary icon="thumb_up"
+                                :label="zemlaLoaded?(model.totalZa / model.place.place.obshinaSize * 100)+'%':''"
+                                :disabled="model.state!=null" style="flex-grow:1;" @click.prevent="za_click"/>
+              <mu-raised-button primary icon="expand_more"title="Показать голосовавших" style="min-width: 3em;"
+                                @click="showZa_click"/>
+            </div>
+            <div :id="`${id}_voted_za`" class="collapse">
+              <div class="bg-none p-2">
+                <sign v-for="eachZa of model.za" v-if="eachZa.owner" class="" :owner="eachZa.owner"
+                      :date="eachZa.created"/>
+              </div>
+            </div>
+          </mu-col>
+          <mu-col width="100" tablet="50" desktop="50">
+            <!--protiv-->
+            <div class="d-flex flex-nowrap w-100">
+              <mu-raised-button secondary icon="thumb_down"
+                                :label="zemlaLoaded?(model.totalProtiv / model.place.place.obshinaSize * 100)+'%':''"
+                                :disabled="model.state!=null" style="flex-grow:1;" @click.prevent="protiv_click"/>
+              <mu-raised-button secondary icon="expand_more" title="Показать голосовавших" style="min-width: 3em"
+                                @click="showProtiv_click"/>
+            </div>
+            <div :id="`${id}_voted_protiv`" class="collapse">
+              <div class="bg-none p-2">
+                <sign v-for="eachProtiv of model.protiv" v-if="eachProtiv.owner" class="" :owner="eachProtiv.owner"
+                      :date="eachProtiv.created"/>
+              </div>
+            </div>
+          </mu-col>
+        </mu-row>
+      </template>
+      <template v-else>
         <mu-text-field class="my-0" fullWidth multiLine
-                       hintText="Предложение, которое будет поставлено на голосование на копе" :rows="1" :rowsMax="5"
+                       hintText="Ваше предложение..." :rows="1" :rowsMax="5"
                        v-model="model.value" @keyup.native.ctrl.enter="save_click"/>
-
-        <!--
-                <textarea class="form-control" v-model="model.value"
-                          placeholder="Предложение, которое будет поставлено на голосование на копе"> </textarea>
-        -->
         <files :id="id+'_attachments'" mode="editor" :model="model.attachments"></files>
-        <div class="d-flex flex-wrap align-self-end mt-4">
-          <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
-          <button class="btn btn-success" :disabled="!model.value" @click="save_click">Сохранить</button>
-        </div>
-      </div>
-    </template>
-    <!--golosa-->
-    <div class="card-body">
-      <!--za-->
-      <div class="btn-group w-100" role="group">
-        <button class="btn btn-success d-flex justify-content-between w-100" :disabled="model.state>0"
-                @click.prevent="za_click">
-          <span>{{model.totalZa}}</span><span>За</span><span v-if="zemlaLoaded">({{model.totalZa/model.place.place.obshinaSize | percents}}%)</span>
-        </button>
-        <button class="btn btn-success" data-toggle="collapse" :href="`#${id}_voted_za`">
-          <i class="material-icons" title="Показать голосовавших">expand_more</i>
-        </button>
-      </div>
-      <div :id="`${id}_voted_za`" class="collapse">
-        <div class="card card-body bg-none">
-          <ul class="list-group">
-            <li v-for="eachZa of model.za" v-if="eachZa.owner" class="list-group-item bg-none border-0 py-1">
-              <kopnik-as-link target="_blank" :model="eachZa.owner"></kopnik-as-link>
-            </li>
-          </ul>
-        </div>
-      </div>
+        <mu-row gutter>
 
-      <!--protiv-->
-      <div class="btn-group w-100" role="group">
-        <button class="btn btn-danger d-flex justify-content-between w-100 flex-row" :disabled="model.state>0"
-                @click.prevent="protiv_click">
-          <span>{{model.totalProtiv}}</span><span>Против</span><span v-if="zemlaLoaded">({{model.totalProtiv/model.place.place.obshinaSize | percents}}%)</span>
-        </button>
-        <button class="btn btn-danger" data-toggle="collapse" :href="`#${id}_voted_protiv`">
-          <i class="material-icons" title="Показать голосовавших">expand_more</i>
-        </button>
-      </div>
-      <div class="collapse" :id="`${id}_voted_protiv`">
-        <div class="card card-body bg-none">
-          <ul class="list-group">
-            <li v-for="eachProtiv of model.protiv" v-if="eachProtiv.owner"
-                class="list-group-item bg-none border-0 py-1">
-              <kopnik-as-link target="_blank" :model="eachProtiv.owner"></kopnik-as-link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+          <mu-col width="100" tablet="50">
+            <mu-raised-button fullWidth primary icon="save" :disabled="!model.value" @click="save_click"
+                              label="Сохранить"></mu-raised-button>
+          </mu-col>
+          <mu-col width="100" tablet="50">
+            <mu-raised-button fullWidth secondary icon="cancel" @click="cancel_click"
+                              label="Отменить"></mu-raised-button>
+          </mu-col>
+        </mu-row>
+      </template>
+    </template>
+    <mu-icon-menu v-if="canManage" slot="right" icon="more_vert"
+                  :anchorOrigin="{horizontal: 'right', vertical: 'bottom'}"
+                  :targetOrigin="{horizontal: 'right', vertical: 'top'}">
+      <mu-menu-item title="Править" icon="edit" :disabled="!canEdit" @click.prevent="edit_click"/>
+      <mu-menu-item title="Снять с гооосования" icon="close" :disabled="!canDestroy" @click.prevent="destroy_click"/>
+    </mu-icon-menu>
+  </slovo-as-item-abstract>
 </template>
 
 <script>
   import Application from "../Application"
   import logMixin from "./mixin/log"
+  import kopnikAsLink from "./kopnik-as-link.vue"
   let models = require("../model")
 
   export default  {
@@ -114,8 +87,10 @@
     },
     props: ["id", "model", "mode"],
     components: {
-      "kopnik-as-link": require("./kopnik-as-link.vue"),
+      "slovo-as-item-abstract": require("./slovo-as-list-item-abstract.vue"),
       "files": require("./files.vue"),
+      "sign": require("./sign.vue"),
+      kopnikAsLink
     },
     computed: {
       userMode(){
@@ -132,6 +107,12 @@
       }
     },
     methods: {
+      showZa_click(){
+        document.getElementById(`${this.id}_voted_za`).classList.toggle('show')
+      },
+      showProtiv_click(){
+        document.getElementById(`${this.id}_voted_protiv`).classList.toggle('show')
+      },
       async destroy_click(){
         if (this.canDestroy) {
           await this.model.destroy()
@@ -160,25 +141,21 @@
       },
       za_click: async function () {
         if (this.model.golosa.find(eachGolos =>
-        eachGolos.owner == Application.getInstance().user && eachGolos.value == 1
-        ))
-        {
+            eachGolos.owner == Application.getInstance().user && eachGolos.value == 1
+          )) {
           await Application.getInstance().user.vote(this.model, 0);
         }
-        else
-        {
+        else {
           await Application.getInstance().user.vote(this.model, 1);
         }
       },
       protiv_click: async function () {
         if (this.model.golosa.find(eachGolos =>
-        eachGolos.owner == Application.getInstance().user && eachGolos.value == -1
-        ))
-        {
+            eachGolos.owner == Application.getInstance().user && eachGolos.value == -1
+          )) {
           await Application.getInstance().user.vote(this.model, 0);
         }
-        else
-        {
+        else {
           await Application.getInstance().user.vote(this.model, -1);
         }
       }
@@ -200,16 +177,7 @@
 </script>
 
 <style scoped>
-  .predlozhenie-as-list-item {
+  .slovo-as-list-item-abstract {
 
-  }
-
-  .fixed {
-    background-color: #333;
-    border-color: #333;
-  }
-
-  .stateProtiv {
-    background-color: red;
   }
 </style>

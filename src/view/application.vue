@@ -1,15 +1,14 @@
 <template>
   <div class="application">
-    <small id="log" class="" style="z-index: 100000; position: fixed; left:0; top:0;">{{logMessage}}</small>
     <grumbler :model="grumbler"></grumbler>
     <mu-toast v-if="notifier.currentNotification" :message="notifier.currentNotification.value" @close="toast_close"/>
 
-    <mu-appbar class="fixed-top"
+    <mu-appbar class="sticky-top"
                :title="'kopnik.org '+ ((!model.user && model.section!='registration')?'Вход':model.header)">
       <mu-icon-button icon='menu' @click="toggle()" slot="left"/>
       <!--<mu-icon-button icon='expand_more' slot="right"/>-->
     </mu-appbar>
-    <div class="row no-gutters flex-nowrap align-items-stretch container-under-navbar">
+    <div class="row no-gutters flex-nowrap align-items-stretch container-under-navbar mx-auto">
       <div v-show="drawer" class="col-3 col-lg-2 sidebar">
         <mu-list class="py-0 kp-pos-sticky">
           <mu-list-item v-for="eachUserDom of userDoma" :href="'?state=main&body=Zemla:'+eachUserDom.id"
@@ -46,7 +45,7 @@
                                 :model="model.user"></kopnik-as-verifier>
             <div v-if="model.section=='main' && model.body">
               <!--<h1 class="title text-truncate">{{header}}</h1>-->
-              <location class="breadcrumb" :model="model.body" full="true"></location>
+              <location class="breadcrumb" style="background: none;" :model="model.body" full="true"></location>
               <component ref="bodyView" v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
             </div>
           </template>
@@ -316,26 +315,17 @@
 </script>
 
 <style scoped>
+  .application{
+
+  }
   .sidebar {
     /*border-right: solid deepskyblue 1px;*/
     /*border-color: rgba(100,100,255,0.5);*/
     /*background: rgba(100,100,255,0.1);*/
   }
 
-  .padding-x-container {
-    padding-left: .5rem;
-    padding-right: .5rem;
-  }
-
-  @media (min-width: 576px) {
-    .padding-x-container {
-      padding-left: 2rem;
-      padding-right: 2rem;
-    }
-  }
-
   .container-under-navbar {
-    margin-top: 5rem;
+    max-width: 960px;
   }
 
   .sidebar > .mu-list {
@@ -359,6 +349,7 @@
   /*fix muse-ui position:sticky bug at https://github.com/museui/muse-ui/issues/453#issuecomment-298628883*/
   body, html {
     overflow: visible;
+    background: #fffdf5;
   }
 
   .kp-pos-sticky {
@@ -413,4 +404,13 @@
   .text-pre {
     white-space: pre-wrap;
   }
+
+  .kp-no-color{
+    color: inherit;
+  }
+
+  .kp-no-color :hover{
+    color: inherit !important;
+  }
+
 </style>

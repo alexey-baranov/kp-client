@@ -1,5 +1,5 @@
 <template>
-  <span class="file-as-link">
+  <span class="file-as-link text-nowrap">
     <slot>
       <i class="material-icons md-dark md-1em">attachment</i>
     </slot>

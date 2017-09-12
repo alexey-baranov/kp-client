@@ -1,6 +1,6 @@
 <template>
   <span class="kopnik-as-link">
-    <a :href="'?body=Kopnik:'+model.id" class="kopnik-as-link" :target="target" @click="a_click">{{model.surname}}
+    <a :href="'?body=Kopnik:'+model.id" class="kopnik-as-link kp-no-color" :target="target" @click="a_click">{{model.surname}}
       {{model.name}} {{model.patronymic}}
       <small v-if="model.voiskoSize">(+{{model.voiskoSize}})</small>
       <slot></slot>
@@ -36,7 +36,5 @@
 </script>
 
 <style scoped>
-  .card-inverse .kopnik-as-link {
-    color: rgb(255, 255, 255)
-  }
+
 </style>

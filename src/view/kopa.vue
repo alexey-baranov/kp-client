@@ -1,32 +1,30 @@
 <template>
   <div :id="id" class="kopa">
-    <div class="card">
+    <mu-card class="mb-4" style="margin-left: -15px; margin-right: -15px; box-shadowX: none">
       <template v-if="userMode =='editor'">
-        <div class="card-header text-muted text-small d-flex kp-small">
-          <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
-          <div class="ml-1">{{model.invited | humanize}}</div>
-        </div>
-        <div class="card-body d-flex flex-column">
+        <mu-card-header class="d-flex justify-content-between">
+          <sign v-if="model.owner" :owner="model.owner" :invited="model.invited" />
+        </mu-card-header>
+        <mu-card-text>
           <mu-text-field class="my-0" fullWidth multiLine hintText="Вопрос, который нужно обсудить на копе" :rows="1"
                          :rowsMax="5"
                          v-model="model.question" @keyup.native.ctrl.enter="save_click"/>
-          <!--
-                    <textarea class="form-control" v-model="model.question"
-                              placeholder="Вопрос, который нужно обсудить на копе"></textarea>
-          -->
           <files :id="id+'_files' " ref="attachments" mode="editor" :model="model.attachments"></files>
-          <div class="d-flex flex-wrap align-self-end mt-4">
-            <button class="btn btn-danger mr-3" @click="cancel_click">Отменить</button>
-            <button class="btn btn-success" :disabled="!model.question" @click="save_click">Сохранить</button>
-          </div>
-        </div>
+        </mu-card-text>
+        <mu-card-actions>
+          <mu-flat-button label="Отменить" @click="cancel_click"/>
+          <mu-flat-button label="Сохранить" :disabled="!model.question" @click="save_click"/>
+        </mu-card-actions>
       </template>
       <template v-else>
-        <div class="card-header text-muted text-small d-flex flex-wrap kp-small">
-          <kopnik-as-link v-if="model.owner" target="_blank" :model="model.owner"></kopnik-as-link>
-          <div class="ml-1">{{model.invited | humanize}}</div>
+        <mu-card-header class="d-flex justify-content-between">
+          <sign v-if="model.owner" :owner="model.owner" :date="model.invited" />
 
-          <div v-if="canManage" class="dropdown ml-auto">
+          <mu-icon-menu v-if="canManage" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'bottom'}" :targetOrigin="{horizontal: 'right', vertical: 'top'}">
+            <mu-menu-item title="Править" icon="edit" :disabled="!canEdit" @click.prevent="edit_click"/>
+            <mu-menu-item title="Распустить" icon="close" :disabled="!canDestroy" @click.prevent="destroy_click"/>
+          </mu-icon-menu>
+          <div v-if="0">
             <a :id="id+'_actions'" class="btn btn-secondary btn-sm dropdown-toggle" href="#" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">
               ...
@@ -44,41 +42,26 @@
               </a>
             </div>
           </div>
-          <!--
-                    <div class="ml-auto">
-                      <button v-if="canEdit" class="btn btn-sm btn-secondary ml-auto" @click.prevent="edit_click">
-                        <span class="material-icons md-dark md-1em">edit</span>
-                        Править
-                      </button>
-                      <button v-if="canDestroy" class="btn btn-sm btn-danger" @click.prevent="destroy_click">
-                        <span class="material-icons md-dark md-1em">delete</span>
-                        Распустить
-                      </button>
-                    </div>
-                    -->
-        </div>
-        <div :id="id+'_card_block'" class="card-body">
-          <div class="card-text text-pre">{{model.question}}</div>
-          <files :id="id+'_files' " :model="model.attachments" :drop="id+'_card_block'"></files>
-          <button v-if="!model.invited" class="btn btn-block btn-primary mt-2" @click="invite_click">Созвать копу
-          </button>
-        </div>
+        </mu-card-header>
+        <mu-card-text>
+          <div class="text-pre">{{model.question}}</div>
+        </mu-card-text>
+        <mu-card-text v-if="model.attachments && model.attachments.length">
+          <files :id="id+'_files' " ref="attachments" :model="model.attachments"></files>
+        </mu-card-text>
+        <mu-card-actions v-if="!model.invited">
+          <mu-flat-button primary @click="invite_click" title="Созвать копу"></mu-flat-button>
+        </mu-card-actions>
       </template>
-      <slot></slot>
-    </div>
-    <ul class="list-group">
-      <li v-for="eachResult of model.result" class="list-group-item  border-0 px-0">
-        <predlozhenie-as-list-item :id="id+'_result_'+eachResult.id" ref="result" class="w-100"
-                                   :model="eachResult" @modeChange="view_modeChange"></predlozhenie-as-list-item>
-      </li>
-    </ul>
-    <mu-raised-button v-if="model.firstSlovo===undefined || model.firstSlovo!==null && (!model.dialog || model.dialog[0]!=model.firstSlovo)" secondary :label="`Предыдущие ${model.constructor.loadPrevSize}`" @click="prev10_click"></mu-raised-button>
-    <ul v-if="model.invited" class="list-group">
-      <li v-for="eachSlovo of model.dialog" class="list-group-item border-0 px-0">
-        <slovo-as-list-item :id="id+'_slovo_'+eachSlovo.id" ref="dialog" class="w-100" :model="eachSlovo"
+    </mu-card>
+
+    <predlozhenie-as-list-item v-for="eachResult in model.result" :model="eachResult" :id="id+'_result_'+eachResult.id" ref="result" class="mb-3" @modeChange="view_modeChange"></predlozhenie-as-list-item>
+    <mu-flat-button
+      v-if="model.firstSlovo===undefined || model.firstSlovo!==null && (!model.dialog || model.dialog[0]!=model.firstSlovo)"
+      secondary fullWidth :label="`Предыдущие ${model.constructor.loadPrevSize}`"
+      @click="prev10_click"></mu-flat-button>
+        <slovo-as-list-item v-for="eachSlovo of model.dialog" :id="id+'_slovo_'+eachSlovo.id" ref="dialog" class="mb-3" :model="eachSlovo"
                             @modeChange="view_modeChange"></slovo-as-list-item>
-      </li>
-    </ul>
     <!--Новое слово-->
     <div v-if="model.invited && !editors.length && userMode !='editor'"
          class="border-0 px-0 py-0 fixed-bottomx kp-pos-sticky w-100" style="bottom: 0;">
@@ -138,6 +121,7 @@
     props: ["id", "model", "mode", "short"],
     components: {
       "kopnik-as-link": require("./kopnik-as-link.vue"),
+      "sign": require("./sign.vue"),
       "predlozhenie-as-list-item": require("./predlozhenie-as-list-item.vue"),
       "slovo-as-list-item": require("./slovo-as-list-item.vue"),
       "slovo-as-submit": require("./slovo-as-submit.vue"),
@@ -185,19 +169,19 @@
          * потому что помешает пустой экран внизу.
          * чтобы экран под предложение заполнить подгружаем хоть одну порцейку диалога
          */
-        if (!this.model.dialog){
+        if (!this.model.dialog) {
           await this.model.joinedLoadDialog()
         }
-        if (value instanceof models.Predlozhenie){
+        if (value instanceof models.Predlozhenie) {
           return
         }
-        if (this.model.dialog.indexOf(value)<0){
+        if (this.model.dialog.indexOf(value) < 0) {
           await this.model.joinedLoadDialog(null, value)
         }
       },
       getScrollItemViews() {
-            let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView)
-            return result
+        let result = [].concat(this.$refs.result, this.$refs.dialog).filter(eachView => eachView)
+        return result
       },
       getState(){
         let scrollItem = this.getScrollItem(),
@@ -264,7 +248,7 @@
        *  во всех остальных случаях только если я стою в самом низу
        */
       holdBottom(){
-          let user= Application.getInstance().user
+        let user = Application.getInstance().user
         if (this.model.dialog[this.model.dialog.length - 1].owner == user ||
           $(document).scrollTop() + window.innerHeight + 20 >= $(document).height()) {
           $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing')
@@ -376,7 +360,7 @@
     async created() {
       this.log = require("loglevel").getLogger(this.$options.name + ".vue")
       this.bindedHoldBottom = this.holdBottom.bind(this)
-      Application.getInstance().user.on(models.Kopnik.event.starshinaChange, this.user_starshinaChange = async() => {
+      Application.getInstance().user.on(models.Kopnik.event.starshinaChange, this.user_starshinaChange = async () => {
         this.starshinaNaKope = await Application.getInstance().user.getStarshinaNaKope(this.model)
       })
       await this.onModel(this.model)
