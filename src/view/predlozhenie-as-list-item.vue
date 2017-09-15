@@ -5,8 +5,8 @@
         <div class="text-pre">{{model.value}}</div>
         <files :id="id+'_attachments'" :model="model.attachments"></files>
         <!--golosa-->
-        <mu-row gutter class="mt-1">
-          <mu-col width="100" tablet="50">
+        <div class="my-1 d-flex flex-wrap">
+          <div class=" mr-4">
             <!--za-->
             <div class="d-flex flex-nowrap w-100">
               <mu-raised-button primary icon="thumb_up"
@@ -15,14 +15,12 @@
               <mu-raised-button primary icon="expand_more"title="Показать голосовавших" style="min-width: 3em;"
                                 @click="showZa_click"/>
             </div>
-            <div :id="`${id}_voted_za`" class="collapse">
-              <div class="bg-none p-2">
+            <mu-card :id="`${id}_voted_za`" class="collapse p-2 v-show" style="positionX: absolute; z-indexX: 100;">
                 <sign v-for="eachZa of model.za" v-if="eachZa.owner" class="" :owner="eachZa.owner"
                       :date="eachZa.created"/>
-              </div>
-            </div>
-          </mu-col>
-          <mu-col width="100" tablet="50" desktop="50">
+            </mu-card>
+          </div>
+          <div >
             <!--protiv-->
             <div class="d-flex flex-nowrap w-100">
               <mu-raised-button secondary icon="thumb_down"
@@ -37,11 +35,11 @@
                       :date="eachProtiv.created"/>
               </div>
             </div>
-          </mu-col>
-        </mu-row>
+          </div>
+        </div>
       </template>
       <template v-else>
-        <mu-text-field class="my-0" fullWidth multiLine
+        <mu-text-field ref="model_value" class="my-0" fullWidth multiLine
                        hintText="Ваше предложение..." :rows="1" :rowsMax="5"
                        v-model="model.value" @keyup.native.ctrl.enter="save_click"/>
         <files :id="id+'_attachments'" mode="editor" :model="model.attachments"></files>
@@ -118,10 +116,12 @@
           await this.model.destroy()
         }
       },
-      edit_click(){
+      async edit_click(){
         if (this.canEdit) {
           this.localMode = "editor"
           this.$emit("modeChange", this)
+          await Promise.resolve()
+          this.$refs.model_value.focus()
         }
       },
       async save_click(){

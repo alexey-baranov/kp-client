@@ -1,23 +1,31 @@
 <template>
   <div :id="id" class="kopa">
-    <mu-card class="mb-4" style="margin-left: -15px; margin-right: -15px; box-shadowX: none">
+    <div class="mb-2" style="margin-leftЧ: -15px; margin-rightЧ: -15px; box-shadow: none">
       <template v-if="userMode =='editor'">
         <mu-card-header class="d-flex justify-content-between">
           <sign v-if="model.owner" :owner="model.owner" :invited="model.invited" />
         </mu-card-header>
         <mu-card-text>
-          <mu-text-field class="my-0" fullWidth multiLine hintText="Вопрос, который нужно обсудить на копе" :rows="1"
+          <mu-text-field ref="model_question" class="my-0" fullWidth multiLine hintText="Вопрос, который нужно обсудить на копе" :rows="1"
                          :rowsMax="5"
                          v-model="model.question" @keyup.native.ctrl.enter="save_click"/>
           <files :id="id+'_files' " ref="attachments" mode="editor" :model="model.attachments"></files>
         </mu-card-text>
         <mu-card-actions>
-          <mu-flat-button label="Отменить" @click="cancel_click"/>
-          <mu-flat-button label="Сохранить" :disabled="!model.question" @click="save_click"/>
+          <mu-row gutter>
+            <mu-col width="50" tablet="33">
+              <mu-raised-button fullWidth secondary icon="cancel" @click="cancel_click"
+                                label="Отменить"></mu-raised-button>
+            </mu-col>
+            <mu-col width="50" tablet="33">
+              <mu-raised-button fullWidth primary icon="save" :disabled="!model.question" @click="save_click"
+                                label="Сохранить"></mu-raised-button>
+            </mu-col>
+          </mu-row>
         </mu-card-actions>
       </template>
       <template v-else>
-        <mu-card-header class="d-flex justify-content-between">
+        <mu-card-header class="px-0 d-flex justify-content-between">
           <sign v-if="model.owner" :owner="model.owner" :date="model.invited" />
 
           <mu-icon-menu v-if="canManage" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'bottom'}" :targetOrigin="{horizontal: 'right', vertical: 'top'}">
@@ -43,24 +51,23 @@
             </div>
           </div>
         </mu-card-header>
-        <mu-card-text>
+        <mu-card-text class="px-0 kp-no-font-size">
           <div class="text-pre">{{model.question}}</div>
         </mu-card-text>
-        <mu-card-text v-if="model.attachments && model.attachments.length">
+        <mu-card-text v-if="model.attachments && model.attachments.length" class="px-0">
           <files :id="id+'_files' " ref="attachments" :model="model.attachments"></files>
         </mu-card-text>
-        <mu-card-actions v-if="!model.invited">
-          <mu-flat-button primary @click="invite_click" title="Созвать копу"></mu-flat-button>
+        <mu-card-actions v-if="!model.invited" class="px-0">
+          <mu-raised-button primary fullWidth @click="invite_click" label="Созвать копу"></mu-raised-button>
         </mu-card-actions>
       </template>
-    </mu-card>
+    </div>
 
-    <predlozhenie-as-list-item v-for="eachResult in model.result" :model="eachResult" :id="id+'_result_'+eachResult.id" ref="result" class="mb-3" @modeChange="view_modeChange"></predlozhenie-as-list-item>
-    <mu-flat-button
-      v-if="model.firstSlovo===undefined || model.firstSlovo!==null && (!model.dialog || model.dialog[0]!=model.firstSlovo)"
-      secondary fullWidth :label="`Предыдущие ${model.constructor.loadPrevSize}`"
-      @click="prev10_click"></mu-flat-button>
-        <slovo-as-list-item v-for="eachSlovo of model.dialog" :id="id+'_slovo_'+eachSlovo.id" ref="dialog" class="mb-3" :model="eachSlovo"
+    <predlozhenie-as-list-item v-for="eachResult in model.result" :model="eachResult" :id="id+'_result_'+eachResult.id" ref="result" class="mb-4" @modeChange="view_modeChange"></predlozhenie-as-list-item>
+    <mu-raised-button v-if="model.dialog && (model.firstSlovo===undefined || model.firstSlovo && model.dialog[0]!=model.firstSlovo)"
+       fullWidth :label="`Показать предыдущие ${model.constructor.loadPrevSize}`"
+      class="mb-3" @click="prev10_click" />
+    <slovo-as-list-item v-for="eachSlovo of model.dialog" :id="id+'_slovo_'+eachSlovo.id" ref="dialog" class="mb-4" :model="eachSlovo"
                             @modeChange="view_modeChange"></slovo-as-list-item>
     <!--Новое слово-->
     <div v-if="model.invited && !editors.length && userMode !='editor'"
@@ -304,10 +311,12 @@
         newSlovo = await models.Slovo.create(newSlovo)
       },
 
-      edit_click(){
+      async edit_click(){
         if (this.canEdit) {
           this.localMode = "editor"
           this.$emit("modeChange", this)
+          await Promise.resolve()
+          this.$refs.model_question.focus()
         }
       },
       async save_click(){

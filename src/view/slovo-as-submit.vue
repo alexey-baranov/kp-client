@@ -3,7 +3,7 @@
        :class="{'slovo-as-submit--empty': !model.value}">
     <div class="card-body">
       <files :id="id+'_upload'" class="mt-0" mode="editor" :model="model.attachments"></files>
-      <mu-text-field class="my-0" fullWidth multiLine hintText="Говорите..." :rows="1" :rowsMax="5"
+      <mu-text-field class="my-0" fullWidth multiLine hintText="Говорите..." :rows="2" :rowsMax="5"
                      v-model="model.value" @keyup.native.ctrl.enter="submit_click"/>
       <div class="d-flex">
         <mu-raised-button style="flex-grow:1" label="Сказать" primary :disabled="!model.value" @click="submit_click"/>

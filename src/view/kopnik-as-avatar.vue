@@ -1,5 +1,8 @@
 <template>
-  <mu-avatar>{{model.name?model.name.substring(0,1):""}}</mu-avatar>
+  <div class="d-inline-flex">
+    <mu-avatar>{{model.name?model.name.substring(0,1):""}}</mu-avatar>
+    <slot/>
+  </div>
 </template>
 
 <script>

@@ -70,8 +70,8 @@ class Kopa extends RemoteModel {
 
     this._isLoaded = true;
 
-    if (json.created) {
-      this.created = new Date(json.created)
+    if (json.created_at) {
+      this.created = new Date(json.created_at)
     }
     if (json.hasOwnProperty("question")) {
       this.question = json.question;
@@ -101,6 +101,13 @@ class Kopa extends RemoteModel {
     }
   }
 
+  result_destroy(result) {
+    let index = this.result.indexOf(result)
+    if (index != -1) {
+      this.result.splice(index, 1)
+    }
+    this.emit(Kopa.event.predlozhenieDestroy, this, result)
+  }
 
   async onPublication(args, kwargs, details) {
     await super.onPublication(args, kwargs, details);
@@ -122,13 +129,7 @@ class Kopa extends RemoteModel {
       if (this.result) {
         let predlozhenie = await Predlozhenie.get(args[0]);
         this.result.push(predlozhenie);
-        predlozhenie.once(RemoteModel.event.destroy, () => {
-          let index = this.result.indexOf(predlozhenie)
-          if (index != -1) {
-            this.result.splice(index, 1)
-          }
-          this.emit(Kopa.event.predlozhenieDestroy, this, predlozhenie)
-        })
+        predlozhenie.once(RemoteModel.event.destroy, this.result_destroy.bind(this))
         this.emit(Kopa.event.predlozhenieAdd, this, predlozhenie);
       }
     }
@@ -155,7 +156,7 @@ class Kopa extends RemoteModel {
    * и тогда тот который на долю секунды раньше создался, не попадет в диалог
    *
    */
-  async loadDialog(count = Kopa.loadPrevSize, until= null) {
+  async loadDialog(count = Kopa.loadPrevSize, until = null) {
     let BEFORE
     if (this.dialog && this.dialog.length) {
       BEFORE = this.dialog[0].id
@@ -165,11 +166,11 @@ class Kopa extends RemoteModel {
     let loadedDialogAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Kopa.getDialog", [], {
       PLACE: this.id,
       BEFORE,
-      UNTIL: until?until.id:null,
-      count: count||Kopa.loadPrevSize,
+      UNTIL: until ? until.id : null,
+      count: count || Kopa.loadPrevSize,
     }, {disclose_me: true})
 
-    let loadedDialog = await Promise.all(loadedDialogAsPlain.map(async eachKopaAsPlain => Slovo.get(eachKopaAsPlain)))
+    let loadedDialog = await Promise.all(loadedDialogAsPlain.map(async eachSlovoAsPlain => Slovo.get(eachSlovoAsPlain)))
 
     if (!this.dialog) {
       this.dialog = loadedDialog
@@ -178,8 +179,8 @@ class Kopa extends RemoteModel {
       this.dialog = loadedDialog.concat(this.dialog)
     }
 
-    if (loadedDialog.length< count) {
-      this.firstSlovo = this.dialog.length?this.dialog[0]:null
+    if (loadedDialog.length < count) {
+      this.firstSlovo = this.dialog.length ? this.dialog[0] : null
     }
 
     this.emit(Kopa.event.dialogLoad, this)
@@ -193,7 +194,11 @@ class Kopa extends RemoteModel {
   async loadResult() {
     let resultAsPlain = await Connection.getInstance().session.call("api:model.Kopa.getResult", [this.id], null, {disclose_me: true})
 
-    let result = await Promise.all(resultAsPlain.map(async eachResultAsPlain => Predlozhenie.get(eachResultAsPlain)))
+    let result = await Promise.all(resultAsPlain.map(async eachResultAsPlain => {
+      let eachResult= await Predlozhenie.get(eachResultAsPlain)
+      eachResult.once(RemoteModel.event.destroy, this.result_destroy.bind(this))
+      return eachResult
+    }))
     this.result = result
     this.emit(Kopa.event.resultLoad, this)
     return this.result;
@@ -203,7 +208,7 @@ class Kopa extends RemoteModel {
     return this.question ? this.question.substring(0, 25) : undefined
   }
 }
-Kopa.loadPrevSize=10
+Kopa.loadPrevSize = 10
 
 Kopa.event = {
   slovoAdd: "slovoAdd",

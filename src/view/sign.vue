@@ -1,6 +1,6 @@
 <template>
   <div class="sign" :id="id" style="white-space: nowrap; overflow: hidden;">
-    <kopnik-as-avatar :model="owner" :target="target"/>
+    <kopnik-as-avatar v-if="!hideAvatar" :model="owner" :target="target"/>
     <div class="mu-card-header-title pr-0">
       <div class="mu-card-title">
         <kopnik-as-link :model="owner" :target="target"></kopnik-as-link>
@@ -21,7 +21,7 @@
   export default  {
     mixins: [logMixin, humanize],
     name: "sign",
-    props: ["id", "owner", "date", "target"],
+    props: ["id", "owner", "date", "target", "hideAvatar"],
     components: {
       "kopnik-as-link": require("./kopnik-as-link.vue"),
       "kopnik-as-avatar": require("./kopnik-as-avatar.vue")
@@ -35,6 +35,6 @@
 
 <style scoped>
   .sign {
-    display: inline-block;
+    /*display: inline-block;*/
   }
 </style>

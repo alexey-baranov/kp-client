@@ -13,8 +13,8 @@ if (process.env.NODE_ENV=="testing") {
 
 // Be sure to call setLevel method in order to apply plugin
 log.setLevel(log.levels.DEBUG)
-log.getLogger("logger name").warn("some warn")
-log.getLogger("logger name").warn({a:"some warn"})
+// log.getLogger("logger name").warn("some warn")
+// log.getLogger("logger name").warn({a:"some warn"})
 
 
 // log.getLogger("StateManager").setLevel("info")

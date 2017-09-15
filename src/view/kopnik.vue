@@ -1,5 +1,13 @@
 <template>
   <div class="kopnik">
+    <kopnik-as-avatar :model="model" class="">
+      <span class="h1 ml-2" slot>
+        {{model.fullName}}
+      </span>
+    </kopnik-as-avatar>
+    <div class="my-3">
+      E-mail: <a :href="'mailto:'+model.email">{{model.email}}</a>
+    </div>
     <div v-if="model.dom" class="dom">
       Дом:
       <location class="bg-none" target="_blank" full="true" :model="model.dom"></location>
@@ -10,8 +18,8 @@
     </div>
     <div class="druzhina mt-3">
       <div style="cursor:pointer" @click="onDruzhinaToggle()">
-        <span
-          class="material-icons md-dark md-1em">{{druzhinaDisplay?'keyboard_arrow_down':'keyboard_arrow_right'}}</span>
+          <span
+            class="material-icons md-dark md-1em">{{druzhinaDisplay ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}</span>
         Дружина ({{model.voiskoSize}}):
       </div>
       <ul class="list-group mt-2" v-show="druzhinaDisplay">
@@ -22,16 +30,16 @@
     </div>
     <template v-if="user!= model">
       <button class="btn btn-block btn-primary mt-5" @click="starshina_click">
-        {{user.starshina != model?"Выбрать копника старшиной":"Выйти из дружины копника"}}
+        {{user.starshina != model ? "Выбрать копника старшиной" : "Выйти из дружины копника"}}
       </button>
     </template>
-  </div>
   </div>
 </template>
 
 <script>
   import Application from '../Application'
   import Grumbler from "../Grumbler"
+  import KopnikAsAvatar from "./kopnik-as-avatar";
   const models = require("../model")
   const log = require("loglevel").getLogger("kopnik.vue")
   import logMixin from "./mixin/log"
@@ -50,6 +58,7 @@
     },
     props: ["id", "model", "short"],
     components: {
+      KopnikAsAvatar,
       "location": require("./location.vue"),
       "kopnik-as-link": require("./kopnik-as-link.vue"),
       "kopnik-as-druzhe": require("./kopnik-as-druzhe.vue"),

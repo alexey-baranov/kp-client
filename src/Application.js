@@ -36,7 +36,20 @@ export default class Application extends EventEmitter {
      * null значит что был отказ подписки
      * @type {undefined}
      */
-    this.pushSubscription= undefined
+    this.pushSubscription = undefined
+    /**
+     * приложение находитяя в состоянии куки-аутентификации
+     * нужно для того чтобы не показывать бесячую страницу входа
+     * @type {boolean}
+     */
+    this.cookieAuth = true
+    this.zapovedi = [
+      {title: "Иди к старшине", description: "В любой непонятной ситуации иди к старшине."},
+      {
+        title: "Не предотвратил - стал соучастником",
+        description: "Если копник стал свидетелем преступления и не предпринял необходимые меры для его предотвращения (не сообщил своему старшине), он становится соучастником этого преступления и подлежит такому же накозанию, как сам преступник."
+      }
+    ]
   }
 
   static getInstance() {
@@ -50,9 +63,10 @@ export default class Application extends EventEmitter {
     this.section = value
     switch (this.section) {
       case Application.Section.Main:
-        this.header ="..."
+        this.header = "..."
         break
       case Application.Section.Auth:
+      case Application.Section.InAuth:
         this.header = "Вход"
         break
       case Application.Section.Registration:
@@ -64,6 +78,11 @@ export default class Application extends EventEmitter {
     }
   }
 
+  /**
+   * Переход оо дереву земель-коп
+   * @param value
+   * @param restoreScrollItem
+   */
   goTo(value, restoreScrollItem = false) {
     this.setSection(Application.Section.Main)
     this.setBody(value)
@@ -148,8 +167,8 @@ export default class Application extends EventEmitter {
         this.pushSubscription = undefined //это чтобы сообщение о неподписке не вылезло по условию === null
         this.pushSubscription = await this.registration.pushManager.subscribe({userVisibleOnly: true})
       }
-      catch(err){
-        this.pushSubscription= null
+      catch (err) {
+        this.pushSubscription = null
       }
     }
     if (this.pushSubscription) {
@@ -197,7 +216,7 @@ export default class Application extends EventEmitter {
       captchaResponse: 12345678
     })
 
-    connection.onopen = async(session, details) => {
+    connection.onopen = async (session, details) => {
       this.log.info("connection opened")
       if (this.user) {
         throw new Error("user must be null")
@@ -243,6 +262,11 @@ export default class Application extends EventEmitter {
        * иначе внутри application.vue не сработает первый setSidebarHeight()
        */
       this.emit("connectionOpen", this.user)
+      /**
+       * снимается только после того как выполнено user= ...
+       * иначе полезет форма авторизации
+       */
+      this.cookieAuth=false
 
       /**
        * registerServiceWorker() прилетело сюда в connection.onopen()
@@ -260,7 +284,7 @@ export default class Application extends EventEmitter {
      */
     connection.onclose = (reason, details) => {
       this.log.info("connection closed. reason:", reason, ", details: ", details)
-
+      this.cookieAuth = false
       this.user = null
       this.body = null
       models.RemoteModel.clearCache()
@@ -323,6 +347,10 @@ export default class Application extends EventEmitter {
        })
        }*/
     }
+
+    if (!email) {
+      this.cookieAuth = true
+    }
     connection.open()
   }
 
@@ -380,7 +408,7 @@ export default class Application extends EventEmitter {
     }
 
     if (state.body) {
-      let [bodyType, BODY]= state.body.split(":")
+      let [bodyType, BODY] = state.body.split(":")
       this.goTo(models[bodyType].getReference(BODY))
     }
     else if (this.section == Application.Section.Main) {
@@ -395,6 +423,10 @@ export default class Application extends EventEmitter {
  * @type {{Auth: string, Registration: string, Main: string}}
  */
 Application.Section = {
+  /**
+   * Аутентификация на сервере идет в данный момент
+   */
+  InAuth: "in auth",
   Auth: "auth",
   Registration: "registration",
   Main: "main",

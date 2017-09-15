@@ -3,8 +3,10 @@
     <mu-card-header class="d-flex justify-content-between">
       <sign v-if="model.owner" :owner="model.owner" :date="model.invited"/>
     </mu-card-header>
-    <mu-card-text class="text-pre"><a :href="`?body=Kopa:${model.id}`" @click="question_click"
-                                      class="kp-no-color">{{model.question}}</a>
+    <mu-card-text class="kp-no-font-size">
+      <a :href="`?body=Kopa:${model.id}`" class="kp-no-color"" @click="question_click">
+      <div class="text-pre ">{{model.question}}</div>
+      </a>
       <template v-for="eachResult in model.result">
         <predlozhenie-as-internal-list-item v-if="eachResult.state>0"
                                             :model="eachResult"></predlozhenie-as-internal-list-item>

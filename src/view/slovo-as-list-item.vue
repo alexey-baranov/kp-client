@@ -6,7 +6,7 @@
         <files :id="id+'_attachments'" :model="model.attachments"></files>
       </template>
       <template v-else>
-        <mu-text-field class="my-0" fullWidth multiLine
+        <mu-text-field ref="model_value" class="my-0" fullWidth multiLine
                        hintText="Ваше слово..." :rows="1" :rowsMax="5"
                        v-model="model.value" @keyup.native.ctrl.enter="save_click"/>
         <files :id="id+'_attachments'" mode="editor" :model="model.attachments"></files>
@@ -23,12 +23,14 @@
         </mu-row>
       </template>
     </template>
+
     <mu-icon-menu v-if="canManage" slot="right" icon="more_vert"
                   :anchorOrigin="{horizontal: 'right', vertical: 'bottom'}"
                   :targetOrigin="{horizontal: 'right', vertical: 'top'}">
       <mu-menu-item title="Править" icon="edit" :disabled="!canEdit" @click.prevent="edit_click"/>
-      <mu-menu-item title="Удалить" icon="close" :disabled="false" @click.prevent="destroy_click"/>
+      <!--<mu-menu-item title="Удалить" icon="close" :disabled="false" @click.prevent="destroy_click"/>-->
     </mu-icon-menu>
+
   </slovo-as-item-abstract>
 </template>
 
@@ -76,9 +78,11 @@
         this.localMode = "viewer"
         this.$emit("modeChange", this)
       },
-      edit_click(){
+      async edit_click(){
         this.localMode = "editor"
         this.$emit("modeChange", this)
+        await Promise.resolve()
+        this.$refs.model_value.focus()
       },
     },
     created: async function () {

@@ -191,7 +191,7 @@ describe('Kopa', function () {
     })
   })
 
-  describe('events', async function () {
+  describe.only('events', async function () {
     this.timeout(5000);
     let kopnik,
       kopa;

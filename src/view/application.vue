@@ -37,7 +37,8 @@
           <div v-if="model.pushSubscription===null" class="alert alert-warning">
             Вы заблокировали оповещения. Все подробности <a href="https://www.youtube.com/watch?v=Zo77aWoW_vc&index=4&list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR">здесь</a>
           </div>
-          <auth v-if="!model.user && model.section!='registration'" @input="auth_input"></auth>
+          <cookie-auth v-if="model.cookieAuth"></cookie-auth>
+          <auth v-if="!model.cookieAuth && !model.user && model.section!='registration'" @input="auth_input"></auth>
           <registration-as-form v-if="model.section=='registration'" :id="id+'_registration'"
                                 @close="registration_close"></registration-as-form>
           <template v-if="model.user">
@@ -58,6 +59,7 @@
 <script>
   let $ = require("jquery")
   import Vue from "vue"
+  import CookieAuth from "./cookie-auth";
 
   import Application from "../Application"
   import logMixin from "./mixin/log"
@@ -111,6 +113,7 @@
       }
     },
     components: {
+      CookieAuth,
       "auth": require('./auth.vue'),
       "grumbler": require('./grumbler.vue'),
       "registration-as-form": require('./registration-as-form.vue'),
@@ -349,7 +352,7 @@
   /*fix muse-ui position:sticky bug at https://github.com/museui/muse-ui/issues/453#issuecomment-298628883*/
   body, html {
     overflow: visible;
-    background: #fffdf5;
+    /*background: #d4edda;*/
   }
 
   .kp-pos-sticky {
@@ -396,21 +399,21 @@
     background: none;
   }
 
-  /*bootstrap override*/
-  .card-inverse .card-blockquote .blockquote-footer, .card-inverse .card-link, .card-inverse .card-subtitle, .card-inverse .card-text {
-    color: rgb(255, 255, 255);
-  }
-
   .text-pre {
     white-space: pre-wrap;
   }
 
-  .kp-no-color{
+  a.kp-no-color{
     color: inherit;
   }
 
-  .kp-no-color :hover{
+  a.kp-no-color :hover{
     color: inherit !important;
   }
+
+  .kp-no-font-size{
+    font-size: inherit;
+  }
+
 
 </style>

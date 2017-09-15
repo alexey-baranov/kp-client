@@ -56,6 +56,7 @@ global.view = new Vue({
   components: {application: applicationView}
 })
 
+
 /**
  * State management
  */

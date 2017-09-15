@@ -6,7 +6,7 @@
 "use strict";
 
 var RemoteModel = require("./RemoteModel");
-let Connection =require("../Connection").default
+let Connection = require("../Connection").default
 let _ = require("lodash");
 let join = require("../decorator/join").default
 
@@ -23,7 +23,7 @@ class Zemla extends RemoteModel {
     this.parent = undefined;
     this.children = undefined;
     this.obshina = undefined;
-    this.scrollItem= null
+    this.scrollItem = null
 
 
     /**
@@ -31,7 +31,7 @@ class Zemla extends RemoteModel {
      * запускать подзагрузку предыдущех партий коп
      * @type {boolean}
      */
-    this.areAllKopiLoaded= false
+    this.areAllKopiLoaded = false
 
     /**
      * самая первая копа на земле, перед которым не надо уже загружать предыдущие копы
@@ -45,9 +45,9 @@ class Zemla extends RemoteModel {
      * и входящей в нее kopa-as-list-item.vue
      * @type {Kopa}
      */
-    this.newKopa= null
+    this.newKopa = null
 
-    this.joinedLoadKopi= join(this.loadKopi)
+    this.joinedLoadKopi = join(this.loadKopi)
   }
 
   /**
@@ -62,7 +62,7 @@ class Zemla extends RemoteModel {
       intensity: this.intensity,
       parent_id: this.parent ? this.parent.id : null,
       note: this.note,
-      attachments: this.attachments ? this.attachments.map(each => each.id).filter(each=>each) : []
+      attachments: this.attachments ? this.attachments.map(each => each.id).filter(each => each) : []
     };
     return result;
   }
@@ -85,13 +85,7 @@ class Zemla extends RemoteModel {
         else {
           kopa = await Kopa.get(KOPA);
           this.kopi.push(kopa);
-          kopa.once(RemoteModel.event.destroy, ()=>{
-            let index = this.kopi.indexOf(kopa)
-            if (index != -1) {
-              this.kopi.splice(index, 1)
-            }
-            this.emit(Zemla.event.kopaDestroy, this, kopa)
-          })
+          kopa.once(RemoteModel.event.destroy, this.kopa_destroy.bind(this))
         }
         this.emit(Zemla.event.kopaAdd, this, kopa);
       }
@@ -104,18 +98,6 @@ class Zemla extends RemoteModel {
         throw new Error("дочки устарели");
       }
     }
-/*    else if (details.topic.match(/\.kopaDestroy$/)) {
-      if (this.kopi) {
-        let destroyed = this.kopi.find(e => e.id == args[0])
-
-        let index = this.kopi.indexOf(destroyed)
-        if (index!= -1) {
-          this.kopi.splice(index, 1)
-        }
-
-        this.emit(Zemla.event.kopaDestroy, this, destroyed);
-      }
-    }*/
   }
 
 
@@ -162,8 +144,8 @@ class Zemla extends RemoteModel {
    * всех предков начиная от родителя
    * @return {Promise.<void>}
    */
-  async getParents(){
-    let result= []
+  async getParents() {
+    let result = []
     for (let eachParent = this.parent; eachParent; eachParent = eachParent.parent) {
       result.push(eachParent)
       await eachParent.joinedLoaded()
@@ -172,45 +154,59 @@ class Zemla extends RemoteModel {
     return result
   }
 
-  async loadKopi(count=Zemla.loadPrevSize, until=null) {
+  kopa_destroy(kopa) {
+    let index = this.kopi.indexOf(kopa)
+    if (index != -1) {
+      this.kopi.splice(index, 1)
+    }
+    this.emit(Zemla.event.kopaDestroy, this, kopa)
+  }
+
+  async loadKopi(count = Zemla.loadPrevSize, until = null) {
     let BEFORE
-    if (this.kopi && this.kopi.length){
-      BEFORE= this.kopi[0]?this.kopi[0].id:null //запас на неправильное время на телефоне пользователя
+    if (this.kopi && this.kopi.length) {
+      BEFORE = this.kopi[0] ? this.kopi[0].id : null //запас на неправильное время на телефоне пользователя
     }
 
     let loadedKopiAsPlain = await Connection.getInstance().session.call("ru.kopa.model.Zemla.promiseKopi", [], {
       PLACE: this.id,
       BEFORE,
-      count:count||Zemla.loadPrevSize,
-      UNTIL: until?until.id:null,
+      count: count || Zemla.loadPrevSize,
+      UNTIL: until ? until.id : null,
     }, {disclose_me: true})
 
-    let loadedKopi= await Promise.all(loadedKopiAsPlain.map(async eachKopaAsPlain => Kopa.get(eachKopaAsPlain)))
+    this.log.debug(loadedKopiAsPlain)
+
+    let loadedKopi = await Promise.all(loadedKopiAsPlain.map(async eachKopaAsPlain => {
+      let eachKopa = await Kopa.get(eachKopaAsPlain)
+      eachKopa.once(RemoteModel.event.destroy, this.kopa_destroy.bind(this))
+      return eachKopa
+    }))
 
 
     /*
-      eachKopa.on(Kopa.event.slovoAdd, (slovo)=>{
-        this.emit(Kopa.event.slovoAdd, slovo)
-      })
-      eachKopa.on(Kopa.event.predlozhenieAdd, (predlozhenie)=>{
-        this.emit(Kopa.event.slovoAdd, predlozhenie)
-      })
-    */
-    if (!this.kopi){
-      this.kopi= loadedKopi
+     eachKopa.on(Kopa.event.slovoAdd, (slovo)=>{
+     this.emit(Kopa.event.slovoAdd, slovo)
+     })
+     eachKopa.on(Kopa.event.predlozhenieAdd, (predlozhenie)=>{
+     this.emit(Kopa.event.slovoAdd, predlozhenie)
+     })
+     */
+    if (!this.kopi) {
+      this.kopi = loadedKopi
     }
-    else{
+    else {
       this.kopi = loadedKopi.concat(this.kopi)
     }
 
-    if (loadedKopi.length<count){
-      this.areAllKopiLoaded=true
-      this.firstKopa = this.kopi.length?this.kopi[0]:null
+    if (loadedKopi.length < count) {
+      this.areAllKopiLoaded = true
+      this.firstKopa = this.kopi.length ? this.kopi[0] : null
     }
 
-/*    await new Promise((res)=>{
-      setTimeout(res, 2000)
-    })*/
+    /*    await new Promise((res)=>{
+     setTimeout(res, 2000)
+     })*/
 
     // console.log(this.kopi.map(eachKopa=>eachKopa.id))
 
@@ -218,7 +214,7 @@ class Zemla extends RemoteModel {
     return this.kopi
   }
 }
-Zemla.loadPrevSize= 50
+Zemla.loadPrevSize = 50
 Zemla.event = {
   kopiReload: "kopiReload",
   kopaAdd: "kopaAdd",
@@ -228,5 +224,5 @@ Zemla.event = {
 
 module.exports = Zemla;
 
-let File= require("./File")
+let File = require("./File")
 let Kopa = require("./Kopa")
