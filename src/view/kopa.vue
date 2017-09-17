@@ -14,12 +14,12 @@
         <mu-card-actions>
           <mu-row gutter>
             <mu-col width="50" tablet="33">
-              <mu-raised-button fullWidth secondary icon="cancel" @click="cancel_click"
-                                label="Отменить"></mu-raised-button>
+              <mu-raised-button fullWidth primary icon="done" :disabled="!model.question" @click="save_click"
+                                label="Да"></mu-raised-button>
             </mu-col>
             <mu-col width="50" tablet="33">
-              <mu-raised-button fullWidth primary icon="save" :disabled="!model.question" @click="save_click"
-                                label="Сохранить"></mu-raised-button>
+              <mu-raised-button fullWidth secondary icon="cancel" @click="cancel_click"
+                                label="Нет"></mu-raised-button>
             </mu-col>
           </mu-row>
         </mu-card-actions>
@@ -29,32 +29,14 @@
           <sign v-if="model.owner" :owner="model.owner" :date="model.invited" />
 
           <mu-icon-menu v-if="canManage" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'bottom'}" :targetOrigin="{horizontal: 'right', vertical: 'top'}">
-            <mu-menu-item title="Править" icon="edit" :disabled="!canEdit" @click.prevent="edit_click"/>
+            <mu-menu-item title="Поправить" icon="edit" :disabled="!canEdit" @click.prevent="edit_click"/>
             <mu-menu-item title="Распустить" icon="close" :disabled="!canDestroy" @click.prevent="destroy_click"/>
           </mu-icon-menu>
-          <div v-if="0">
-            <a :id="id+'_actions'" class="btn btn-secondary btn-sm dropdown-toggle" href="#" data-toggle="dropdown"
-               aria-haspopup="true" aria-expanded="false">
-              ...
-            </a>
-
-            <div class="dropdown-menu dropdown-menu-right" :aria-labelledby="id+'_actions'">
-              <a href="#" class="dropdown-item" :class="{disabled: !canEdit}" @click.prevent="edit_click">
-                <span class="material-icons md-dark md-1em">edit</span>
-                Править
-              </a>
-              <!--<div class="dropdown-divider"></div>-->
-              <a href="#" class="dropdown-item" :class="{disabled: !canDestroy}" @click.prevent="destroy_click">
-                <span class="material-icons md-dark md-1em">close</span>
-                Распустить
-              </a>
-            </div>
-          </div>
         </mu-card-header>
         <mu-card-text class="px-0 kp-no-font-size">
           <div class="text-pre">{{model.question}}</div>
         </mu-card-text>
-        <mu-card-text v-if="model.attachments && model.attachments.length" class="px-0">
+        <mu-card-text v-if="model.attachments && model.attachments.length" class="px-0 kp-no-font-size">
           <files :id="id+'_files' " ref="attachments" :model="model.attachments"></files>
         </mu-card-text>
         <mu-card-actions v-if="!model.invited" class="px-0">
@@ -70,7 +52,8 @@
     <slovo-as-list-item v-for="eachSlovo of model.dialog" :id="id+'_slovo_'+eachSlovo.id" ref="dialog" class="mb-4" :model="eachSlovo"
                             @modeChange="view_modeChange"></slovo-as-list-item>
     <!--Новое слово-->
-    <div v-if="model.invited && !editors.length && userMode !='editor'"
+
+    <div v-if="model.invited && (1 || !editors.length) && userMode !='editor'"
          class="border-0 px-0 py-0 fixed-bottomx kp-pos-sticky w-100" style="bottom: 0;">
       <slovo-as-submit v-if="starshinaNaKope===null" :id="id+'_slovo_new'" class="w-100"
                        :model="model.newSlovo" @submit="slovo_submit" @predlozhenie="slovo_predlozhenie">
@@ -99,6 +82,7 @@
     name: "kopa",
     data() {
       return {
+          files:[],
         /**
          * установленный пользователем режим поверх props.mode
          */

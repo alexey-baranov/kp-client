@@ -5,37 +5,18 @@
 
     <mu-appbar class="sticky-top"
                :title="'kopnik.org '+ ((!model.user && model.section!='registration')?'Вход':model.header)">
-      <mu-icon-button icon='menu' @click="toggle()" slot="left"/>
+      <mu-icon-button icon='menu' @click="appbar_click()" slot="left"/>
       <!--<mu-icon-button icon='expand_more' slot="right"/>-->
     </mu-appbar>
-    <div class="row no-gutters flex-nowrap align-items-stretch container-under-navbar mx-auto">
-      <div v-show="drawer" class="col-3 col-lg-2 sidebar">
-        <mu-list class="py-0 kp-pos-sticky">
-          <mu-list-item v-for="eachUserDom of userDoma" :href="'?state=main&body=Zemla:'+eachUserDom.id"
-                        @click.prevent="list_item_click(eachUserDom)">
-            <!--<zemla-as-link :model="eachUserDom"></zemla-as-link>-->
-            {{eachUserDom.name}}
-            <small>({{eachUserDom.obshinaSize}})</small>
-          </mu-list-item>
-          <mu-list-item v-if="model.user && model.user.registrations && model.user.registrations.length"
-                        href="?state=verification" @click.prevent="verification_click">
-            Регистрации
-          </mu-list-item>
-          <mu-list-item href="https://www.youtube.com/channel/UCJRtg8s94PTFXEfZ6sEnlGw" target="_blank" @click="">
-            Youtube
-          </mu-list-item>
-          <mu-list-item href="https://github.com/alexey-baranov/kp-client-issues/issues" target="_blank" @click="">
-            Техподдержка
-          </mu-list-item>
-          <mu-list-item v-if="model.user" @click.prevent="close_click">
-            Выход
-          </mu-list-item>
-        </mu-list>
-      </div>
-      <div :class="{'col-9':drawer, 'col-12': !drawer, 'col-lg-10':drawer}">
+    <div class="row no-gutters flex-nowrap container-under-navbar mx-auto">
+
+      <sidebar v-if="model" :class="{'col-3':sidebar_docked && sidebar_open}" :application="model" :open="sidebar_open" :docked="sidebar_docked" @close="sidebar_close"></sidebar>
+
+      <div :class="{'col-9': sidebar_docked && sidebar_open, 'col-12':!sidebar_docked || !sidebar_open}" style="flex-grow:1;">
         <div class="container-fluid">
           <div v-if="model.pushSubscription===null" class="alert alert-warning">
-            Вы заблокировали оповещения. Все подробности <a href="https://www.youtube.com/watch?v=Zo77aWoW_vc&index=4&list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR">здесь</a>
+            Вы заблокировали оповещения. Все подробности <a
+            href="https://www.youtube.com/watch?v=Zo77aWoW_vc&index=4&list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR">здесь</a>
           </div>
           <cookie-auth v-if="model.cookieAuth"></cookie-auth>
           <auth v-if="!model.cookieAuth && !model.user && model.section!='registration'" @input="auth_input"></auth>
@@ -59,6 +40,9 @@
 <script>
   let $ = require("jquery")
   import Vue from "vue"
+  import SlovoAsListItem from "./slovo-as-list-item";
+  import Sidebar from "./sidebar";
+  import Files from "./files.vue";
   import CookieAuth from "./cookie-auth";
 
   import Application from "../Application"
@@ -73,23 +57,21 @@
 //    mixins:[logMixin], выдает ошибку
     data(){
       return {
+          tempSlovo: models.Slovo.getReference(1),
+        sidebar_open: false,
+        sidebar_docked: true,
         logMessage: null,
-        userDoma: [],
         notifier: Notifier.getInstance(),
         grumbler: Grumbler.getInstance(),
-        drawer: false,
-        docked: true,
       }
     },
     props: ["id", "model"],
     watch: {
       "model.user": async function () {
-        this.log.debug("user watcher")
+        this.log.debug("user watcher...")
         if (this.model.user) {
           await this.model.user.joinedLoaded()
-          this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
           await this.model.user.reloadRegistrations()
-          this.setSidebarHeight()
         }
         else {
           this.userDoma = null
@@ -101,18 +83,13 @@
             throw new Error("Неверный тип тела")
           }
           await this.model.body.joinedLoaded()
-          /*
-           if (this.model.section == Application.Section.Main) {
-           let SCROLL_ITEM = this.positions.get(Application.Section.Main).get(this.model.body.constructor.name).get(this.model.body.id)
-           if (SCROLL_ITEM) {
-           let scrollItem = models.RemoteModel.factory(SCROLL_ITEM)
-           await this.$refs.bodyView.setScrollItem(scrollItem)
-           }
-           }*/
         }
       }
     },
     components: {
+      SlovoAsListItem,
+      Files,
+      Sidebar,
       CookieAuth,
       "auth": require('./auth.vue'),
       "grumbler": require('./grumbler.vue'),
@@ -132,10 +109,14 @@
       },
     },
     methods: {
-      setSidebarHeight(){
-        let sidebarHeight = $(window).height() - $(".sidebar").offset().top
-        this.log.debug(sidebarHeight)
-        $(".sidebar > .mu-list").height(sidebarHeight)
+      setupSidebarDocked(){
+        this.log.debug("sidebarr_docked", this.sidebar_docked = $(document.body).width() >= 576)
+      },
+      sidebar_close(){
+        this.sidebar_open = false
+      },
+      appbar_click(){
+        this.sidebar_open = !this.sidebar_open
       },
       async model_restoreScrollItem(){
         setImmediate(() => {
@@ -159,33 +140,12 @@
             break
         }
       },
-      async list_item_click(dom){
-        Application.getInstance().goTo(dom, true)
-        await Promise.resolve()
-        StateManager.getInstance().pushState()
-      },
-      toggle () {
-        this.drawer = !this.drawer
-
-//        StateManager.getInstance().replaceState()
-//        StateManager.getInstance().pushState()
-        Promise.resolve().then(this.setSidebarHeight.bind(this))
-      },
       registration_close(){
         this.model.setSection(Application.Section.Main)
         StateManager.getInstance().pushState()
       },
-      close_click(){
-        this.model.logout()
-      },
       toast_close(){
-
       },
-      verification_click(){
-        this.model.setSection(Application.Section.Verification)
-        StateManager.getInstance().pushState()
-      },
-
       /**
        *
        * @param credentials {email, password, captchaResponse}
@@ -244,11 +204,6 @@
       this.model.on("serviceWorkerMessage", this.model_serviceWorkerMessage.bind(this))
       this.model.on("restoreScrollItem", this.model_restoreScrollItem.bind(this))
 
-      if (this.model.user) {
-        this.userDoma = [await this.model.user.dom.joinedLoaded()].concat(await this.model.user.dom.getParents()).reverse()
-        await this.model.user.reloadRegistrations()
-      }
-
       /*
        * мобильные браузеры отваливаются после сна, даже не выплюнув событие Connection.onclose
        * поэтому тут этот момент проверяется
@@ -269,27 +224,6 @@
           }
         }
       })
-
-      /**
-       * сервис воркер перехватывается сообщение и оно отвечает за перемотки при новых словах и копах
-       */
-      /*
-       await navigator.serviceWorker.ready
-       navigator.serviceWorker.onmessage = (event) => {
-       let kopa,
-       data = event.data
-
-       switch (data.eventType) {
-       case "kopaAdd":
-       case "predlozhenieAdd":
-       $(document.body).stop().animate({scrollTop: 0}, '1000', 'swing')
-       break
-       case "slovoAdd":
-       $(document.body).stop().animate({scrollTop: $(document).height()}, '1000', 'swing')
-       break
-       }
-       }
-       */
     },
     mounted() {
       /**
@@ -298,48 +232,28 @@
        */
       let deb = _.debounce(async (e) => {
         let state = await StateManager.getInstance().replaceState()
-      }, 500, {maxWait:500})
+      }, 500, {maxWait: 500})
 
       window.addEventListener('scroll', (e) => {
         deb(e)
       })
 
-      window.addEventListener('resize', this.setSidebarHeight.bind(this))
+      this.setupSidebarDocked()
+
+      window.addEventListener('resize', this.setupSidebarDocked.bind(this))
     },
     async beforeDestroy(){
-      /**
-       * выгрузить слушатель чтобы не иметь фантомных слушателей после хот-релоада application.vue
-       */
-      if (this.document_visibilitychange) {
-        document.removeEventListener("visibilitychange", this.document_visibilitychange)
-      }
     }
   }
 </script>
 
 <style scoped>
-  .application{
+  .application {
 
-  }
-  .sidebar {
-    /*border-right: solid deepskyblue 1px;*/
-    /*border-color: rgba(100,100,255,0.5);*/
-    /*background: rgba(100,100,255,0.1);*/
   }
 
   .container-under-navbar {
     max-width: 960px;
-  }
-
-  .sidebar > .mu-list {
-    top: 5rem;
-    overflow-y: auto;
-    /*height: 10rem;*/
-    /*border: solid black 1px;*/
-  }
-
-  .title {
-
   }
 </style>
 
@@ -349,21 +263,18 @@
     font-size: 100%;
   }
 
+   .mu-text-field {
+     min-height: auto;
+   }
+
   /*fix muse-ui position:sticky bug at https://github.com/museui/muse-ui/issues/453#issuecomment-298628883*/
   body, html {
     overflow: visible;
     /*background: #d4edda;*/
   }
 
-  .kp-pos-sticky {
-    position: sticky;
-  }
-
-  @media (max-width: 575px) {
-    .mu-item {
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-    }
+  body{
+    overflow-y: scroll;
   }
 
   .mu-text-field-content {
@@ -391,10 +302,6 @@
     color: rgba(0, 0, 0, 0.26);
   }
 
-  ul {
-    margin: 0;
-  }
-
   .bg-none {
     background: none;
   }
@@ -403,17 +310,23 @@
     white-space: pre-wrap;
   }
 
-  a.kp-no-color{
+  a.kp-no-color {
     color: inherit;
   }
 
-  a.kp-no-color :hover{
+  a.kp-no-color :hover {
     color: inherit !important;
   }
 
-  .kp-no-font-size{
+  .kp-no-font-size {
     font-size: inherit;
   }
 
+  .kp-pos-fixed {
+    position: fixed;
+  }
 
+  .kp-pos-sticky {
+    position: sticky;
+  }
 </style>

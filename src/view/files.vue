@@ -1,25 +1,28 @@
 <template>
   <div class="files" :class="{'files-not-empty': model.length}">
-
-    <div v-show="mode == 'editor'" :id="id+'_drop'" fullWidth class="drop">
-      <div :id="id+'_browse'" href="#" class="browse py-2 px-2" @click="" title="Выберите файлы или перенесите их мышкой">
-        <div class="browse--message"><i class="material-icons md-dark md-1em">attachment</i> Выбрать файлы...</div>
-        <ul class="list-group flex-row row">
-          <li v-for="eachFile in model" class="list-group-item border-0 bg-none  col-12 col-md-6 col-xl-4">
-            <file-as-link :model="eachFile">
-              <i class="material-icons md-dark md-1em" @click.stop="remove_click(eachFile)">remove_circle</i>
-            </file-as-link>
-          </li>
-        </ul>
+    <div v-show="mode == 'editor'" ref="drop" :id="id+'_drop'" class="drop">
+      <div class="row mx-0">
+        <div class="col-12">
+          <slot name="welcome">
+            <div class="welcome">
+              <mu-icon value="attachment"/> Выбрать файлы...
+            </div>
+          </slot>
+        </div>
+        <div v-for="eachFile in model" class="col-12">
+          <file-as-link  :model="eachFile">
+            <mu-icon value="remove_circle" color="red" style="cursor: pointer;" @click.stop="remove_click(eachFile)" :size="20"></mu-icon>
+          </file-as-link>
+        </div>
       </div>
     </div>
-    <template v-if="mode != 'editor' ">
-      <ul v-if="model.length" class="list-group flex-row row justify-content-start">
-        <li v-for="eachFile in model" class="list-group-item border-0 bg-none col-12 col-md-6 col-xl-4">
-          <file-as-link :model="eachFile"></file-as-link>
-        </li>
-      </ul>
-    </template>
+    <div v-if="mode != 'editor' ">
+      <div class="row mx-0">
+        <div v-for="eachFile in model" class="col-12 col-sm-6 text-truncate">
+          <file-as-link  :model="eachFile"/>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -38,7 +41,7 @@
   let chunkSize = 25 * 1024 * 1024
 
   export default  {
-//    mixins:[require("./mixin/humanize")],
+    mixins:[require("./mixin/humanize"), require("./mixin/log"), ],
     name: "files",
     components: {
       "file-as-link": require("./file-as-link.vue")
@@ -91,9 +94,7 @@
       }
     },
     async created() {
-      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
-
-//      this.loadModel()
+//        this.loadModel()
     },
     mounted(){
       this.r = new Resumable({
@@ -105,10 +106,9 @@
         }
       })
       if (!this.r.support) {
-        this.log.error("Fatal: ResumableJS not supported!")
+        throw new Error("Fatal: ResumableJS not supported!")
       }
-      else {
-        this.r.assignBrowse(document.getElementById(this.id + '_browse'))
+        this.r.assignBrowse(this.$refs.drop)
 
         /*
          //todo: разобраться почему здесь превент дефолт останавливает вызов диалога файла
@@ -117,7 +117,7 @@
          })
          */
 
-        this.r.assignDrop(document.getElementById(this.id + '_drop'))
+        this.r.assignDrop(this.$refs.drop)
 
         this.r.on('fileAdded', (resumable) => {
           this.log.debug('fileAdded', resumable)
@@ -133,6 +133,8 @@
             file.resumable = resumable
 
             this.model.push(file)
+            return
+
             this.r.upload()
           }
         })
@@ -161,11 +163,10 @@
           this.r.removeFile(resumable)
         })
         this.r.on('fileError', (value, message) => {
-          this.log.debug('fileError', value, message);
+          this.log.error('fileError', value, message);
 
           Grumbler.getInstance().pushError(message)
         })
-      }
     },
     beforeDestroy(){
       this.cancelUpload()

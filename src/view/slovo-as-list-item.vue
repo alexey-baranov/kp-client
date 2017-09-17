@@ -3,33 +3,34 @@
     <template slot="middle">
       <template v-if="userMode !='editor'">
         <div class="text-pre">{{model.value}}</div>
-        <files :id="id+'_attachments'" :model="model.attachments"></files>
+                <!--скрываю v-show чтобы не было лишних маргинов-->
+        <files v-show="model.attachments && model.attachments.length" :id="id+'_attachments'" class="my-2" :model="model.attachments"></files>
       </template>
       <template v-else>
         <mu-text-field ref="model_value" class="my-0" fullWidth multiLine
                        hintText="Ваше слово..." :rows="1" :rowsMax="5"
                        v-model="model.value" @keyup.native.ctrl.enter="save_click"/>
-        <files :id="id+'_attachments'" mode="editor" :model="model.attachments"></files>
+        <files :id="id+'_attachments'" mode="editor" :model="model.attachments" class="my-2"></files>
         <mu-row gutter>
 
           <mu-col width="100" tablet="50">
-            <mu-raised-button fullWidth primary icon="save" :disabled="!model.value" @click="save_click"
-                              label="Сохранить"></mu-raised-button>
+            <mu-raised-button fullWidth primary icon="done" :disabled="!model.value" @click="save_click"
+                              label="Да"></mu-raised-button>
           </mu-col>
           <mu-col width="100" tablet="50">
             <mu-raised-button fullWidth secondary icon="cancel" @click="cancel_click"
-                              label="Отменить"></mu-raised-button>
+                              label="Нет"></mu-raised-button>
           </mu-col>
         </mu-row>
       </template>
     </template>
 
-    <mu-icon-menu v-if="canManage" slot="right" icon="more_vert"
+<!--    <mu-icon-menu v-if="canManage" slot="right" icon="more_vert"
                   :anchorOrigin="{horizontal: 'right', vertical: 'bottom'}"
                   :targetOrigin="{horizontal: 'right', vertical: 'top'}">
-      <mu-menu-item title="Править" icon="edit" :disabled="!canEdit" @click.prevent="edit_click"/>
-      <!--<mu-menu-item title="Удалить" icon="close" :disabled="false" @click.prevent="destroy_click"/>-->
-    </mu-icon-menu>
+      <mu-menu-item title="Поправить" icon="edit" :disabled="!canEdit" @click.prevent="edit_click"/>
+      &lt;!&ndash;<mu-menu-item title="Удалить" icon="close" :disabled="false" @click.prevent="destroy_click"/>&ndash;&gt;
+    </mu-icon-menu>-->
 
   </slovo-as-item-abstract>
 </template>

@@ -1,15 +1,17 @@
 <template>
-  <span class="file-as-link text-nowrap">
-    <slot>
-      <i class="material-icons md-dark md-1em">attachment</i>
-    </slot>
-    <a :href="model.path | download" target="_blank" class="file-as-link" @click.stop="">
+  <span class="file-as-link d-inline-flex flex-nowrap" style="max-width: 100%">
+    <div style="flex: 0 0 auto">
+      <slot>
+          <mu-icon value="attachment" :size="20"/>
+      </slot>
+    </div>
+    <a style="flex: 0 1 auto" class="text-truncate" :href="model.path | download" target="_blank"  @click.stop="">
       {{model.name}} ({{model.size | humanizeDiskSpase }})
     </a>
-
-    <span v-if="!model.id" class="text-nowrap">
-      <i class="material-icons">file_upload</i> {{model.uploadProgress | percents}} %
-    </span>
+    <template v-if="!model.id">
+      <mu-icon value="file_upload" :size="20" color="green"/>
+      <span class="font-weight-bold text-nowrap" style="color:green;">{{model.uploadProgress | percents}} %</span>
+    </template>
     <!--{{model.path}}-->
   </span>
 </template>
@@ -21,6 +23,7 @@
   import StateManager from "../StateManager"
 
   export default  {
+    components: {},
     mixins: [require("./mixin/humanize")],
     name: "kopnik-as-link",
     props: ["id", "model", "target"],

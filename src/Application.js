@@ -177,6 +177,7 @@ export default class Application extends EventEmitter {
   }
 
   async addPushSubscription() {
+    this.log.debug("push subscription session.id", Connection.getInstance().session.id, "subscription", this.pushSubscription)
     await Connection.getInstance().session.call("api:Application.addPushSubscription", [this.pushSubscription])
   }
 

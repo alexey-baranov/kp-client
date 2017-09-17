@@ -1,7 +1,7 @@
 <template>
   <div :id="id" class="slovo-as-list-item-abstract d-flex flex-nowrap align-items-start" style="position: relative;">
-    <kopnik-as-avatar v-if="model.owner" class="mr-2 mt-2" style="min-width:40px;" :model="model.owner"/>
-    <mu-card class="p-3">
+    <kopnik-as-avatar v-if="model.owner" class="mr-2 mt-2" style="flex: 0 0 auto" :model="model.owner"/>
+    <mu-card class="p-3" style="flex: 0 1 auto;overflow: hidden;">
       <kopnik-as-link v-if="model.owner" :model="model.owner" class="d-block font-weight-bold" :style="{marginRight:$slots.right?'2.5em':''}"/>
       <slot name="middle"></slot>
       <div class="" style="position: absolute; top:0; right: 0;">

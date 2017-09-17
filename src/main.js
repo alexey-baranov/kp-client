@@ -9,11 +9,12 @@
 /**
  * прокачка логов
  */
-import log from "log"
+import log from "./log"
 
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import is from "is_js"
 import Vue from 'vue'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
@@ -33,6 +34,11 @@ global.Tether= require('tether')
 global.jQuery= global.$= require('jquery')
 global.Popper= require("popper.js").default
 require ("bootstrap")
+
+if (!is.chrome()){
+  throw new Error("need Chrome browser")
+}
+
 
 Vue.use(MuseUI)
 
