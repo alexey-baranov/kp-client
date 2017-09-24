@@ -1,15 +1,14 @@
 <template>
-  <div class="sign" :id="id" style="white-space: nowrap; overflow: hidden;">
-    <kopnik-as-avatar v-if="!hideAvatar" :model="owner" :target="target"/>
-    <div class="mu-card-header-title pr-0">
-      <div class="mu-card-title">
-        <kopnik-as-link :model="owner" :target="target"></kopnik-as-link>
+  <kopnik-as-avatar v-if="!hideAvatar" :model="owner" :target="target">
+    <div class="pl-2">
+      <div>
+        <kopnik-as-link class="font-weight-bold" :model="owner" :target="target"></kopnik-as-link>
       </div>
-      <div class="mu-card-sub-title">
+      <div class="text-muted">
         {{date | humanize}}
       </div>
     </div>
-  </div>
+  </kopnik-as-avatar>
 </template>
 
 <script>

@@ -133,8 +133,6 @@
             file.resumable = resumable
 
             this.model.push(file)
-            return
-
             this.r.upload()
           }
         })

@@ -1,11 +1,10 @@
 <template>
-  <span class="kopnik-as-link">
-    <a :href="'?body=Kopnik:'+model.id" class="kopnik-as-link kp-no-color" :target="target" @click="a_click">{{model.surname}}
-      {{model.name}} {{model.patronymic}}
+    <a :href="'?body=Kopnik:'+model.id" class="kopnik-as-link" :target="target" @click="a_click">
+      <!--{{model.surname}} {{model.name}} {{model.patronymic}}-->
+      {{model.name}}
       <small v-if="model.voiskoSize">(+{{model.voiskoSize}})</small>
       <slot></slot>
     </a>
-  </span>
 </template>
 
 <script>

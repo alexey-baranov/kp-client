@@ -34,7 +34,4 @@
 </script>
 
 <style scoped>
-  .card-inverse .kopa-as-link {
-    color: rgb(255, 255, 255)
-  }
 </style>

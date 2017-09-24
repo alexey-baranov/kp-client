@@ -4,28 +4,29 @@
       <template v-if="userMode !='editor'">
         <div class="text-pre">{{model.value}}</div>
         <!--скрываю v-show чтобы не было лишних маргинов-->
-        <files v-show="model.attachments && model.attachments.length" :id="id+'_attachments'" class="my-2" :model="model.attachments"></files>
+        <files v-show="model.attachments && model.attachments.length" :id="id+'_attachments'" class="my-2"
+               :model="model.attachments"></files>
         <!--golosa-->
         <div class="my-1 d-flex flex-wrap">
           <div class=" mr-4">
             <!--za-->
             <div class="d-flex flex-nowrap w-100">
               <mu-raised-button primary icon="thumb_up"
-                                :label="zemlaLoaded?(model.totalZa / model.place.place.obshinaSize * 100)+'%':''"
+                                :label="zemlaLoaded?Math_round(model.totalZa / model.place.place.obshinaSize * 100)+'%':''"
                                 :disabled="model.state!=null" style="flex-grow:1;" @click.prevent="za_click"/>
-              <mu-raised-button primary icon="expand_more"title="Показать голосовавших" style="min-width: 3em;"
+              <mu-raised-button primary icon="expand_more" title="Показать голосовавших" style="min-width: 3em;"
                                 @click="showZa_click"/>
             </div>
             <mu-card :id="`${id}_voted_za`" class="collapse p-2 v-show" style="positionX: absolute; z-indexX: 100;">
-                <sign v-for="eachZa of model.za" v-if="eachZa.owner" class="" :owner="eachZa.owner"
-                      :date="eachZa.created"/>
+              <sign v-for="eachZa of model.za" v-if="eachZa.owner" class="" :owner="eachZa.owner"
+                    :date="eachZa.created"/>
             </mu-card>
           </div>
-          <div >
+          <div>
             <!--protiv-->
             <div class="d-flex flex-nowrap w-100">
               <mu-raised-button secondary icon="thumb_down"
-                                :label="zemlaLoaded?(model.totalProtiv / model.place.place.obshinaSize * 100)+'%':''"
+                                :label="zemlaLoaded?Math_round(model.totalProtiv / model.place.place.obshinaSize * 100)+'%':''"
                                 :disabled="model.state!=null" style="flex-grow:1;" @click.prevent="protiv_click"/>
               <mu-raised-button secondary icon="expand_more" title="Показать голосовавших" style="min-width: 3em"
                                 @click="showProtiv_click"/>
@@ -106,6 +107,9 @@
       }
     },
     methods: {
+      Math_round(value){
+        return Math.round(value)
+      },
       showZa_click(){
         document.getElementById(`${this.id}_voted_za`).classList.toggle('show')
       },

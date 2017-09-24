@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline-flex">
+  <div class="kopnik-as-avatar d-flex align-items-center flex-nowrap">
     <mu-avatar>{{model.name?model.name.substring(0,1):""}}</mu-avatar>
     <slot/>
   </div>

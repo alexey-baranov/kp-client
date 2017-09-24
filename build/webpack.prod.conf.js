@@ -80,6 +80,7 @@ var webpackConfig = merge(baseWebpackConfig, {
   ]
 })
 
+
 if (config.build.productionGzip) {
   var CompressionWebpackPlugin = require('compression-webpack-plugin')
 
@@ -102,5 +103,6 @@ if (config.build.bundleAnalyzerReport) {
   var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
   webpackConfig.plugins.push(new BundleAnalyzerPlugin())
 }
+
 
 module.exports = webpackConfig

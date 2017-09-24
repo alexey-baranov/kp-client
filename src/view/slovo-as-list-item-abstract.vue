@@ -2,13 +2,13 @@
   <div :id="id" class="slovo-as-list-item-abstract d-flex flex-nowrap align-items-start" style="position: relative;">
     <kopnik-as-avatar v-if="model.owner" class="mr-2 mt-2" style="flex: 0 0 auto" :model="model.owner"/>
     <mu-card class="p-3" style="flex: 0 1 auto;overflow: hidden;">
-      <kopnik-as-link v-if="model.owner" :model="model.owner" class="d-block font-weight-bold" :style="{marginRight:$slots.right?'2.5em':''}"/>
+      <div class="text-nowrap" :style="{marginRight:$slots.right?'2.5em':''}">
+        <kopnik-as-link v-if="model.owner" :model="model.owner" class="font-weight-bold"/>
+        <span class="kp-small text-muted">{{model.created | humanize}}</span>
+      </div>
       <slot name="middle"></slot>
       <div class="" style="position: absolute; top:0; right: 0;">
         <slot name="right"></slot>
-      </div>
-      <div class="kp-small text-muted">
-        {{model.created | humanize}}
       </div>
     </mu-card>
   </div>

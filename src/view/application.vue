@@ -9,10 +9,9 @@
       <!--<mu-icon-button icon='expand_more' slot="right"/>-->
     </mu-appbar>
     <div class="row no-gutters flex-nowrap container-under-navbar mx-auto">
+      <sidebar v-if="model && model.user && model.section!='registration'" :class="{'col-3':sidebar_docked && sidebar_open}" :application="model" :open="sidebar_open" :docked="sidebar_docked" @close="sidebar_close"></sidebar>
 
-      <sidebar v-if="model" :class="{'col-3':sidebar_docked && sidebar_open}" :application="model" :open="sidebar_open" :docked="sidebar_docked" @close="sidebar_close"></sidebar>
-
-      <div :class="{'col-9': sidebar_docked && sidebar_open, 'col-12':!sidebar_docked || !sidebar_open}" style="flex-grow:1;">
+      <div :class="{'col-9': sidebar_docked && sidebar_open && model.user && model.section!='registration', 'col-12':!sidebar_docked || !sidebar_open || !model.user || model.section=='registration'}" style="flex-grow:1;">
         <div class="container-fluid">
           <div v-if="model.pushSubscription===null" class="alert alert-warning">
             Вы заблокировали оповещения. Все подробности <a
@@ -239,6 +238,9 @@
       })
 
       this.setupSidebarDocked()
+      if (this.sidebar_docked){
+          this.sidebar_open=true
+      }
 
       window.addEventListener('resize', this.setupSidebarDocked.bind(this))
     },
@@ -260,7 +262,11 @@
 <style>
   /*fix muse-ui small fants*/
   html {
-    font-size: 100%;
+    /*font-size: 100%;*/
+    /*
+    андроид хрому все равно на это
+    font-size: 16px;
+    */
   }
 
    .mu-text-field {
@@ -286,8 +292,8 @@
     font-size: 0.8rem;
   }
 
-  .kp-smaller {
-    font-size: 0.8em;
+  .kp-font-size-smaller, .kp-smaller {
+    font-size: smaller;
   }
 
   .material-icons.md-1em {
@@ -318,9 +324,13 @@
     color: inherit !important;
   }
 
+  /**
+   * то так то эдак работает в мобильном хроме
+   * то 16 то 18.4 px дает
   .kp-no-font-size {
     font-size: inherit;
   }
+   */
 
   .kp-pos-fixed {
     position: fixed;

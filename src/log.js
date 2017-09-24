@@ -19,5 +19,6 @@ log.setLevel(log.levels.DEBUG)
 
 // log.getLogger("StateManager").setLevel("info")
 log.getLogger("location.vue").setLevel("info")
+// log.getLogger("scroll.vue").setLevel("info")
 
 export default log;

@@ -1,17 +1,16 @@
 <template>
   <mu-card>
-    <mu-card-header class="d-flex justify-content-between">
-      <sign v-if="model.owner" :owner="model.owner" :date="model.invited"/>
-    </mu-card-header>
-    <mu-card-text class="kp-no-font-size">
-      <a :href="`?body=Kopa:${model.id}`" class="kp-no-color"" @click="question_click">
-      <div class="text-pre ">{{model.question}}</div>
-      </a>
-      <template v-for="eachResult in model.result">
-        <predlozhenie-as-internal-list-item v-if="eachResult.state>0"
-                                            :model="eachResult"></predlozhenie-as-internal-list-item>
-      </template>
-    </mu-card-text>
+    <sign v-if="model.owner" class="p-3" :owner="model.owner" :date="model.invited"/>
+    <!--mu-card-text пришлось забраковать потому что он устававливает малый шрифт
+    а font-size= inherit на сотике через раз не срабатывает
+    -->
+    <div class="p-3">
+      <a :href="`?body=Kopa:${model.id}`" class="kp-no-color d-block text-pre" @click="question_click">{{model.question}}</a>
+    </div>
+    <div class="p-3 kp-font-size-smaller">
+      <predlozhenie-as-internal-list-item v-for="eachResult in model.result" v-if="eachResult.state>0"
+                                          :model="eachResult"/>
+    </div>
   </mu-card>
 </template>
 

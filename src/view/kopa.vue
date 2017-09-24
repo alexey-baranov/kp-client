@@ -2,15 +2,13 @@
   <div :id="id" class="kopa">
     <div class="mb-2" style="margin-leftЧ: -15px; margin-rightЧ: -15px; box-shadow: none">
       <template v-if="userMode =='editor'">
-        <mu-card-header class="d-flex justify-content-between">
-          <sign v-if="model.owner" :owner="model.owner" :invited="model.invited" />
-        </mu-card-header>
-        <mu-card-text>
+        <sign v-if="model.owner" :owner="model.owner" class="py-3" :date="model.invited" />
+        <div class="py-3">
           <mu-text-field ref="model_question" class="my-0" fullWidth multiLine hintText="Вопрос, который нужно обсудить на копе" :rows="1"
                          :rowsMax="5"
                          v-model="model.question" @keyup.native.ctrl.enter="save_click"/>
           <files :id="id+'_files' " ref="attachments" mode="editor" :model="model.attachments"></files>
-        </mu-card-text>
+        </div>
         <mu-card-actions>
           <mu-row gutter>
             <mu-col width="50" tablet="33">
@@ -25,20 +23,21 @@
         </mu-card-actions>
       </template>
       <template v-else>
-        <mu-card-header class="px-0 d-flex justify-content-between">
+        <div class="py-3 d-flex justify-content-between">
           <sign v-if="model.owner" :owner="model.owner" :date="model.invited" />
 
           <mu-icon-menu v-if="canManage" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'bottom'}" :targetOrigin="{horizontal: 'right', vertical: 'top'}">
             <mu-menu-item title="Поправить" icon="edit" :disabled="!canEdit" @click.prevent="edit_click"/>
             <mu-menu-item title="Распустить" icon="close" :disabled="!canDestroy" @click.prevent="destroy_click"/>
           </mu-icon-menu>
-        </mu-card-header>
-        <mu-card-text class="px-0 kp-no-font-size">
-          <div class="text-pre">{{model.question}}</div>
-        </mu-card-text>
-        <mu-card-text v-if="model.attachments && model.attachments.length" class="px-0 kp-no-font-size">
+        </div>
+        <!--mu-card-text пришлось забраковать потому что он устававливает малый шрифт
+а font-size= inherit на сотике через раз не срабатывает
+-->
+        <div class="py-3 text-pre">{{model.question}}</div>
+        <div v-if="model.attachments && model.attachments.length" class="py-4">
           <files :id="id+'_files' " ref="attachments" :model="model.attachments"></files>
-        </mu-card-text>
+        </div>
         <mu-card-actions v-if="!model.invited" class="px-0">
           <mu-raised-button primary fullWidth @click="invite_click" label="Созвать копу"></mu-raised-button>
         </mu-card-actions>
@@ -54,7 +53,7 @@
     <!--Новое слово-->
 
     <div v-if="model.invited && (1 || !editors.length) && userMode !='editor'"
-         class="border-0 px-0 py-0 fixed-bottomx kp-pos-sticky w-100" style="bottom: 0;">
+         class="border-0 px-0 py-0 fixed-bottomx kp-pos-sticky w-100" style="bottom: 0; overflow: auto">
       <slovo-as-submit v-if="starshinaNaKope===null" :id="id+'_slovo_new'" class="w-100"
                        :model="model.newSlovo" @submit="slovo_submit" @predlozhenie="slovo_predlozhenie">
       </slovo-as-submit>

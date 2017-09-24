@@ -89,7 +89,7 @@
        */
       async setupSize(){
         let height = $(window).height() - $(this.$el).offset().top + $(document).scrollTop() - 0
-        this.log.debug("height", height)
+        this.log.debug("window height", $(window).height(), "height", height)
         $(this.$refs.items.$el).height(height)
       },
       close_click(){
@@ -124,6 +124,7 @@
 <style scoped>
   .floating {
     position: fixed;
+    max-width: 15em;
   }
 
   .docked {
