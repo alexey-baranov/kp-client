@@ -1,12 +1,10 @@
 <template>
-  <kopnik-as-avatar v-if="!hideAvatar" :model="owner" :target="target">
-    <div class="pl-2">
-      <div>
-        <kopnik-as-link class="font-weight-bold" :model="owner" :target="target"></kopnik-as-link>
-      </div>
-      <div class="text-muted">
-        {{date | humanize}}
-      </div>
+  <kopnik-as-avatar :model="owner" :target="target">
+    <div>
+      <kopnik-as-link class="font-weight-bold" :model="owner" :target="target"></kopnik-as-link>
+    </div>
+    <div class="text-muted">
+      {{date | humanize}}
     </div>
   </kopnik-as-avatar>
 </template>

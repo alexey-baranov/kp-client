@@ -1,11 +1,11 @@
 <template>
   <div class="kopnik">
-    <kopnik-as-avatar :model="model" class="">
-      <span class="h1 ml-2" slot>
+    <kopnik-as-avatar :model="model">
+      <span class="h1">
         {{model.fullName}}
       </span>
     </kopnik-as-avatar>
-    <div class="my-3">
+    <div class="my-3" >
       E-mail: <a :href="'mailto:'+model.email">{{model.email}}</a>
     </div>
     <div v-if="model.dom" class="dom">

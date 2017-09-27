@@ -2,7 +2,7 @@
   <div :id="id" class="slovo-as-list-item-abstract d-flex flex-nowrap align-items-start" style="position: relative;">
     <kopnik-as-avatar v-if="model.owner" class="mr-2 mt-2" style="flex: 0 0 auto" :model="model.owner"/>
     <mu-card class="p-3" style="flex: 0 1 auto;overflow: hidden;">
-      <div class="text-nowrap" :style="{marginRight:$slots.right?'2.5em':''}">
+      <div class="text-truncate" :style="{marginRight:$slots.right?'2.5em':''}">
         <kopnik-as-link v-if="model.owner" :model="model.owner" class="font-weight-bold"/>
         <span class="kp-small text-muted">{{model.created | humanize}}</span>
       </div>

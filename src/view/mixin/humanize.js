@@ -8,7 +8,12 @@ module.exports= {
   filters: {
     humanize: function (value) {
       if (value instanceof Date) {
-        return value.toLocaleString()
+        let options={year: 'numeric', month: 'short', day: 'numeric', hour:"numeric" , minute:"numeric"}
+        if (new Date().getYear()== value.getYear()){
+          delete options.year
+        }
+
+        return value.toLocaleString("default", options)
       }
       else {
         return value

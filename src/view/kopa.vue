@@ -52,15 +52,14 @@
                             @modeChange="view_modeChange"></slovo-as-list-item>
     <!--Новое слово-->
 
-    <div v-if="model.invited && (1 || !editors.length) && userMode !='editor'"
-         class="border-0 px-0 py-0 fixed-bottomx kp-pos-sticky w-100" style="bottom: 0; overflow: auto">
-      <slovo-as-submit v-if="starshinaNaKope===null" :id="id+'_slovo_new'" class="w-100"
+    <template v-if="model.invited && (1 || !editors.length) && userMode !='editor'">
+      <slovo-as-submit v-if="starshinaNaKope===null" :id="id+'_slovo_new'" class="kp-pos-sticky" style="bottom:0"
                        :model="model.newSlovo" @submit="slovo_submit" @predlozhenie="slovo_predlozhenie">
       </slovo-as-submit>
       <div v-if="starshinaNaKope" class="alert alert-info mb-0">Ваш старшина на копе
         <kopnik-as-link target="_blank" :model="starshinaNaKope"></kopnik-as-link>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 

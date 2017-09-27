@@ -3,15 +3,14 @@
     <grumbler :model="grumbler"></grumbler>
     <mu-toast v-if="notifier.currentNotification" :message="notifier.currentNotification.value" @close="toast_close"/>
 
-    <mu-appbar class="sticky-top"
+    <mu-appbar id="appbar" class="sticky-top"
                :title="'kopnik.org '+ ((!model.user && model.section!='registration')?'Вход':model.header)">
       <mu-icon-button icon='menu' @click="appbar_click()" slot="left"/>
       <!--<mu-icon-button icon='expand_more' slot="right"/>-->
     </mu-appbar>
     <div class="row no-gutters flex-nowrap container-under-navbar mx-auto">
-      <sidebar v-if="model && model.user && model.section!='registration'" :class="{'col-3':sidebar_docked && sidebar_open}" :application="model" :open="sidebar_open" :docked="sidebar_docked" @close="sidebar_close"></sidebar>
-
-      <div :class="{'col-9': sidebar_docked && sidebar_open && model.user && model.section!='registration', 'col-12':!sidebar_docked || !sidebar_open || !model.user || model.section=='registration'}" style="flex-grow:1;">
+      <sidebar v-if="model.user && model.section!='registration'" :application="model" :open="sidebar_open" :docked="false" @close="sidebar_close"></sidebar>
+      <div class="col-12">
         <div class="container-fluid">
           <div v-if="model.pushSubscription===null" class="alert alert-warning">
             Вы заблокировали оповещения. Все подробности <a
@@ -27,7 +26,8 @@
             <div v-if="model.section=='main' && model.body">
               <!--<h1 class="title text-truncate">{{header}}</h1>-->
               <location class="breadcrumb" style="background: none;" :model="model.body" full="true"></location>
-              <component ref="bodyView" v-bind:is="bodyType" :id="id+'_body'" :model="model.body"></component>
+              <!--с overflow=hidden не ааботает sticky-bottom для слова в копе-->
+              <component ref="bodyView" v-bind:is="bodyType" :id="id+'_body'" :model="model.body" class="kp-overflow-hiddenX"></component>
             </div>
           </template>
         </div>
@@ -220,6 +220,7 @@
           }
           catch (err) {
             this.log.info("pingPong after app resume error", err)
+            this.model.cookieAuth= true
           }
         }
       })
@@ -229,8 +230,14 @@
        * решил уйти на хэши
        * такой метод более универсально при передаче ссылки с урстройства на устройства с разными форматами экрана
        */
-      let deb = _.debounce(async (e) => {
-        let state = await StateManager.getInstance().replaceState()
+      let deb = _.debounce((e) => {
+        /**
+         * после выхода происходит непроизвольный скрол на странице ввтоиизации
+         * который провацирутт пустой запись пустого стейта. поэтоуу тут проверочка
+         */
+        if (this.model.user) {
+            let state = StateManager.getInstance().replaceState()
+          }
       }, 500, {maxWait: 500})
 
       window.addEventListener('scroll', (e) => {
@@ -238,10 +245,11 @@
       })
 
       this.setupSidebarDocked()
+/*
       if (this.sidebar_docked){
           this.sidebar_open=true
       }
-
+*/
       window.addEventListener('resize', this.setupSidebarDocked.bind(this))
     },
     async beforeDestroy(){
@@ -277,10 +285,11 @@
   body, html {
     overflow: visible;
     /*background: #d4edda;*/
+    background: rgb(239,239,239);
   }
 
   body{
-    overflow-y: scroll;
+    overflow-y: scroll !important;
   }
 
   .mu-text-field-content {
@@ -338,5 +347,9 @@
 
   .kp-pos-sticky {
     position: sticky;
+  }
+
+  .kp-overflow-hidden{
+    overflow: hidden;
   }
 </style>
