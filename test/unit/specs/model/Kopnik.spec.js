@@ -3,7 +3,12 @@
  */
 "use strict";
 let _ = require("lodash");
-var assert = require('chai').assert;
+let assert = require('chai').assert;
+let expect = require('chai').expect;
+
+require("chai").use(require("chai-as-promised"))
+
+
 let Cookies = require("js-cookie")
 
 import Connection from "../../../../src/Connection"
@@ -20,7 +25,7 @@ let connection = Connection.getUnitTestInstance()
 let anonymousConnection = require("../../../../src/Connection").default.getAnonymousInstance()
 let Cleaner = require("../../../../src/Cleaner")
 
-describe('Kopnik', function () {
+describe.only('Kopnik', function () {
   before(function () {
     models.RemoteModel.clearCache()
     return new Promise(function (res, rej) {
@@ -126,18 +131,19 @@ describe('Kopnik', function () {
      * создаю два копника один старшина другому на втором
      */
     it('should emit voiskoChange twice', function (done) {
-      (async() => {
+
+      (async () => {
         try {
           kopnik2 = await models.Kopnik.get(KOPNIK2);
 
           //3. поймал событие что присоедился самКопник1
-          kopnik2.once(models.Kopnik.event.voiskoChange, async() => {
+          kopnik2.once(models.Kopnik.event.voiskoChange, async () => {
             try {
               assert.equal(kopnik2.voiskoSize, 4, "kopnik2.voiskoSize, 4");
               assert.equal(someKopnik1.starshina, kopnik2, "someKopnik1.starshina, kopnik2");
 
               //4. поймал событие что присоедился самКопник2
-              kopnik2.once(models.Kopnik.event.voiskoChange, async() => {
+              kopnik2.once(models.Kopnik.event.voiskoChange, async () => {
                 try {
                   assert.equal(kopnik2.voiskoSize, 5, "kopnik2.voiskoSize, 5");
                   assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
@@ -179,7 +185,7 @@ describe('Kopnik', function () {
           done(err);
         }
       })()
-    });
+    })
 
     /**
      * перекидываю копника с дружинником на четвертого
@@ -187,7 +193,7 @@ describe('Kopnik', function () {
      * потом прикрепления
      */
     it('should emit voiskoChange down and up, emit starshina changed', function (done) {
-      (async() => {
+      (async () => {
 
         try {
           kopnik4 = await models.Kopnik.get(KOPNIK4);
@@ -196,7 +202,7 @@ describe('Kopnik', function () {
            * потом открепления дружины
            * потом прикрепления,
            */
-          someKopnik2.once(models.Kopnik.event.starshinaChange, async() => {
+          someKopnik2.once(models.Kopnik.event.starshinaChange, async () => {
             try {
               assert.equal(someKopnik2.starshina, someKopnik1, "someKopnik2.starshina, someKopnik1");
               assert.equal(someKopnik1.starshina, kopnik4, "someKopnik1.starshina, kopnik4");
@@ -337,191 +343,6 @@ describe('Kopnik', function () {
     });
   })
 
-  describe("#setStarshina() voting starshina", function () {
-    let starshina1,
-      starshina2,
-      druzhe,
-      predlozhenie1,
-      predlozhenie2,
-      predlozhenie3;
-
-    before(function () {
-      this.timeout(10000);
-      return new Promise(async(res, rej) => {
-        starshina1 = await models.Kopnik.create({
-          email: "unittestQ@domain.ru1" + new Date().getTime(),
-          name: "unit test setStarshina+voting predlozhenie",
-          surname: "starshina1",
-          patronymic: "temp",
-          birth: 1900,
-          passport: "1234",
-          dom: models.Zemla.getReference(1),
-        });
-        starshina2 = await models.Kopnik.create({
-          email: "unittestQ@domain.ru2" + new Date().getTime(),
-          name: "unit test setStarshina+voting predlozhenie",
-          surname: "starshina2",
-          patronymic: "temp",
-          birth: 1900,
-          passport: "1234",
-          dom: models.Zemla.getReference(1),
-        })
-        druzhe = await models.Kopnik.create({
-          email: "unittestQ@domain.rud" + new Date().getTime(),
-          name: "unit test setStarshina+voting predlozhenie",
-          surname: "druzhe",
-          patronymic: "temp",
-          birth: 1900,
-          passport: "1234",
-          dom: models.Zemla.getReference(4),
-        });
-
-        predlozhenie1 = await models.Predlozhenie.create({
-          value: "unit test setStarshina+voting predlozhenie 1",
-          place: models.Kopa.getReference(7),
-          owner: starshina1,
-        });
-        ;
-        predlozhenie1.golosa = []
-        predlozhenie2 = await models.Predlozhenie.create({
-          value: "unit test setStarshina+voting predlozhenie 2",
-          place: models.Kopa.getReference(7),
-          owner: starshina2
-        });
-        predlozhenie2.golosa = []
-        predlozhenie3 = await models.Predlozhenie.create({
-          value: "unit test setStarshina+voting predlozhenie 3",
-          place: models.Kopa.getReference(8),
-          owner: druzhe
-        });
-        predlozhenie3.golosa = [];
-
-        let i = 0
-        predlozhenie1.once(models.Predlozhenie.event.rebalance, () => {
-          if (++i == 3) {
-            console.log("very interesting")
-            res()
-          }
-        })
-        predlozhenie2.once(models.Predlozhenie.event.rebalance, () => {
-          if (++i == 3) {
-            res()
-          }
-        })
-        predlozhenie3.once(models.Predlozhenie.event.rebalance, () => {
-          if (++i == 3) {
-            res();
-          }
-        })
-
-        // predlozhenie4 = await models.Predlozhenie.get(4)
-        await starshina1.vote(predlozhenie1, 1)
-        await druzhe.vote(predlozhenie1, -1)
-
-        await starshina2.vote(predlozhenie2, 1)
-        await druzhe.vote(predlozhenie2, -1)
-
-        await druzhe.vote(predlozhenie3, -1)
-        // await druzhe.vote(predlozhenie4, -1);;
-
-        // predlozhenie4.once(models.Predlozhenie.event.rebalance, () => {
-        //   if (++i == 3) {
-        //     res()
-        //   }
-        // })
-      })
-    })
-
-    /**
-     * выбираю старшиной первого старшину
-     */
-    it('should emit rebalance on new starshina', function (done) {
-      (async() => {
-        try {
-          let i = 0;
-          //2. поймал событие что произошёл ребаланс предложения
-          predlozhenie1.once(models.Predlozhenie.event.rebalance, async() => {
-            try {
-              expect(predlozhenie1.totalZa).equal(2, "predlozhenie1.totalZa")
-              expect(predlozhenie1.golosa.length).equal(1, "predlozhenie1.golosa.length")
-              expect(predlozhenie3.totalZa).equal(1)
-            }
-            catch (err) {
-              done(err)
-            }
-            if (++i == 2) {
-              done();
-            }
-          })
-          //2. поймал событие что произошёл ребаланс предложения
-          predlozhenie2.once(models.Predlozhenie.event.rebalance, async() => {
-            try {
-              expect(predlozhenie2.totalZa).equal(1, "predlozhenie2.totalZa")
-              expect(predlozhenie2.golosa.length).equal(1, "predlozhenie2.golosa.length")
-              expect(predlozhenie3.totalZa).equal(1)
-            }
-            catch (err) {
-              done(err)
-            }
-            if (++i == 2) {
-              done();
-            }
-          })
-
-          //1. выбрал старшиной первого
-          await druzhe.setStarshina(starshina1)
-        }
-        catch (err) {
-          done(err)
-        }
-      })()
-    })
-
-    /**
-     * выбираю старшиной второго старшину
-     */
-    it('should emit rebalance prev starshina', function (done) {
-      (async() => {
-        try {
-          let i = 0;
-          //2. поймал событие что произошёл ребаланс предложения1
-          predlozhenie1.once(models.Predlozhenie.event.rebalance, async() => {
-            try {
-              expect(predlozhenie1.totalZa).equal(1, "predlozhenie1.totalZa")
-              expect(predlozhenie1.golosa.length).equal(1, "predlozhenie1.golosa.length")
-              expect(predlozhenie3.totalZa).equal(1, "predlozhenie3.totalZa")
-              if (++i == 2) {
-                done();
-              }
-            }
-            catch (err) {
-              done(err)
-            }
-          })
-          //3. поймал событие что произошёл ребаланс предложения2
-          predlozhenie2.once(models.Predlozhenie.event.rebalance, async() => {
-            try {
-              expect(predlozhenie2.totalZa).equal(2, "predlozhenie2.totalZa")
-              expect(predlozhenie2.golosa.length).equal(1, "predlozhenie2.golosa.length")
-              expect(predlozhenie3.totalZa).equal(1, "dlozhenie3.totalZa")
-              if (++i == 2) {
-                done();
-              }
-            }
-            catch (err) {
-              done(err)
-            }
-          })
-          //1. выбрал старшиной первого
-          await druzhe.setStarshina(starshina2)
-        }
-        catch (err) {
-          done(err)
-        }
-      })()
-    })
-  })
-
   describe("#vote()", function () {
     let kopnik2,
       somePredlozhenie,
@@ -592,16 +413,201 @@ describe('Kopnik', function () {
     })
   });
 
+  /**
+   * два старшины на первой земле и три предложения
+   * а затем копник с четвертой земли выбирает то одного то другого
+   * третье предложение не подчиняется старшинам
+   */
+  describe("#setStarshina() should emit predlozhenie rebalance", function () {
+    let starshina1,
+      starshina2,
+      druzhe,
+      predlozhenie1,
+      predlozhenie2,
+      predlozhenie3;
+
+    before(function () {
+      this.timeout(10000)
+      return new Promise(async (res, rej) => {
+        starshina1 = await models.Kopnik.create({
+          email: "unittestQ@domain.ru1" + new Date().getTime(),
+          name: "unit test setStarshina+voting predlozhenie",
+          surname: "starshina1",
+          patronymic: "temp",
+          birth: 1900,
+          passport: "1234",
+          dom: models.Zemla.getReference(1),
+        });
+        starshina2 = await models.Kopnik.create({
+          email: "unittestQ@domain.ru2" + new Date().getTime(),
+          name: "unit test setStarshina+voting predlozhenie",
+          surname: "starshina2",
+          patronymic: "temp",
+          birth: 1900,
+          passport: "1234",
+          dom: models.Zemla.getReference(1),
+        })
+        druzhe = await models.Kopnik.create({
+          email: "unittestQ@domain.rud" + new Date().getTime(),
+          name: "unit test setStarshina+voting predlozhenie",
+          surname: "druzhe",
+          patronymic: "temp",
+          birth: 1900,
+          passport: "1234",
+          dom: models.Zemla.getReference(4),
+        });
+
+        predlozhenie1 = await models.Predlozhenie.create({
+          value: "unit test setStarshina+voting predlozhenie 1",
+          place: models.Kopa.getReference(7),
+          owner: starshina1,
+        })
+        predlozhenie1.golosa = []
+        predlozhenie2 = await models.Predlozhenie.create({
+          value: "unit test setStarshina+voting predlozhenie 2",
+          place: models.Kopa.getReference(7),
+          owner: starshina2
+        })
+        predlozhenie2.golosa = []
+        predlozhenie3 = await models.Predlozhenie.create({
+          value: "unit test setStarshina+voting predlozhenie 3",
+          place: models.Kopa.getReference(8),
+          owner: druzhe
+        })
+        predlozhenie3.golosa = []
+
+        let i = 0
+        predlozhenie1.once(models.Predlozhenie.event.rebalance, () => {
+          if (++i == 3) {
+            console.log("very interesting")
+            res()
+          }
+        })
+        predlozhenie2.once(models.Predlozhenie.event.rebalance, () => {
+          if (++i == 3) {
+            res()
+          }
+        })
+        predlozhenie3.once(models.Predlozhenie.event.rebalance, () => {
+          if (predlozhenie3.totalProtiv != 1) {
+            rej(new Error("predlozhenie3.totalProtiv!=1; =" + predlozhenie3.totalProtiv))
+          }
+          if (++i == 3) {
+            res();
+          }
+        })
+
+        // predlozhenie4 = await models.Predlozhenie.get(4)
+        await starshina1.vote(predlozhenie1, 1)
+        await druzhe.vote(predlozhenie1, -1)
+
+        await starshina2.vote(predlozhenie2, 1)
+        await druzhe.vote(predlozhenie2, -1)
+
+        await druzhe.vote(predlozhenie3, -1)
+      })
+    })
+
+    /**
+     * выбираю старшиной первого старшину
+     */
+    it('should emit rebalance after setStarshina', function (done) {
+      (async () => {
+        try {
+          let i = 0;
+          //2. поймал событие что произошёл ребаланс предложения
+          predlozhenie1.once(models.Predlozhenie.event.rebalance, async () => {
+            try {
+              expect(predlozhenie1.totalZa).equal(2, "predlozhenie1.totalZa")
+              expect(predlozhenie1.golosa.length).equal(1, "predlozhenie1.golosa.length")
+              expect(predlozhenie3.totalProtiv).equal(1, "predlozhenie3.totalProtiv")
+            }
+            catch (err) {
+              done(err)
+            }
+            if (++i == 2) {
+              done();
+            }
+          })
+          //2. поймал событие что произошёл ребаланс предложения
+          predlozhenie2.once(models.Predlozhenie.event.rebalance, async () => {
+            try {
+              expect(predlozhenie2.totalZa).equal(1, "predlozhenie2.totalZa")
+              expect(predlozhenie2.golosa.length).equal(1, "predlozhenie2.golosa.length")
+              expect(predlozhenie3.totalProtiv).equal(1, "predlozhenie3.totalProtiv")
+            }
+            catch (err) {
+              done(err)
+            }
+            if (++i == 2) {
+              done();
+            }
+          })
+
+          //1. выбрал старшиной первого
+          await druzhe.setStarshina(starshina1)
+        }
+        catch (err) {
+          done(err)
+        }
+      })()
+    })
+
+    /**
+     * выбираю старшиной второго старшину
+     */
+    it('should emit rebalance prev starshina', function (done) {
+      (async () => {
+        try {
+          let i = 0;
+          //2. поймал событие что произошёл ребаланс предложения1
+          predlozhenie1.once(models.Predlozhenie.event.rebalance, async () => {
+            try {
+              expect(predlozhenie1.totalZa).equal(1, "predlozhenie1.totalZa")
+              expect(predlozhenie1.golosa.length).equal(1, "predlozhenie1.golosa.length")
+              expect(predlozhenie3.totalProtiv).equal(1, "predlozhenie3.totalProtiv")
+              if (++i == 2) {
+                done();
+              }
+            }
+            catch (err) {
+              done(err)
+            }
+          })
+          //3. поймал событие что произошёл ребаланс предложения2
+          predlozhenie2.once(models.Predlozhenie.event.rebalance, async () => {
+            try {
+              expect(predlozhenie2.totalZa).equal(2, "predlozhenie2.totalZa")
+              expect(predlozhenie2.golosa.length).equal(1, "predlozhenie2.golosa.length")
+              expect(predlozhenie3.totalProtiv).equal(1, "dlozhenie3.totalProtiv")
+              if (++i == 2) {
+                done();
+              }
+            }
+            catch (err) {
+              done(err)
+            }
+          })
+          //1. выбрал старшиной первого
+          await druzhe.setStarshina(starshina2)
+        }
+        catch (err) {
+          done(err)
+        }
+      })()
+    })
+  })
+
   describe("#verifyRegistration()", function () {
     this.timeout(5000);
     it('should verify', function (done) {
-      (async() => {
+      (async () => {
         try {
           let kopnik2 = await models.Kopnik.get(2);
           kopnik2.registrations = []
 
           //2. копник поймал что ему пришла регистрация
-          kopnik2.once(models.Kopnik.event.registrationAdd, async(sender, localRegistration) => {
+          kopnik2.once(models.Kopnik.event.registrationAdd, async (sender, localRegistration) => {
             try {
               //4. регистрация поймала что ее заверили
               localRegistration.once(models.RemoteModel.event.change, function () {
@@ -643,13 +649,13 @@ describe('Kopnik', function () {
     })
 
     it('should reject', function (done) {
-      (async() => {
+      (async () => {
         try {
           let kopnik2 = await models.Kopnik.get(2);
           kopnik2.registrations = []
 
           //2. копник поймал что ему пришла регистрация
-          kopnik2.once(models.Kopnik.event.registrationAdd, async(sender, localRegistration) => {
+          kopnik2.once(models.Kopnik.event.registrationAdd, async (sender, localRegistration) => {
             try {
               //4. регистрация поймала что ее заверили
               localRegistration.once(models.RemoteModel.event.change, function () {
@@ -705,10 +711,8 @@ describe('Kopnik', function () {
       expect(kopnik2.registrations[0]).instanceof(models.Registration)
     })
 
-    it('should load unferified registrations', async function () {
+    it('shounpm install --no-optionalld load unferified registrations', async function () {
       expect(kopnik2.registrations[0].state).equals(0);
     })
   })
-
-
 })

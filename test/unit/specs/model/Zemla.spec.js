@@ -248,7 +248,7 @@ describe('Zemla', function () {
       assert.equal(result[1].id, 1, "result[1].id, 1")
     })
 
-    it.only("should load after self kopa until Kopa:4", async function () {
+    it("should load after self kopa until Kopa:4", async function () {
       zemla.kopi=undefined
       await zemla.loadKopi(1)
       result = await zemla.loadKopi(null, models.Kopa.getReference(4))
