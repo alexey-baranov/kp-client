@@ -1,12 +1,19 @@
 /**
  * Created by alexey2baranov on 09.02.17.
  */
+let Remarkable= require("remarkable")
 
 let _ = require("lodash")
 
 module.exports= {
+  methods:{
+    markdown(value){
+      let md = new Remarkable({linkify: true})
+      return md.render(value)
+    }
+  },
   filters: {
-    humanize: function (value) {
+    humanize(value) {
       if (value instanceof Date) {
         let options={year: 'numeric', month: 'short', day: 'numeric', hour:"numeric" , minute:"numeric"}
         if (new Date().getYear()== value.getYear()){

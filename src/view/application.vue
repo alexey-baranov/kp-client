@@ -352,4 +352,13 @@
   .kp-overflow-hidden{
     overflow: hidden;
   }
+
+  .kp-markdown img{
+    max-width: 80%;
+    max-height: 15em;
+  }
+
+  .kp-markdown > p:last-child{
+    margin-bottom: 0;
+  }
 </style>

@@ -56,17 +56,22 @@ module.exports = {
       let result,
         resultOffset = Infinity,
         screenOffset = global.pageYOffset,//$(document).scrollTop(),
+        appbarHeight= $("#appbar").height()
 
         isScrolled = false
 
       for (let eachItemView of itemViews) {
         let eachItemViewOffset = $(eachItemView.$el).offset().top
 
-        if (eachItemViewOffset <= screenOffset) {
+        /**
+         * -1 это другими словами означает что
+         * вплотную подошел - тоже считается за скролл
+         */
+        if (eachItemViewOffset-1 <= screenOffset + appbarHeight) {
           isScrolled = true
         }
 
-        if (screenOffset < eachItemViewOffset && eachItemViewOffset < resultOffset) {
+        if (screenOffset + appbarHeight < eachItemViewOffset && eachItemViewOffset < resultOffset) {
           result = eachItemView.model
           resultOffset = eachItemViewOffset
         }
@@ -90,12 +95,17 @@ module.exports = {
       }
       else {
         await this.waitUntilScrollReady(value)
-        let itemViews = await this.getScrollItemViews()
+        let itemViews = await this.getScrollItemViews(),
+          appbarHeight= $("#appbar").height()
         valueView = itemViews.find(eachView => eachView.model == value)
         if (valueView) {
-          let offset = $(valueView.$el).offset().top - 1
+          let offset = $(valueView.$el).offset().top - appbarHeight- 1
           this.log.debug("scroll item", value, "scroll offset", offset)
           $(document).scrollTop(offset)
+        }
+        else{
+          this.log.warn("scroll item", value, "value view not found. Scroll to top")
+          $(document).scrollTop(0)
         }
       }
     },

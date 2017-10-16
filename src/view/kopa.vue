@@ -1,6 +1,6 @@
 <template>
   <div :id="id" class="kopa">
-    <div class="mb-2" style="margin-leftЧ: -15px; margin-rightЧ: -15px; box-shadow: none">
+    <div class="mu-card p-3 mb-4" style="">
       <template v-if="userMode =='editor'">
         <sign v-if="model.owner" :owner="model.owner" class="py-3" :date="model.invited" />
         <div class="py-3">
@@ -34,8 +34,8 @@
         <!--mu-card-text пришлось забраковать потому что он устававливает малый шрифт
 а font-size= inherit на сотике через раз не срабатывает
 -->
-        <div class="py-3 text-pre">{{model.question}}</div>
-        <div v-if="model.attachments && model.attachments.length" class="py-4">
+        <div class="py-3 kp-markdown" style="overflow-x: hidden;" v-html="modelMarkdownQuestion"></div>
+        <div v-if="model.attachments && model.attachments.length" class="py-3">
           <files :id="id+'_files' " ref="attachments" :model="model.attachments"></files>
         </div>
         <mu-card-actions v-if="!model.invited" class="px-0">
@@ -64,19 +64,22 @@
 </template>
 
 <script>
+  import {Converter} from "showdown"
+
   import $ from "jquery"
   import mobile from "is-mobile"
   //  import Rx from 'rxjs/Rx';
 
   import Application from "../Application"
   let log = require("loglevel").getLogger("kopa.vue")
+  import humanize from "./mixin/humanize"
   import logMixin from "./mixin/log"
-  const models = require("../model");
+
+  const models = require("../model")
   import StateManager from "../StateManager"
 
   export default{
-//    mixins:[logMixin],
-    mixins: [require("./mixin/humanize"), require("./mixin/scroll")],
+    mixins:[logMixin, humanize, require("./mixin/scroll")],
     name: "kopa",
     data() {
       return {
@@ -122,6 +125,10 @@
       }
     },
     computed: {
+      modelMarkdownQuestion(){
+        let converter= new Converter({simplifiedAutoLink: true, simpleLineBreaks: true})
+        return converter.makeHtml(this.model.question)
+      },
       userMode(){
         return this.localMode || this.mode
       },
@@ -349,7 +356,6 @@
       },
     },
     async created() {
-      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
       this.bindedHoldBottom = this.holdBottom.bind(this)
       Application.getInstance().user.on(models.Kopnik.event.starshinaChange, this.user_starshinaChange = async () => {
         this.starshinaNaKope = await Application.getInstance().user.getStarshinaNaKope(this.model)

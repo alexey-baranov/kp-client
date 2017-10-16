@@ -2,7 +2,7 @@
   <slovo-as-item-abstract :id="id" :model="model">
     <template slot="middle">
       <template v-if="userMode !='editor'">
-        <div class="text-pre">{{model.value}}</div>
+        <div class="text-preX kp-markdown" style="overflow-x: hidden;" v-html="modelMarkdownValue"></div>
                 <!--скрываю v-show чтобы не было лишних маргинов-->
         <files v-show="model.attachments && model.attachments.length" :id="id+'_attachments'" class="my-2" :model="model.attachments"></files>
       </template>
@@ -36,12 +36,15 @@
 </template>
 
 <script>
+  import {Converter} from "showdown"
+
   import Application from "../Application"
   import logMixin from "./mixin/log"
+  import humanize from "./mixin/humanize"
   let models = require("../model")
 
   export default  {
-//    mixins:[logMixin],
+    mixins:[logMixin, humanize],
     name: "slovo-as-list-item",
     data() {
       return {
@@ -57,7 +60,11 @@
       "files": require("./files.vue"),
       "slovo-as-item-abstract": require("./slovo-as-list-item-abstract.vue"),
     },
-    computed: {
+    computed:{
+      modelMarkdownValue(){
+        let converter= new Converter({simplifiedAutoLink: true, simpleLineBreaks: true})
+        return converter.makeHtml(this.model.value)
+      },
       userMode(){
         return this.localMode || this.mode
       },
@@ -87,7 +94,6 @@
       },
     },
     created: async function () {
-      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
       if (this.model.id) {
         await this.model.joinedLoaded();
       }
@@ -95,6 +101,9 @@
   }
 </script>
 
+<style>
+
+</style>
 <style scoped>
   .slovo-as-list-item {
 

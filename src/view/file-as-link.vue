@@ -25,7 +25,7 @@
   export default  {
     components: {},
     mixins: [require("./mixin/humanize")],
-    name: "kopnik-as-link",
+    name: "file-as-link",
     props: ["id", "model", "target"],
     filters: {
       /**

@@ -95,13 +95,21 @@
       },
 
       starshina_click: async function () {
-        if (Application.getInstance().user.starshina == this.model) {
-          await Application.getInstance().user.setStarshina(null);
-        }
-        else {
-          await Application.getInstance().user.setStarshina(this.model)
+          try {
+            if (Application.getInstance().user.starshina == this.model) {
+              await Application.getInstance().user.setStarshina(null);
+            }
+            else {
+              await Application.getInstance().user.setStarshina(this.model)
 //            .catch(err=>Grumbler.getInstance().pushError(err))
-        }
+            }
+          }
+            /**
+             * хз почему Grumbler не перехватывает unhandledrejection тут
+             */
+          catch(err){
+              Grumbler.getInstance().pushError(err)
+          }
       }
     }
   }

@@ -7,7 +7,7 @@
     <div class="p-3">
       <a :href="`?body=Kopa:${model.id}`" class="kp-no-color d-block text-pre" @click="question_click">{{model.question}}</a>
     </div>
-    <div class="p-3 kp-font-size-smaller">
+    <div v-if="model.result && model.result.length" class="p-3 kp-font-size-smaller">
       <predlozhenie-as-internal-list-item v-for="eachResult in model.result" v-if="eachResult.state>0"
                                           :model="eachResult"/>
     </div>

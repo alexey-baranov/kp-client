@@ -1,19 +1,19 @@
 <template>
-  <slovo-as-item-abstract :id="id" :model="model">
+  <slovo-as-item-abstract :id="id" class="predlozhenie-as-list-item" :model="model">
     <template slot="middle">
       <template v-if="userMode !='editor'">
-        <div class="text-pre">{{model.value}}</div>
+        <div style="overflow-x: hidden;"  v-html="modelMarkdownValue"></div>
         <!--скрываю v-show чтобы не было лишних маргинов-->
         <files v-show="model.attachments && model.attachments.length" :id="id+'_attachments'" class="my-2"
                :model="model.attachments"></files>
         <!--golosa-->
-        <div class="my-1 d-flex flex-wrap">
-          <div class=" mr-4">
-            <!--za-->
+        <div class="row mt-1">
+          <!--za-->
+          <div class="col-12 col-sm-6">
             <div class="d-flex flex-nowrap w-100">
               <mu-raised-button primary icon="thumb_up"
                                 :label="zemlaLoaded?Math_round(model.totalZa / model.place.place.obshinaSize * 100)+'%':''"
-                                :disabled="model.state!=null" style="flex-grow:1;" @click.prevent="za_click"/>
+                                :disabled="model.state!=null || ($parent && $parent.starshinaNaKope!==null)" style="flex-grow:1;" @click.prevent="za_click"/>
               <mu-raised-button primary icon="expand_more" title="Показать голосовавших" style="min-width: 3em;"
                                 @click="showZa_click"/>
             </div>
@@ -22,12 +22,13 @@
                     :date="eachZa.created"/>
             </mu-card>
           </div>
-          <div>
-            <!--protiv-->
+          <div class="vertical-separator w-100 mb-3 d-sm-none"></div>
+          <!--protiv-->
+          <div class="col-12 col-sm-6">
             <div class="d-flex flex-nowrap w-100">
               <mu-raised-button secondary icon="thumb_down"
                                 :label="zemlaLoaded?Math_round(model.totalProtiv / model.place.place.obshinaSize * 100)+'%':''"
-                                :disabled="model.state!=null" style="flex-grow:1;" @click.prevent="protiv_click"/>
+                                :disabled="model.state!=null || ($parent && $parent.starshinaNaKope!==null)" style="flex-grow:1;" @click.prevent="protiv_click"/>
               <mu-raised-button secondary icon="expand_more" title="Показать голосовавших" style="min-width: 3em"
                                 @click="showProtiv_click"/>
             </div>
@@ -46,7 +47,6 @@
                        v-model="model.value" @keyup.native.ctrl.enter="save_click"/>
         <files :id="id+'_attachments'" mode="editor" class="my-2" :model="model.attachments"></files>
         <mu-row gutter>
-
           <mu-col width="100" tablet="50" desktop="33">
             <mu-raised-button fullWidth primary icon="done" :disabled="!model.value" @click="save_click"
                               label="Да"></mu-raised-button>
@@ -68,14 +68,16 @@
 </template>
 
 <script>
+  import {Converter} from "showdown"
+
   import Application from "../Application"
+  import humanize from "./mixin/humanize"
   import logMixin from "./mixin/log"
   import kopnikAsLink from "./kopnik-as-link.vue"
   let models = require("../model")
 
   export default  {
-//    mixins:[logMixin],
-    mixins: [require("./mixin/humanize")],
+    mixins:[logMixin, humanize],
     name: "predlozhenie-as-list-item",
     data() {
       return {
@@ -93,6 +95,10 @@
       kopnikAsLink
     },
     computed: {
+      modelMarkdownValue(){
+        let converter= new Converter({simplifiedAutoLink: true, simpleLineBreaks: true})
+        return converter.makeHtml(this.model.value)
+      },
       userMode(){
         return this.localMode || this.mode
       },
@@ -166,8 +172,6 @@
       }
     },
     created: async function () {
-      this.log = require("loglevel").getLogger(this.$options.name + ".vue")
-
       if (this.model.id) {
         await this.model.joinedLoaded();
         await this.model.place.joinedLoaded();
@@ -180,8 +184,20 @@
     },
   }
 </script>
+<style>
+  /**
+  на sm+ экранах карта предложения минимум 75%
+   чтобы вместить две горизонтальные кнопки
+   */
+  @media (min-width: 576px) {
+    .predlozhenie-as-list-item .slovo-as-list-item-abstract--card{
+      min-width: 500px;
+    }
+  }
 
+</style>
 <style scoped>
+
   .slovo-as-list-item-abstract {
 
   }

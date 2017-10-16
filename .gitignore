@@ -7,3 +7,4 @@
 /.crossbar/node.pid
 /.crossbar/cookies.dat
 /dist/
+/hierarchy-data-closure-table/
