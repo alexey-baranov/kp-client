@@ -2,6 +2,7 @@
  * Created by alexey2baranov on 07.02.17.
  */
 import config from "../../../cfg/main"
+import Notifier from "../../Notifier"
 import logMixin from "./log"
 
 export default {
