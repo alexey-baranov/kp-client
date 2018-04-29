@@ -91,6 +91,8 @@ application.on("connectionClose", (err) => {
   }
 })
 
+application.cookieAuth = false
+/* никуда не заходим потому что Кроссбар маст дай!!
 application.authAsPromise()
   .then(user=>{
     log.getLogger("main.js").info("cookie auth")
@@ -98,10 +100,10 @@ application.authAsPromise()
   err=>{
     if (err instanceof AuthenticationError) {
       log.getLogger("main.js").info("cookie auth fails")
-      /**
+      /!**
        * ошибку первого входа не надо показывать потому что это автовход по кукам,
        *  там нет было ни имени пользователя, ни пароля, ни капчи
-       */
+       *!/
       Grumbler.getInstance().removeError(err)
     }
     else {
@@ -109,6 +111,7 @@ application.authAsPromise()
       // throw err
     }
   })
+*/
 
 if (0) {
   /**

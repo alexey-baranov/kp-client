@@ -12,7 +12,7 @@
       <sidebar v-if="model.user && model.section!='registration'" :application="model" :open="sidebar_open" :docked="false" @close="sidebar_close"></sidebar>
       <div class="col-12">
         <div class="container-fluid">
-          <div v-if="model.pushSubscription===null" class="alert alert-warning">
+          <div v-if="0 || model.pushSubscription===null" class="alert alert-warning">
             Вы заблокировали оповещения. Все подробности <a
             href="https://www.youtube.com/watch?v=Zo77aWoW_vc&index=4&list=PL8t968Ip0ARlvJj1gAUQCjPNzOORGIMTR">здесь</a>
           </div>
